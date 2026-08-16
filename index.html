@@ -2288,6 +2288,23 @@ html,body{
 .employee-resume-box{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 12px;padding:10px 12px;border:1px solid #e2c66f;border-radius:9px;background:#fff8df}
 #employeePinLoginInput{font-size:18px!important;letter-spacing:2px!important;text-align:center!important}
 </style>
+
+<style>
+/* ===== ĐỒNG BỘ ONLINE NGỌC TRAI MANAGER ===== */
+.sync-status{
+  display:inline-flex;align-items:center;gap:6px;
+  min-width:118px;justify-content:center;
+  font-weight:800;
+}
+.sync-status.online{background:#eaf7f0;color:#176847;border-color:#9fcfba}
+.sync-status.syncing{background:#fff7df;color:#7a5700;border-color:#e2c466}
+.sync-status.offline{background:#fdeaea;color:#a32c2c;border-color:#e8b4b4}
+.sync-status.local{background:#eef3f6;color:#526873;border-color:#ccd8de}
+@media(max-width:760px){
+  .sync-status{min-width:104px;font-size:12px;padding:7px 8px}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -2330,6 +2347,7 @@ html,body{
       </div>
     </div>
     <div class="actions">
+      <button id="syncStatusBtn" class="btn sync-status local" onclick="openSyncSetup()" title="Bấm để kiểm tra hoặc đổi mã đồng bộ">☁ Chưa đồng bộ</button>
       <button id="roleBtn" class="btn role-btn employee" onclick="toggleManagerRole()">🔒 Nhân viên</button>
       <button id="resetDemoBtn" class="btn" onclick="secureResetDemo()">Khôi phục mẫu</button>
     </div>
@@ -2837,18 +2855,207 @@ async function idbClear(){
     tx.onerror=()=>{const e=tx.error||new Error('Không xóa được dữ liệu');idb.close();reject(e)};
   });
 }
+
+/* ===== SUPABASE ONLINE SYNC V1 =====
+   Mục tiêu: tất cả thiết bị dùng chung một trạng thái dữ liệu.
+   Mã đồng bộ không được ghi cứng trong file; mỗi thiết bị nhập một lần.
+*/
+const SYNC_URL="https://upojgdqkkjwtbrzljffo.supabase.co";
+const SYNC_PUBLISHABLE_KEY="sb_publishable_6b_dKKWTQr64yptqlcSPPA_Ww7achl0";
+const SYNC_PIN_STORAGE='ngoc_trai_manager_sync_pin_v1';
+let syncPin='';
+let syncRevision=-1;
+let syncBusy=false;
+let syncApplyingRemote=false;
+let syncPollTimer=null;
+
+function syncStatus(label,state='local'){
+  const b=document.getElementById('syncStatusBtn');
+  if(!b)return;
+  b.textContent=label;
+  b.classList.remove('online','syncing','offline','local');
+  b.classList.add(state);
+}
+
+async function syncRpc(name,payload){
+  const res=await fetch(`${SYNC_URL}/rest/v1/rpc/${name}`,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':SYNC_PUBLISHABLE_KEY,
+      'Authorization':'Bearer '+SYNC_PUBLISHABLE_KEY
+    },
+    body:JSON.stringify(payload||{})
+  });
+  const raw=await res.text();
+  let data=null;
+  try{data=raw?JSON.parse(raw):null}catch(e){data=raw}
+  if(!res.ok){
+    const msg=(data && (data.message||data.error_description||data.hint)) || raw || ('HTTP '+res.status);
+    const err=new Error(msg);
+    err.status=res.status;
+    throw err;
+  }
+  return data;
+}
+
+function loadSavedSyncPin(){
+  try{return localStorage.getItem(SYNC_PIN_STORAGE)||''}catch(e){return ''}
+}
+function storeSyncPin(pin){
+  try{localStorage.setItem(SYNC_PIN_STORAGE,pin)}catch(e){}
+}
+function clearSyncPin(){
+  syncPin='';
+  try{localStorage.removeItem(SYNC_PIN_STORAGE)}catch(e){}
+}
+
+function requestSyncPin(){
+  const current=loadSavedSyncPin();
+  if(current)return current;
+  const pin=prompt('Nhập MÃ ĐỒNG BỘ NGỌC TRAI để dùng chung dữ liệu giữa các máy:','');
+  if(!pin)return '';
+  const v=String(pin).trim();
+  if(!/^\d{6,12}$/.test(v)){
+    alert('Mã đồng bộ phải gồm 6 đến 12 chữ số.');
+    return '';
+  }
+  storeSyncPin(v);
+  return v;
+}
+
+async function remoteGetState(){
+  if(!syncPin)throw new Error('Chưa có mã đồng bộ');
+  return await syncRpc('ngoc_trai_get_state',{p_pin:syncPin});
+}
+async function remoteSaveState(value){
+  if(!syncPin)throw new Error('Chưa có mã đồng bộ');
+  return await syncRpc('ngoc_trai_save_state',{p_pin:syncPin,p_data:value});
+}
+
+async function syncBootstrap(){
+  syncPin=requestSyncPin();
+  if(!syncPin){
+    syncStatus('☁ Chạy cục bộ','local');
+    return false;
+  }
+  syncStatus('↻ Đang kết nối','syncing');
+  try{
+    const remote=await remoteGetState();
+    const remoteData=remote?.data||{};
+    syncRevision=Number(remote?.revision||0);
+    if(remoteData && Object.keys(remoteData).length){
+      db=remoteData;
+      normalizeDB();
+      ensureSecuritySettings();
+      syncApplyingRemote=true;
+      try{await idbWrite(db)}finally{syncApplyingRemote=false}
+    }else{
+      const saved=await remoteSaveState(db);
+      syncRevision=Number(saved?.revision||syncRevision);
+    }
+    syncStatus('☁ Online','online');
+    return true;
+  }catch(err){
+    console.error('Không kết nối được đồng bộ:',err);
+    clearSyncPin();
+    syncStatus('⚠ Mã/ mạng lỗi','offline');
+    alert('Chưa kết nối được dữ liệu online. Kiểm tra Mã đồng bộ hoặc Internet.\n\n'+(err?.message||err));
+    return false;
+  }
+}
+
+async function syncPoll(){
+  if(syncBusy || !syncPin || document.hidden)return;
+  syncBusy=true;
+  try{
+    const remote=await remoteGetState();
+    const rev=Number(remote?.revision||0);
+    if(rev>syncRevision && remote?.data && Object.keys(remote.data).length){
+      syncRevision=rev;
+      db=remote.data;
+      normalizeDB();
+      ensureSecuritySettings();
+      syncApplyingRemote=true;
+      try{await idbWrite(db)}finally{syncApplyingRemote=false}
+      if(typeof renderAll==='function')renderAll();
+      if(typeof applyPermissions==='function')applyPermissions();
+      syncStatus('☁ Online','online');
+    }
+  }catch(err){
+    console.warn('Tạm mất đồng bộ:',err);
+    syncStatus('⚠ Mất kết nối','offline');
+  }finally{
+    syncBusy=false;
+  }
+}
+
+function startSyncPolling(){
+  if(syncPollTimer)clearInterval(syncPollTimer);
+  syncPollTimer=setInterval(syncPoll,2500);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncPoll();});
+}
+
+async function openSyncSetup(){
+  const old=loadSavedSyncPin();
+  const pin=prompt('Mã đồng bộ thiết bị (6–12 chữ số):',old);
+  if(pin===null)return;
+  const v=String(pin).trim();
+  if(!/^\d{6,12}$/.test(v))return alert('Mã đồng bộ phải gồm 6 đến 12 chữ số.');
+  syncPin=v;
+  storeSyncPin(v);
+  syncStatus('↻ Đang kiểm tra','syncing');
+  try{
+    const remote=await remoteGetState();
+    syncRevision=Number(remote?.revision||0);
+    if(remote?.data && Object.keys(remote.data).length){
+      db=remote.data;
+      normalizeDB();
+      ensureSecuritySettings();
+      syncApplyingRemote=true;
+      try{await idbWrite(db)}finally{syncApplyingRemote=false}
+      renderAll();
+      applyPermissions();
+    }else{
+      const saved=await remoteSaveState(db);
+      syncRevision=Number(saved?.revision||syncRevision);
+    }
+    syncStatus('☁ Online','online');
+    toast('Đã kết nối dữ liệu online');
+  }catch(err){
+    clearSyncPin();
+    syncStatus('⚠ Mã/ mạng lỗi','offline');
+    alert('Không kết nối được. Kiểm tra mã đồng bộ.\n\n'+(err?.message||err));
+  }
+}
+
 async function saveDB(){
   try{
     await idbWrite(db);
-    /* Xóa bản localStorage cũ sau khi đã lưu an toàn vào IndexedDB,
-       giúp giải phóng lỗi quota mà vẫn giữ nguyên dữ liệu. */
     try{ localStorage.removeItem(KEY); }catch(e){}
-    return true;
   }catch(err){
-    console.error('Lỗi lưu hệ thống:',err);
-    alert('Không lưu được dữ liệu trên hệ thống: '+(err?.message||err));
+    console.error('Lỗi lưu cục bộ:',err);
+    alert('Không lưu được dữ liệu trên máy: '+(err?.message||err));
     return false;
   }
+
+  if(syncApplyingRemote)return true;
+
+  if(syncPin){
+    syncStatus('↻ Đang đồng bộ','syncing');
+    try{
+      const saved=await remoteSaveState(db);
+      syncRevision=Number(saved?.revision||syncRevision);
+      syncStatus('☁ Online','online');
+    }catch(err){
+      console.error('Lỗi đồng bộ online:',err);
+      syncStatus('⚠ Chưa đồng bộ','offline');
+      /* Dữ liệu vẫn còn an toàn trong IndexedDB, hệ thống sẽ thử lại khi có thao tác/poll tiếp theo. */
+    }
+  }else{
+    syncStatus('☁ Chạy cục bộ','local');
+  }
+  return true;
 }
 function toast(t){$('toast').textContent=t;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',1700)}
 async function seed(force=false){
@@ -8109,10 +8316,18 @@ async function init(){
  await seed();
  normalizeDB();
  ensureSecuritySettings();
- await saveDB();
+
+ /* Ưu tiên dữ liệu online. Nếu server chưa có dữ liệu thì lấy dữ liệu hiện có trên máy làm bản đầu tiên. */
+ await syncBootstrap();
+
+ normalizeDB();
+ ensureSecuritySettings();
+ try{await idbWrite(db)}catch(e){console.warn('Không lưu cache cục bộ:',e)}
+
  isManager=false;
  await initUI();
  applyPermissions();
+ startSyncPolling();
 }
 init().catch(err=>{
  console.error(err);
