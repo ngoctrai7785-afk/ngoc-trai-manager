@@ -1,8 +1,17 @@
 <!doctype html>
 <html lang="vi">
 <head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#123b5d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ngọc Trai Manager">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ngọc Trai Manager - Liên kết Nhập/Xuất/Kho/Công nợ</title>
 <style>
 :root{
@@ -2287,6 +2296,15 @@ html,body{
 
 .employee-resume-box{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 12px;padding:10px 12px;border:1px solid #e2c66f;border-radius:9px;background:#fff8df}
 #employeePinLoginInput{font-size:18px!important;letter-spacing:2px!important;text-align:center!important}
+
+/* ===== TỔNG QUAN NHÂN VIÊN - PHIẾU XUẤT GẦN ĐÂY ===== */
+.recent-invoice-link{color:#0b6674;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.recent-invoice-link:hover{color:#073b47}
+.recent-out-note{font-size:11.5px;color:#6f7f8c;margin:-4px 0 8px}
+.customer-debt-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.recent-limit-setting{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#607688}
+.recent-limit-setting select{width:82px;padding:6px 7px}
+
 </style>
 
 <style>
@@ -2305,30 +2323,1323 @@ html,body{
 }
 </style>
 
+
+<style>
+/* ===== MOBILE UI V2 - NGỌC TRAI MANAGER ===== */
+.mobile-menu-btn{
+  display:none;
+}
+.mobile-overlay{
+  display:none;
+}
+@media(max-width:760px){
+  :root{--sidebar-fixed-width:0px!important}
+  html,body{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:hidden!important;
+    background:#f5f8fa!important;
+  }
+  body{font-size:14px!important}
+
+  /* Menu trái thành drawer */
+  .sidebar{
+    position:fixed!important;
+    left:-286px!important;
+    top:0!important;
+    bottom:0!important;
+    width:274px!important;
+    height:100vh!important;
+    z-index:5000!important;
+    transition:left .22s ease!important;
+    padding:12px 10px!important;
+    overflow-y:auto!important;
+    box-shadow:8px 0 28px rgba(0,0,0,.22)!important;
+  }
+  body.mobile-menu-open .sidebar{left:0!important}
+
+  .mobile-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(10,25,35,.48);
+    z-index:4990;
+  }
+  body.mobile-menu-open .mobile-overlay{display:block}
+
+  .sidebar .nav{
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding-bottom:30px!important;
+  }
+  .sidebar .nav button{
+    min-height:44px!important;
+    margin-bottom:3px!important;
+  }
+  .sidebar .nav button .nav-label{font-size:14px!important}
+
+  /* Nội dung dùng toàn màn hình */
+  .main{
+    margin-left:0!important;
+    width:100%!important;
+    min-width:0!important;
+    padding:8px!important;
+  }
+
+  /* Topbar điện thoại */
+  .topbar{
+    position:sticky!important;
+    top:0!important;
+    z-index:1200!important;
+    display:grid!important;
+    grid-template-columns:42px minmax(0,1fr)!important;
+    gap:7px!important;
+    align-items:center!important;
+    padding:7px 8px!important;
+    margin:-8px -8px 8px!important;
+    background:rgba(255,255,255,.96)!important;
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid #dce5e9!important;
+    box-shadow:0 3px 12px rgba(20,55,70,.08)!important;
+  }
+  .mobile-menu-btn{
+    display:flex!important;
+    width:42px!important;
+    height:42px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border:1px solid #cad8de!important;
+    border-radius:10px!important;
+    background:#fff!important;
+    color:#17324d!important;
+    font-size:22px!important;
+    padding:0!important;
+  }
+  .topbar>div:first-of-type{
+    min-width:0!important;
+  }
+  #pageTitle{
+    font-size:18px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    margin:0!important;
+  }
+  .topbar .small,.topbar .muted{
+    font-size:10.5px!important;
+  }
+  .topbar .actions{
+    grid-column:1/-1!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:6px!important;
+    width:100%!important;
+  }
+  .topbar .actions .btn,
+  .topbar .actions button{
+    min-height:38px!important;
+    width:100%!important;
+    padding:7px 8px!important;
+    font-size:12px!important;
+    white-space:nowrap!important;
+  }
+  .sync-status{min-width:0!important}
+
+  /* Thẻ */
+  .card{
+    border-radius:12px!important;
+    padding:10px!important;
+    margin-bottom:9px!important;
+    box-shadow:0 4px 14px rgba(15,55,70,.06)!important;
+  }
+  .cards,.stats,.dashboard-grid,.summary-grid{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+  }
+
+  /* Form điện thoại */
+  .form-grid,
+  .grid2,
+  .grid3,
+  .grid4,
+  .employee-day-editor-summary,
+  .employee-self-detail-summary{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+  }
+  input,select,textarea{
+    min-height:42px!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+    font-size:16px!important; /* tránh iPhone tự zoom */
+  }
+  textarea{min-height:84px!important}
+  label{font-size:12px!important;margin-bottom:4px!important}
+  .modal-actions{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:7px!important;
+  }
+  .modal-actions .btn{
+    flex:1 1 130px!important;
+    min-height:42px!important;
+  }
+
+  /* Modal */
+  .modal{
+    padding:8px!important;
+    align-items:flex-end!important;
+  }
+  .modal-box{
+    width:100%!important;
+    max-width:none!important;
+    max-height:91vh!important;
+    overflow:auto!important;
+    border-radius:16px 16px 8px 8px!important;
+    padding:13px!important;
+  }
+
+  /* Bảng luôn cuộn ngang an toàn */
+  .table-wrap,
+  #warehouseTable,
+  #employeeList,
+  #stockinHistoryTable,
+  #stockoutHistoryTable{
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    width:100%!important;
+  }
+  table{
+    min-width:720px!important;
+    font-size:12px!important;
+  }
+  th,td{
+    padding:7px 6px!important;
+    white-space:nowrap;
+  }
+
+  /* Riêng danh sách đơn/khách/hàng hóa cho phép tên xuống dòng */
+  td:nth-child(2), td:nth-child(3){
+    white-space:normal;
+  }
+
+  /* Phiếu nhập/xuất */
+  #stockin .paper,#stockout .paper{
+    padding:9px!important;
+    border-radius:10px!important;
+  }
+  #stockin .invoice-table,#stockout .invoice-table{
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .invoice-preview-overlay{
+    padding:6px!important;
+  }
+  .invoice-preview-shell{
+    width:100%!important;
+    border-radius:12px!important;
+  }
+
+  /* Thanh lọc */
+  .warehouse-filterbar,
+  .filterbar,
+  .report-filterbar{
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+  }
+  .warehouse-product-picker{max-width:none!important}
+
+  /* Nút thao tác dễ bấm bằng ngón tay */
+  .btn,button{
+    min-height:38px;
+  }
+  .employee-row-actions{
+    flex-wrap:wrap!important;
+  }
+
+  /* Dashboard gọn */
+  .stat .value,.metric .value{
+    font-size:20px!important;
+  }
+}
+
+@media(min-width:761px) and (max-width:1024px){
+  :root{--sidebar-fixed-width:205px!important}
+  .main{padding:10px!important}
+  .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+</style>
+
+
+<style>
+/* ===== FIX CÔNG NỢ DESKTOP ===== */
+#debts .grid.two{
+  grid-template-columns:minmax(0,0.88fr) minmax(0,1.12fr)!important;
+  gap:10px!important;
+  width:100%!important;
+}
+#debts #customerDebtCard,
+#debts #supplierDebtCard{
+  min-width:0!important;
+  width:100%!important;
+  overflow:hidden!important;
+}
+#debts .table-wrap{
+  width:100%!important;
+  max-width:100%!important;
+  overflow-x:auto!important;
+}
+#debts table{
+  width:100%!important;
+  min-width:0!important;
+  table-layout:auto!important;
+}
+#debts th,
+#debts td{
+  padding:7px 8px!important;
+}
+#debts th:last-child,
+#debts td:last-child{
+  width:130px!important;
+  white-space:nowrap!important;
+}
+@media(max-width:1000px){
+  #debts .grid.two{grid-template-columns:1fr!important}
+}
+</style>
+
+
+<style>
+@media(max-width:900px){
+  #whMoveFrom,#whMoveTo,#whMoveType{width:100%}
+}
+</style>
+
+
+<style>
+/* ===== IN BILL 80MM ===== */
+.bill-preview-overlay{
+  position:fixed;inset:0;background:rgba(10,25,35,.55);
+  display:none;align-items:flex-start;justify-content:center;
+  padding:18px;z-index:500;overflow:auto;
+}
+.bill-preview-overlay.show{display:flex}
+.bill-preview-shell{
+  width:min(430px,96vw);
+  background:#f3f6f8;
+  border-radius:14px;
+  box-shadow:0 18px 50px rgba(0,0,0,.28);
+  overflow:hidden;
+}
+.bill-preview-toolbar{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;padding:10px 12px;background:#fff;border-bottom:1px solid #d9e2e7;
+  position:sticky;top:0;z-index:2;
+}
+.bill-preview-toolbar .right{display:flex;gap:8px}
+.bill-preview-paper{
+  width:80mm;
+  margin:16px auto;
+  background:#fff;
+  padding:5mm 4mm;
+  box-shadow:0 6px 24px rgba(0,0,0,.12);
+  font-family:Arial,Helvetica,sans-serif;
+  color:#111;
+  font-size:12px;
+  line-height:1.35;
+}
+.bill-preview-paper .bill-center{text-align:center}
+.bill-preview-paper .bill-title{font-size:17px;font-weight:800;margin:2px 0}
+.bill-preview-paper .bill-muted{font-size:11px}
+.bill-preview-paper .bill-rule{border-top:1px dashed #333;margin:7px 0}
+.bill-preview-paper .bill-info{margin:2px 0}
+.bill-preview-paper table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:0!important;
+  font-size:11.5px;
+}
+.bill-preview-paper th,
+.bill-preview-paper td{
+  padding:3px 1px;
+  border:0;
+  vertical-align:top;
+}
+.bill-preview-paper th{
+  border-bottom:1px solid #222;
+  text-align:left;
+  background:#fff;
+}
+.bill-preview-paper .r{text-align:right}
+.bill-preview-paper .c{text-align:center}
+.bill-preview-paper .bill-total{
+  display:flex;justify-content:space-between;gap:10px;
+  padding:2px 0;
+}
+.bill-preview-paper .bill-total.grand{
+  font-size:14px;font-weight:800;
+}
+.bill-preview-paper .bill-footer{
+  text-align:center;
+  margin-top:10px;
+  font-size:11px;
+}
+
+@media print{
+  body.print-bill-mode > *{display:none!important}
+  body.print-bill-mode #billPreview{
+    display:block!important;
+    position:static!important;
+    inset:auto!important;
+    padding:0!important;
+    background:#fff!important;
+    overflow:visible!important;
+  }
+  body.print-bill-mode #billPreview .bill-preview-shell{
+    display:block!important;
+    width:80mm!important;
+    max-width:80mm!important;
+    margin:0 auto!important;
+    padding:0!important;
+    background:#fff!important;
+    box-shadow:none!important;
+    border-radius:0!important;
+    overflow:visible!important;
+  }
+  body.print-bill-mode #billPreview .bill-preview-toolbar{display:none!important}
+  body.print-bill-mode #billPreviewPaper{
+    display:block!important;
+    width:80mm!important;
+    max-width:80mm!important;
+    min-height:auto!important;
+    margin:0!important;
+    padding:3mm 3mm!important;
+    box-shadow:none!important;
+    background:#fff!important;
+  }
+  @page{
+    size:80mm auto;
+    margin:0;
+  }
+}
+</style>
+
+
+<style>
+.bill-preview-paper .bill-items-table{
+  table-layout:fixed!important;
+}
+.bill-preview-paper .bill-items-table th:nth-child(1),
+.bill-preview-paper .bill-items-table td:nth-child(1){
+  width:52%!important;
+  white-space:normal!important;
+  word-break:break-word!important;
+}
+.bill-preview-paper .bill-items-table th:nth-child(2),
+.bill-preview-paper .bill-items-table td:nth-child(2){
+  width:22%!important;
+  white-space:nowrap!important;
+}
+.bill-preview-paper .bill-items-table th:nth-child(3),
+.bill-preview-paper .bill-items-table td:nth-child(3){
+  width:26%!important;
+  white-space:nowrap!important;
+}
+</style>
+
+
+<style>
+/* ===== CHI PHÍ DẠNG LỊCH ===== */
+.expense-calendar-toolbar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;margin-bottom:12px;
+}
+.expense-calendar-nav{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.expense-calendar-nav input[type="month"]{width:155px;height:38px}
+.expense-calendar-summary{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px;
+}
+.expense-calendar-summary>div{
+  background:#f7fafb;border:1px solid #dfe7eb;border-radius:10px;padding:10px 12px;
+}
+.expense-calendar-summary span{display:block;font-size:11.5px;color:#6b7e88}
+.expense-calendar-summary b{display:block;margin-top:3px;font-size:17px;color:#17324d}
+.expense-calendar-grid{
+  display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+  border:1px solid #dfe7eb;border-radius:12px;overflow:hidden;background:#fff;
+}
+.expense-cal-head{
+  background:#f2f6f8;padding:8px 5px;text-align:center;font-size:11.5px;font-weight:800;
+  color:#586f7d;border-right:1px solid #e4ebef;
+}
+.expense-cal-head:nth-child(7){border-right:0}
+.expense-cal-day{
+  min-height:100px;padding:7px;border-top:1px solid #e7edf0;border-right:1px solid #e7edf0;
+  background:#fff;cursor:pointer;position:relative;
+}
+.expense-cal-day:nth-child(7n){border-right:0}
+.expense-cal-day.blank{background:#fafcfd;cursor:default}
+.expense-cal-day:hover:not(.blank){background:#f3f9f7}
+.expense-cal-day.today{box-shadow:inset 0 0 0 2px #2f806e}
+.expense-cal-day.has-expense{background:#fbfdfc}
+.expense-cal-date{font-size:12px;font-weight:800;color:#4c6270}
+.expense-cal-total{margin-top:9px;font-weight:800;color:#176847;font-size:13px}
+.expense-cal-count{font-size:10.5px;color:#73848e;margin-top:2px}
+.expense-cal-private{font-size:10px;color:#996219;margin-top:3px}
+.expense-day-list{max-height:50vh;overflow:auto;border:1px solid #e2e9ed;border-radius:9px}
+.expense-day-row{
+  display:grid;grid-template-columns:140px 1fr 130px auto;gap:8px;align-items:center;
+  padding:9px 10px;border-top:1px solid #edf2f4;
+}
+.expense-day-row:first-child{border-top:0}
+.expense-day-row .amount{text-align:right;font-weight:800}
+.expense-person{font-size:11px;color:#71828d;margin-top:2px}
+.expense-calendar-help{font-size:11.5px;color:#667a85;margin:6px 0 10px}
+
+@media(max-width:900px){
+  .expense-cal-day{min-height:82px;padding:5px}
+  .expense-cal-total{font-size:11px}
+  .expense-calendar-summary{grid-template-columns:1fr 1fr 1fr}
+}
+@media(max-width:680px){
+  .expense-calendar-grid{min-width:700px}
+  .expense-calendar-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .expense-day-row{grid-template-columns:1fr}
+  .expense-day-row .amount{text-align:left}
+  .expense-calendar-summary{grid-template-columns:1fr}
+}
+</style>
+
+
+<style>
+/* ===== THANH TOÁN ===== */
+.payment-tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.payment-tab.active{background:#176b59;color:#fff;border-color:#176b59}
+.payment-box{border:1px solid #dfe7eb;border-radius:12px;padding:14px;background:#fff}
+.payment-customer-grid{display:grid;grid-template-columns:minmax(240px,1.4fr) minmax(180px,.8fr) minmax(180px,.8fr) auto;gap:9px;align-items:end}
+.payment-debt-box{background:#f6faf8;border:1px solid #dce9e4;border-radius:10px;padding:9px 11px}
+.payment-debt-box span{display:block;font-size:11px;color:#6c7e86}
+.payment-debt-box b{display:block;font-size:18px;color:#b24836;margin-top:2px}
+.payment-history-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:15px}
+.payment-edit-badge{font-size:10px;color:#6e7f88}
+.btn.bill80{background:#d97706!important;border-color:#d97706!important;color:#fff!important}
+.btn.bill80:hover{filter:brightness(.95)}
+@media(max-width:900px){.payment-customer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.payment-customer-grid{grid-template-columns:1fr}}
+</style>
+
+
+<style>
+#nav .nav-divider{height:1px;background:rgba(255,255,255,.16);margin:7px 10px}
+#kpis.cards{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+#kpis .kpi{min-width:0;padding:11px 12px}
+#kpis .kpi .label{font-size:11.5px}
+#kpis .kpi .value{font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#kpis .kpi .hint{font-size:10.5px}
+@media(max-width:1100px){
+  #kpis.cards{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:760px){
+  #kpis.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+</style>
+
+
+<style>
+@media (min-width:700px) and (max-width:1100px){
+  #payments input,#payments select,#payments button{min-height:44px}
+  #payments .payment-customer-grid{gap:12px}
+  #payments .payment-debt-box{min-height:44px}
+}
+</style>
+
+
+<style>
+@media (min-width:700px) and (max-width:1100px){
+  input[type="search"],
+  input[id*="Search"],
+  input[id*="search"],
+  input[list]{
+    min-height:44px!important;
+    font-size:16px!important;
+  }
+}
+</style>
+
+
+<style>
+.staff-module-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin-top:10px;
+}
+.staff-module-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  border:1px solid #dfe7eb;
+  border-radius:10px;
+  background:#f9fbfc;
+  font-size:13px;
+  color:#17324d;
+}
+.staff-module-row input{
+  width:20px;
+  height:20px;
+  accent-color:#176b59;
+}
+@media(max-width:760px){
+  .staff-module-grid{grid-template-columns:1fr}
+}
+</style>
+
+
+<style>
+/* Kho hàng thay cho menu Tồn kho: thêm cột Giá bán */
+#warehouseTable th:nth-child(1),#warehouseTable td:nth-child(1){width:80px}
+#warehouseTable th:nth-child(2),#warehouseTable td:nth-child(2){width:auto}
+#warehouseTable th:nth-child(3),#warehouseTable td:nth-child(3){width:105px}
+#warehouseTable th:nth-child(4),#warehouseTable td:nth-child(4){width:60px}
+#warehouseTable th:nth-child(5),#warehouseTable td:nth-child(5){width:115px;text-align:right!important}
+#warehouseTable th:nth-child(6),#warehouseTable td:nth-child(6){width:85px;text-align:center!important}
+#warehouseTable th:nth-child(7),#warehouseTable td:nth-child(7){width:85px;text-align:center!important}
+#warehouseTable th:nth-child(8),#warehouseTable td:nth-child(8){width:95px;text-align:center!important}
+#warehouseTable th:nth-child(9),#warehouseTable td:nth-child(9){width:75px;text-align:center!important}
+</style>
+
+
+<style>
+/* ===== BẢNG DỮ LIỆU: GIỮ TIÊU ĐỀ, CHỈ CUỘN DÒNG ===== */
+.table-wrap{
+  overflow:auto!important;
+  max-height:62vh;
+  position:relative;
+  -webkit-overflow-scrolling:touch;
+}
+.table-wrap table{
+  border-collapse:separate!important;
+  border-spacing:0!important;
+}
+.table-wrap thead th{
+  position:sticky!important;
+  top:0!important;
+  z-index:5!important;
+  background:#f3f6f8!important;
+  box-shadow:0 1px 0 #d9e2e7;
+}
+.table-wrap thead th:first-child{z-index:6!important}
+
+/* Kho hàng: căn cột rõ ràng */
+#warehouseTable .table-wrap{
+  max-height:64vh;
+}
+#warehouseTable table{
+  width:100%!important;
+  table-layout:fixed!important;
+}
+#warehouseTable th,
+#warehouseTable td{
+  vertical-align:middle!important;
+  padding:8px 7px!important;
+}
+#warehouseTable th:nth-child(1),#warehouseTable td:nth-child(1){width:88px!important;text-align:center!important}
+#warehouseTable th:nth-child(2),#warehouseTable td:nth-child(2){width:auto!important;text-align:left!important}
+#warehouseTable th:nth-child(3),#warehouseTable td:nth-child(3){width:115px!important;text-align:left!important}
+#warehouseTable th:nth-child(4),#warehouseTable td:nth-child(4){width:65px!important;text-align:center!important}
+#warehouseTable th:nth-child(5),#warehouseTable td:nth-child(5){width:120px!important;text-align:right!important}
+#warehouseTable th:nth-child(6),#warehouseTable td:nth-child(6){width:92px!important;text-align:center!important}
+#warehouseTable th:nth-child(7),#warehouseTable td:nth-child(7){width:92px!important;text-align:center!important}
+#warehouseTable th:nth-child(8),#warehouseTable td:nth-child(8){width:105px!important;text-align:center!important}
+#warehouseTable th:nth-child(9),#warehouseTable td:nth-child(9){width:82px!important;text-align:center!important}
+
+/* Các danh sách chính cũng giữ hàng tiêu đề khi cuộn */
+#customersTable .table-wrap,
+#suppliersTable .table-wrap,
+#warrantyTable .table-wrap,
+#customerDebtTable .table-wrap,
+#supplierDebtTable .table-wrap,
+#customerPaymentHistory .table-wrap,
+#supplierPaymentHistory .table-wrap,
+#expenseEntryTable .table-wrap,
+#employeeList .table-wrap,
+#employeeSelfList .table-wrap{
+  max-height:60vh;
+}
+
+/* Trên tablet giảm chiều cao để dễ thao tác */
+@media(max-width:1100px){
+  .table-wrap{max-height:58vh}
+  #warehouseTable .table-wrap{max-height:60vh}
+}
+</style>
+
+
+<style>
+.warehouse-print-controls,.archive-grid{
+  display:grid;
+  grid-template-columns:minmax(220px,320px) auto;
+  gap:10px;
+  align-items:end;
+  margin:10px 0 12px;
+}
+.archive-grid{grid-template-columns:minmax(180px,240px) minmax(240px,1fr) auto}
+.archive-warning{
+  padding:10px 12px;
+  border:1px solid #ead9b7;
+  background:#fffaf0;
+  border-radius:10px;
+  font-size:12px;
+  color:#70551d;
+}
+@media(max-width:760px){
+  .warehouse-print-controls,.archive-grid{grid-template-columns:1fr}
+}
+</style>
+
+
+<style>
+.warehouse-manage-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:0 0 10px;
+}@media(max-width:760px){
+  .warehouse-manage-actions .btn{flex:1 1 160px}
+}
+</style>
+
+
+<style>
+/* ===== HÀNG HÓA & KHO: THANH CÔNG CỤ GỌN ===== */
+.warehouse-compactbar{
+  display:grid;
+  grid-template-columns:minmax(280px,1.6fr) 150px 155px auto auto auto;
+  gap:7px;
+  align-items:center;
+  margin-bottom:10px;
+}
+.warehouse-compactbar .warehouse-product-picker{
+  max-width:none!important;
+}
+.warehouse-compactbar select,
+.warehouse-compactbar .btn{
+  height:38px;
+  min-height:38px;
+}
+.warehouse-compactbar .btn{
+  padding:7px 10px;
+  white-space:nowrap;
+}
+.warehouse-print-btn{
+  min-width:62px!important;
+  padding:7px 9px!important;
+}
+@media(max-width:1180px){
+  .warehouse-compactbar{
+    grid-template-columns:minmax(260px,1fr) 135px 140px auto auto auto;
+    gap:6px;
+  }
+  .warehouse-compactbar .btn{font-size:11.5px;padding:7px 8px}
+}
+@media(max-width:900px){
+  .warehouse-compactbar{
+    grid-template-columns:1fr 1fr 1fr;
+  }
+  .warehouse-compactbar .warehouse-product-picker{
+    grid-column:1 / -1;
+  }
+}
+@media(max-width:620px){
+  .warehouse-compactbar{
+    grid-template-columns:1fr 1fr;
+  }
+  .warehouse-compactbar .warehouse-product-picker{
+    grid-column:1 / -1;
+  }
+}
+</style>
+
+
+<style>
+/* ===== V42 HÀNG HÓA & KHO ===== */
+.warehouse-compactbar{
+  display:grid!important;
+  grid-template-columns:minmax(300px,1fr) minmax(170px,220px) auto auto auto!important;
+  gap:7px!important;
+  align-items:center!important;
+  margin-bottom:8px!important;
+}
+.warehouse-view-control{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  height:38px;
+}
+.warehouse-view-label{
+  font-size:12px;
+  font-weight:800;
+  color:#52636d;
+  white-space:nowrap;
+}
+.warehouse-view-control select{
+  height:38px!important;
+  min-height:38px!important;
+  flex:1;
+}
+.warehouse-compactbar .btn{
+  height:38px!important;
+  min-height:38px!important;
+  padding:6px 10px!important;
+  white-space:nowrap;
+}
+.warehouse-print-btn{
+  min-width:58px!important;
+  padding:6px 8px!important;
+}
+.warehouse-summary-row{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  min-height:28px;
+  margin-bottom:6px;
+}
+.warehouse-stock-card{
+  padding:0!important;
+  overflow:hidden;
+}
+#warehouseTable{
+  display:block!important;
+  width:100%!important;
+  min-height:80px;
+}
+#warehouseTable .table-wrap{
+  display:block!important;
+  max-height:64vh!important;
+  overflow:auto!important;
+}
+#warehouseTable table{
+  width:100%!important;
+}
+@media(max-width:1100px){
+  .warehouse-compactbar{
+    grid-template-columns:minmax(260px,1fr) minmax(150px,190px) auto auto auto!important;
+  }
+  .warehouse-compactbar .btn{font-size:11px!important;padding:6px 7px!important}
+}
+@media(max-width:900px){
+  .warehouse-compactbar{
+    grid-template-columns:1fr 1fr!important;
+  }
+  .warehouse-product-picker{grid-column:1 / -1}
+  .warehouse-view-control{grid-column:1 / -1}
+}
+</style>
+
+
+<style>
+/* ===== BẢO HÀNH NHIỀU SẢN PHẨM ===== */
+.warranty-receive-head{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+.warranty-product-add{
+  display:grid;
+  grid-template-columns:minmax(260px,1fr) 90px minmax(220px,1fr) auto;
+  gap:8px;
+  align-items:end;
+  margin-top:10px;
+  padding:10px;
+  border:1px solid #dfe7eb;
+  border-radius:10px;
+  background:#f8fbfc;
+}
+.warranty-product-picker{
+  position:relative;
+}
+.warranty-product-picker input{
+  width:100%;
+  padding-right:38px!important;
+}
+.warranty-product-drop{
+  position:absolute;right:1px;top:1px;bottom:1px;width:36px;
+  border:0;border-left:1px solid #d5e0e6;background:#f7fafb;
+  border-radius:0 7px 7px 0;cursor:pointer;font-weight:800;
+}
+.warranty-product-list{
+  display:none;position:absolute;left:0;right:0;top:40px;z-index:150;
+  max-height:260px;overflow:auto;background:#fff;border:1px solid #cdd9df;
+  border-radius:9px;box-shadow:0 10px 28px rgba(25,55,70,.16);
+}
+.warranty-product-list.show{display:block}
+.warranty-product-item{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;
+  padding:8px 10px;border-top:1px solid #edf2f4;cursor:pointer;
+}
+.warranty-product-item:first-child{border-top:0}
+.warranty-product-item:hover,.warranty-product-item.active{background:#eef6f7}
+.warranty-product-item .name{font-weight:750}
+.warranty-product-item .meta{font-size:11px;color:#73838d;margin-top:2px}
+.warranty-added-wrap{margin-top:10px}
+.warranty-added-wrap .table-wrap{max-height:240px}
+.warranty-return-info{
+  padding:10px 12px;border:1px solid #ead8b0;background:#fffaf0;
+  border-radius:10px;margin-bottom:10px;font-size:12px;
+}
+.warranty-action-stack{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.btn.return-goods{background:#8b5cf6;color:#fff;border-color:#8b5cf6}
+@media(max-width:900px){
+  .warranty-product-add{grid-template-columns:1fr 90px}
+  .warranty-product-add .warranty-issue-cell{grid-column:1 / -1}
+}
+@media(max-width:620px){
+  .warranty-receive-head,.warranty-product-add{grid-template-columns:1fr}
+}
+</style>
+
+
+<style id="v50-responsive">
+/* =========================================================
+   V50 RESPONSIVE — PHONE + TABLET DỌC + TABLET NGANG
+   Không thay đổi dữ liệu/luồng nghiệp vụ
+   ========================================================= */
+
+/* ----- Thiết lập chung cho cảm ứng ----- */
+button,.btn,input,select,textarea{touch-action:manipulation}
+.table-wrap{overscroll-behavior:contain}
+.page{min-width:0}
+.main{min-width:0}
+.card{min-width:0}
+img{max-width:100%;height:auto}
+
+/* =========================================================
+   TABLET NGANG: 901–1200px
+   Giữ menu trái nhưng thu gọn, nội dung ưu tiên chiều rộng
+   ========================================================= */
+@media (min-width:901px) and (max-width:1200px){
+  .sidebar{
+    width:190px!important;
+    padding:10px 8px!important;
+  }
+  .brand b{font-size:16px!important}
+  .brand small{font-size:10.5px!important}
+  .nav button{
+    min-height:39px!important;
+    padding:7px 8px!important;
+    font-size:12px!important;
+  }
+  .nav-ico{width:28px!important}
+  .main{
+    margin-left:190px!important;
+    width:calc(100% - 190px)!important;
+    padding:10px!important;
+  }
+  .topbar{
+    position:sticky!important;
+    top:0!important;
+    z-index:1100!important;
+    padding:8px 10px!important;
+    background:rgba(255,255,255,.96)!important;
+    backdrop-filter:blur(8px);
+  }
+  #pageTitle{font-size:20px!important}
+  .topbar .actions .btn{min-height:38px!important;padding:7px 9px!important}
+  #kpis.cards{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  #kpis .kpi{padding:9px 10px!important}
+  #kpis .kpi .value{font-size:17px!important}
+  .grid.two{grid-template-columns:minmax(0,1.5fr) minmax(260px,.8fr)!important}
+  .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .table-wrap{
+    max-width:100%!important;
+    overflow:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  table{font-size:11.5px!important}
+  th,td{padding:7px 6px!important}
+  #stockin .paper,#stockout .paper{padding:10px!important}
+  #stockin .invoice-table,#stockout .invoice-table{
+    display:block!important;
+    overflow-x:auto!important;
+    white-space:nowrap;
+  }
+  #stockin .invoice-table{min-width:1030px}
+  #stockout .invoice-table{min-width:960px}
+  .warehouse-compactbar{
+    grid-template-columns:minmax(230px,1fr) minmax(150px,180px) auto auto auto!important;
+    gap:6px!important;
+  }
+  .warehouse-compactbar .btn{font-size:11px!important;padding:6px 7px!important}
+  .stockin-history-panel{
+    grid-template-columns:auto minmax(220px,1fr)!important;
+    gap:7px!important;
+  }
+  .payment-customer-grid{grid-template-columns:minmax(220px,1fr) minmax(180px,.8fr) minmax(190px,.8fr) auto!important}
+  .warranty-product-add{grid-template-columns:minmax(220px,1fr) 75px minmax(180px,1fr) auto!important}
+}
+
+/* =========================================================
+   TABLET DỌC: 768–900px
+   Menu dạng drawer, nội dung toàn màn hình
+   ========================================================= */
+@media (min-width:768px) and (max-width:900px){
+  html,body{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:hidden!important;
+  }
+  .sidebar{
+    position:fixed!important;
+    left:-292px!important;
+    top:0!important;
+    bottom:0!important;
+    width:280px!important;
+    height:100vh!important;
+    z-index:5000!important;
+    transition:left .22s ease!important;
+    overflow-y:auto!important;
+    padding:12px 10px!important;
+    box-shadow:8px 0 30px rgba(0,0,0,.22)!important;
+  }
+  body.mobile-menu-open .sidebar{left:0!important}
+  .mobile-overlay{
+    position:fixed!important;
+    inset:0!important;
+    background:rgba(10,25,35,.45)!important;
+    z-index:4990!important;
+  }
+  body.mobile-menu-open .mobile-overlay{display:block!important}
+  .sidebar .nav{height:auto!important;max-height:none!important;overflow:visible!important}
+  .sidebar .nav button{min-height:46px!important;font-size:14px!important}
+  .main{
+    margin-left:0!important;
+    width:100%!important;
+    padding:10px!important;
+  }
+  .mobile-menu-btn{
+    display:flex!important;
+    width:44px!important;height:44px!important;
+    align-items:center!important;justify-content:center!important;
+    font-size:22px!important;
+  }
+  .topbar{
+    position:sticky!important;
+    top:0!important;
+    z-index:1200!important;
+    display:grid!important;
+    grid-template-columns:44px minmax(0,1fr) auto!important;
+    gap:8px!important;
+    align-items:center!important;
+    padding:8px 10px!important;
+    margin:-10px -10px 10px!important;
+    background:rgba(255,255,255,.97)!important;
+    backdrop-filter:blur(9px);
+    border-bottom:1px solid #dce5e9!important;
+  }
+  .topbar-title-wrap{min-width:0!important}
+  #pageTitle{
+    font-size:20px!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .topbar-title-wrap>div>small{display:none!important}
+  .topbar .actions{display:flex!important;gap:6px!important}
+  .topbar .actions .btn{min-width:108px!important;min-height:40px!important;font-size:12px!important}
+  #kpis.cards{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+  .grid.two,.dashboard-grid{grid-template-columns:1fr!important}
+  .form-grid,.grid2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .grid3,.grid4{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  input,select,textarea{min-height:42px!important;font-size:15px!important}
+  .table-wrap{overflow:auto!important;-webkit-overflow-scrolling:touch!important;max-width:100%!important}
+  table{min-width:760px!important;font-size:12px!important}
+  .modal{padding:12px!important}
+  .modal-box{width:min(94vw,760px)!important;max-height:90vh!important;overflow:auto!important}
+  .stockin-history-panel{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+  }
+  .stockin-history-left,.stockout-history-group{
+    display:flex!important;
+    align-items:center!important;
+    gap:6px!important;
+    flex-wrap:wrap!important;
+  }
+  .stockin-history-search,.stockout-top-search{width:100%!important}
+  #stockin .paper,#stockout .paper{padding:10px!important}
+  #stockin .info-grid,#stockout .info-grid{grid-template-columns:1fr 1fr!important}
+  #stockin .invoice-table,#stockout .invoice-table{
+    display:block!important;
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  #stockin .invoice-table{min-width:1040px!important}
+  #stockout .invoice-table{min-width:970px!important}
+  .sum-box{max-width:100%!important}
+  .warehouse-compactbar{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:7px!important;
+  }
+  .warehouse-product-picker{grid-column:1/-1!important}
+  .warehouse-view-control{grid-column:1/-1!important}
+  .warehouse-compactbar .btn{min-height:42px!important}
+  .payment-customer-grid{grid-template-columns:1fr 1fr!important}
+  .payment-customer-grid>button{align-self:end!important}
+  .warranty-product-add{grid-template-columns:1fr 100px!important}
+  .warranty-product-add .warranty-issue-cell{grid-column:1/-1!important}
+  .warranty-product-add>button{grid-column:1/-1!important}
+  .employee-calendar-grid{grid-template-columns:repeat(7,minmax(54px,1fr))!important}
+  .archive-grid,.warehouse-print-controls{grid-template-columns:1fr 1fr!important}
+}
+
+/* =========================================================
+   ĐIỆN THOẠI: <=767px
+   Ưu tiên thao tác 1 tay, card gọn, bảng vuốt ngang
+   ========================================================= */
+@media (max-width:767px){
+  html,body{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:hidden!important;
+    background:#f4f7f9!important;
+  }
+  body{font-size:14px!important}
+  .sidebar{
+    position:fixed!important;
+    left:-286px!important;
+    top:0!important;bottom:0!important;
+    width:274px!important;height:100vh!important;
+    z-index:5000!important;
+    overflow-y:auto!important;
+    transition:left .22s ease!important;
+    padding:12px 10px!important;
+    box-shadow:8px 0 28px rgba(0,0,0,.22)!important;
+  }
+  body.mobile-menu-open .sidebar{left:0!important}
+  .mobile-overlay{
+    position:fixed!important;inset:0!important;
+    background:rgba(10,25,35,.48)!important;
+    z-index:4990!important;
+  }
+  body.mobile-menu-open .mobile-overlay{display:block!important}
+  .sidebar .nav{height:auto!important;max-height:none!important;overflow:visible!important;padding-bottom:28px!important}
+  .sidebar .nav button{min-height:46px!important;margin-bottom:4px!important;font-size:14px!important}
+  .main{margin-left:0!important;width:100%!important;padding:8px!important}
+  .topbar{
+    position:sticky!important;
+    top:0!important;z-index:1200!important;
+    display:grid!important;
+    grid-template-columns:42px minmax(0,1fr)!important;
+    gap:7px!important;
+    align-items:center!important;
+    padding:7px 8px!important;
+    margin:-8px -8px 8px!important;
+    background:rgba(255,255,255,.97)!important;
+    backdrop-filter:blur(9px);
+    border-bottom:1px solid #dce5e9!important;
+  }
+  .mobile-menu-btn{
+    display:flex!important;width:42px!important;height:42px!important;
+    align-items:center!important;justify-content:center!important;
+    font-size:22px!important;
+  }
+  #pageTitle{
+    font-size:18px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;
+    margin:0!important;
+  }
+  .topbar-title-wrap>div>small{display:none!important}
+  .topbar .actions{
+    grid-column:1/-1!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:6px!important;
+  }
+  .topbar .actions .btn{
+    width:100%!important;min-height:40px!important;
+    font-size:12px!important;padding:7px 8px!important;
+  }
+
+  /* KPI: 2 cột để gọn hơn; ô cuối tự kéo ngang 2 cột nếu cần */
+  #kpis.cards{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  #kpis .kpi{padding:9px!important}
+  #kpis .kpi .label{font-size:11px!important}
+  #kpis .kpi .value{font-size:17px!important}
+  .grid.two,.dashboard-grid,.summary-grid{grid-template-columns:1fr!important}
+
+  .card{padding:9px!important;border-radius:11px!important;margin-bottom:8px!important}
+  .form-grid,.grid2,.grid3,.grid4,
+  .employee-day-editor-summary,.employee-self-detail-summary{
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+  }
+  input,select,textarea{
+    width:100%!important;min-height:44px!important;
+    font-size:16px!important;box-sizing:border-box!important;
+  }
+  textarea{min-height:88px!important}
+  .btn,button{min-height:42px}
+  .modal{padding:6px!important;align-items:flex-end!important}
+  .modal-box{
+    width:100%!important;max-width:none!important;
+    max-height:92vh!important;overflow:auto!important;
+    border-radius:16px 16px 8px 8px!important;
+    padding:12px!important;
+  }
+  .modal-actions{display:flex!important;gap:6px!important;flex-wrap:wrap!important}
+  .modal-actions .btn{flex:1 1 125px!important}
+
+  /* Bảng */
+  .table-wrap{
+    width:100%!important;max-width:100%!important;
+    overflow:auto!important;-webkit-overflow-scrolling:touch!important;
+    border-radius:9px;
+  }
+  table{min-width:760px!important;font-size:11.5px!important}
+  th,td{padding:7px 6px!important}
+  .table-wrap thead th{position:sticky!important;top:0!important;z-index:5!important}
+
+  /* Phiếu nhập/xuất: giữ nguyên cấu trúc nghiệp vụ, cho vuốt ngang bảng */
+  #stockin .paper,#stockout .paper{
+    padding:8px!important;
+    border-radius:10px!important;
+  }
+  #stockin .invoice-header,#stockout .invoice-header{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:6px!important;
+    text-align:left!important;
+  }
+  #stockin .invoice-title,#stockout .invoice-title{text-align:left!important}
+  #stockin .invoice-title h1,#stockout .invoice-title h1{font-size:19px!important;margin:2px 0!important}
+  #stockin .invoice-header .meta,#stockout .invoice-header .meta{text-align:left!important}
+  #stockin .info-grid,#stockout .info-grid{grid-template-columns:1fr!important}
+  #stockin .invoice-table,#stockout .invoice-table{
+    display:block!important;
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    width:100%!important;
+  }
+  #stockin .invoice-table{min-width:1040px!important}
+  #stockout .invoice-table{min-width:970px!important}
+  .sum-box{width:100%!important;max-width:none!important}
+  .sum-row{gap:7px!important}
+  .actions{display:flex!important;flex-wrap:wrap!important;gap:6px!important}
+  .actions .btn{flex:1 1 125px!important}
+
+  /* Lịch sử phiếu */
+  .stockin-history-panel{display:grid!important;grid-template-columns:1fr!important;gap:6px!important}
+  .stockin-history-left,.stockout-history-group{
+    display:grid!important;
+    grid-template-columns:44px minmax(130px,1fr) 44px!important;
+    gap:5px!important;
+    align-items:center!important;
+  }
+  .stockin-history-left .stockout-history-status,
+  .stockout-history-group .stockout-history-status{
+    grid-column:1/-1!important;
+    text-align:center!important;
+  }
+  .stockin-history-search,.stockout-top-search{width:100%!important}
+  .stockout-history-nav{display:grid!important;grid-template-columns:1fr!important;gap:6px!important}
+
+  /* Hàng hóa & Kho */
+  .warehouse-compactbar{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important}
+  .warehouse-product-picker,.warehouse-view-control{grid-column:1/-1!important}
+  .warehouse-compactbar .btn{font-size:12px!important;padding:6px!important;white-space:normal!important}
+  .warehouse-summary-row{justify-content:flex-start!important}
+
+  /* Thanh toán */
+  .payment-tabs{display:grid!important;grid-template-columns:1fr 1fr!important}
+  .payment-customer-grid{grid-template-columns:1fr!important}
+  .payment-debt-box{min-height:64px!important}
+  .payment-history-head{align-items:flex-start!important;gap:3px!important}
+
+  /* Bảo hành */
+  .warranty-receive-head{grid-template-columns:1fr!important}
+  .warranty-product-add{grid-template-columns:1fr!important}
+  .warranty-product-add .warranty-issue-cell{grid-column:auto!important}
+  .warranty-action-stack{justify-content:flex-start!important}
+  #warrantyTable table{min-width:980px!important}
+
+  /* Chi phí / nhân viên */
+  .expense-calendar-head,.employee-calendar-head{flex-wrap:wrap!important}
+  .employee-calendar-grid{grid-template-columns:repeat(7,minmax(42px,1fr))!important;gap:3px!important}
+  .employee-calendar-day{min-height:64px!important;padding:4px!important;font-size:10px!important}
+
+  /* Cài đặt */
+  .staff-module-grid{grid-template-columns:1fr!important}
+  .archive-grid,.warehouse-print-controls{grid-template-columns:1fr!important}
+}
+
+/* Ẩn nút menu trên màn hình rộng */
+@media (min-width:901px){
+  .mobile-menu-btn{display:none!important}
+  .mobile-overlay{display:none!important}
+}
+</style>
+
+
+<style id="pwa-safe-area">
+html,body{min-height:100%;min-height:100dvh}
+body{
+  padding-top:env(safe-area-inset-top,0px);
+  padding-right:env(safe-area-inset-right,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  padding-left:env(safe-area-inset-left,0px);
+}
+@media (display-mode:standalone){
+  .topbar{padding-top:max(7px,env(safe-area-inset-top))!important}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
 <aside class="sidebar">
   <div class="brand"><b id="brandName">NGOC TRAI MANAGER</b><small>Quản lý nội bộ</small></div>
   <div class="nav" id="nav">
-    <button class="active" data-page="dashboard"><span class="nav-ico">🏠</span><span class="nav-label">Tổng quan</span></button>
-    <button data-page="products"><span class="nav-ico">📦</span><span class="nav-label">Hàng hóa</span></button>
-    <button data-page="warehouse"><span class="nav-ico">🏬</span><span class="nav-label">Kho hàng</span></button>
+    <button data-page="dashboard"><span class="nav-ico">🏠</span><span class="nav-label">Tổng quan</span></button>
+    <button data-page="stockout"><span class="nav-ico">⬆️</span><span class="nav-label">Phiếu xuất hàng</span></button>
     <button data-page="stockin"><span class="nav-ico">⬇️</span><span class="nav-label">Nhập hàng</span></button>
-    <button data-page="stockout"><span class="nav-ico">⬆️</span><span class="nav-label">Xuất kho</span></button>
-    <button data-page="customers"><span class="nav-ico">👥</span><span class="nav-label">Khách hàng</span></button>
-    <button data-page="suppliers"><span class="nav-ico">🚚</span><span class="nav-label">Nhà cung cấp</span></button>
+    <button data-page="payments"><span class="nav-ico">💰</span><span class="nav-label">Thanh toán</span></button>
     <button data-page="warranty"><span class="nav-ico">🛠️</span><span class="nav-label">Bảo hành</span></button>
-    <button data-page="debts"><span class="nav-ico">💳</span><span class="nav-label">Công nợ</span></button>
-    <button class="employee-menu-btn" data-page="employees"><span class="nav-ico">🧑‍💼</span><span class="nav-label">Nhân viên</span></button>
     <button data-page="expenses"><span class="nav-ico">💸</span><span class="nav-label">Chi phí</span></button>
+
+    <div class="nav-divider"></div>
+
+    <button data-page="warehouse"><span class="nav-ico">🏬</span><span class="nav-label">Hàng hóa &amp; Kho</span></button>
+    <button data-page="customers"><span class="nav-ico">👥</span><span class="nav-label">Khách hàng</span></button>
+    <button data-page="debts"><span class="nav-ico">💳</span><span class="nav-label">Công nợ khách hàng</span></button>
+    <button class="employee-menu-btn" data-page="employees"><span class="nav-ico">🧑‍💼</span><span class="nav-label">Nhân viên</span></button>
+
+    <div class="nav-divider manager-menu-extra"></div>
+
+    <button data-page="suppliers"><span class="nav-ico">🚚</span><span class="nav-label">Nhà cung cấp</span></button>
     <button data-page="reports"><span class="nav-ico">📊</span><span class="nav-label">Báo cáo</span></button>
     <button data-page="settings"><span class="nav-ico">⚙️</span><span class="nav-label">Cài đặt</span></button>
-  </div>
+</div>
 </aside>
 
 <main class="main">
   <div class="topbar">
+<button class="mobile-menu-btn" type="button" onclick="toggleMobileMenu()" aria-label="Mở menu">☰</button>
     <div class="topbar-title-wrap">
       <div>
         <h2 id="pageTitle">Tổng quan</h2>
@@ -2342,28 +3653,27 @@ html,body{
           <span id="stockoutHistoryStatus" class="stockout-history-status">0 phiếu</span>
         </div>
         <div class="stockout-top-search">
-          <input id="stockoutSearch" placeholder="Tìm số phiếu, tên khách hoặc SĐT..." oninput="searchStockoutInvoices()">
+          <input id="stockoutSearch" placeholder="Tìm số phiếu, tên khách hoặc SĐT..." oninput="searchStockoutInvoices()" onfocus="this.select()" onclick="this.select()">
         </div>
       </div>
     </div>
     <div class="actions">
       <button id="syncStatusBtn" class="btn sync-status local" onclick="openSyncSetup()" title="Bấm để kiểm tra hoặc đổi mã đồng bộ">☁ Chưa đồng bộ</button>
       <button id="roleBtn" class="btn role-btn employee" onclick="toggleManagerRole()">🔒 Nhân viên</button>
-      <button id="resetDemoBtn" class="btn" onclick="secureResetDemo()">Khôi phục mẫu</button>
     </div>
   </div>
 
   <section class="page active" id="dashboard">
     <div class="grid cards" id="kpis"></div>
     <div class="grid two">
-      <div class="card"><h3>Phiếu xuất gần đây</h3><div id="recentOut"></div></div>
+      <div class="card"><h3>Phiếu xuất gần đây</h3><div id="recentOutNote" class="recent-out-note"></div><div id="recentOut"></div></div>
       <div class="card"><h3>Cảnh báo tồn kho</h3><div id="lowStock"></div></div>
     </div>
 </section>
 
   <section class="page" id="products">
     <div class="toolbar">
-      <input id="prodSearch" placeholder="Tìm mã / tên hàng..." oninput="renderProducts()">
+      <input id="prodSearch" placeholder="Tìm mã / tên hàng..." oninput="renderProducts()" onfocus="this.select()" onclick="this.select()">
       <select id="prodGroup" onchange="renderProducts()"><option value="">Tất cả nhóm</option></select>
       <button id="manageGroupBtn" class="btn" onclick="secureManageProductGroups()">☷ Quản lý nhóm</button>
       <button id="addProductBtn" class="btn primary" onclick="secureOpenAddProduct()">+ Thêm hàng</button>
@@ -2375,20 +3685,16 @@ html,body{
   </section>
 
   <section class="page" id="warehouse">
-    <div class="warehouse-filterbar">
-      <div class="warehouse-group-filter">
-        <select id="warehouseGroup" onchange="warehouseGroupChanged()">
-          <option value="">Tồn tất cả</option>
-        </select>
-      </div>
-
+    <div class="warehouse-compactbar">
       <div class="warehouse-product-picker" id="warehouseProductPicker">
         <input id="warehouseSearch"
                autocomplete="off"
                placeholder="Tìm sản phẩm..."
                oninput="filterWarehouseProducts()"
                onkeydown="warehouseProductKey(event)"
-               onblur="warehouseProductBlur()">
+               onblur="warehouseProductBlur()"
+               onfocus="this.select()"
+               onclick="this.select()">
         <button type="button"
                 class="warehouse-product-drop"
                 title="Xổ danh sách sản phẩm"
@@ -2396,16 +3702,24 @@ html,body{
                 onclick="toggleWarehouseProductList()">▼</button>
         <div id="warehouseProductList" class="warehouse-product-list"></div>
       </div>
+
+      <div class="warehouse-view-control">
+        <span class="warehouse-view-label">Xem</span>
+        <select id="warehouseGroup" onchange="warehouseGroupChanged()">
+          <option value="">Tất cả</option>
+        </select>
+      </div>
+
+      <button id="warehouseManageGroupBtn" class="btn" onclick="openWarehouseGroupAction()">+ Thêm nhóm hàng</button>
+      <button id="warehouseAddProductBtn" class="btn primary" onclick="openWarehouseAddProductAction()">+ Thêm hàng hóa</button>
+      <button class="btn warehouse-print-btn" onclick="printWarehouseStock()">🖨 In</button>
     </div>
 
-    <div class="card">
-      <div class="warehouse-head">
-        <div>
-          <h3 id="warehouseTitle" style="margin:0">Tồn tất cả</h3>
-          <div class="small">Chọn nhóm hoặc sản phẩm để xem tồn kho.</div>
-        </div>
-        <div id="warehouseCount" class="badge info">0 mặt hàng</div>
-      </div>
+    <div class="warehouse-summary-row">
+      <div id="warehouseCount" class="badge info">0 mặt hàng</div>
+    </div>
+
+    <div class="card warehouse-stock-card">
       <div id="warehouseTable"></div>
     </div>
   </section>
@@ -2419,7 +3733,7 @@ html,body{
         <span id="stockinHistoryStatus" class="stockout-history-status">0 phiếu</span>
       </div>
       <div class="stockin-history-search">
-        <input id="stockinSearch" placeholder="Tìm số phiếu, tên NCC hoặc SĐT..." oninput="searchStockinInvoices()">
+        <input id="stockinSearch" placeholder="Tìm số phiếu, tên NCC hoặc SĐT..." oninput="searchStockinInvoices()" onfocus="this.select()" onclick="this.select()">
       </div>
     </div>
     <div id="stockinSearchResults" class="stockout-search-results"></div>
@@ -2475,8 +3789,8 @@ html,body{
       <div id="siSaveStatus" class="print-status"></div>
       <div class="actions" style="justify-content:flex-end;margin-top:10px">
         <button class="btn" onclick="newStockin()">Phiếu mới</button>
-        <button id="siSaveBtn" class="btn" type="button" onclick="handleStockinSave(false)">Lưu</button>
-        <button id="siSavePrintBtn" class="btn primary" type="button" onclick="handleStockinSave(true)">Lưu/In</button>
+        <button id="siSaveBtn" class="btn" type="button" onclick="saveStockinStable(false)">Lưu</button>
+        <button id="siSavePrintBtn" class="btn primary" type="button" onclick="saveStockinStable(true)">Lưu/In</button>
       </div>
     </div>
   </section>
@@ -2484,6 +3798,7 @@ html,body{
   <section class="page" id="stockout">
     <div id="stockoutSearchResults" class="stockout-search-results"></div>
     <div id="stockoutHistoryNote" class="history-view-note"></div>
+
     <div class="paper">
       <div class="invoice-header">
         <div class="npp"><b id="soNpp"></b><br><span id="soAddress"></span><br>ĐT: <span id="soPhone"></span></div>
@@ -2494,7 +3809,7 @@ html,body{
       <div class="info-grid">
         <div class="info-box">
           <h4>Thông tin khách hàng</h4>
-          <div class="formline"><label>Khách hàng:</label><input id="soCustomer" list="customerList" onchange="selectCustomer()"><datalist id="customerList"></datalist></div>
+          <div class="formline"><label>Khách hàng:</label><input id="soCustomer" list="customerList" onchange="selectCustomer()" onfocus="this.select()" onclick="this.select()"><datalist id="customerList"></datalist></div>
           <div class="formline"><label>Địa chỉ:</label><input id="soCustomerAddress" readonly></div>
           <div class="formline"><label>Điện thoại:</label><input id="soCustomerPhone" readonly></div>
           <div id="soCustomerAlert"></div>
@@ -2536,40 +3851,116 @@ html,body{
         <button id="soNewBtn" class="btn" onclick="newStockout()">Phiếu mới</button>
         <button id="soEditBtn" class="btn warn-btn" style="display:none" onclick="editCurrentStockout()">✎ Sửa</button>
         <button id="soSaveBtn" class="btn" onclick="saveStockout()">Lưu</button>
-        <button id="soSavePrintBtn" class="btn primary" onclick="handleStockoutSavePrint()">Lưu/In</button>
+        <button id="soSavePrintBtn" class="btn primary" onclick="saveAndPrintStockout('a4')">🖨 Lưu/In A4</button>
+        <button id="soSaveBillBtn" class="btn bill80" onclick="saveAndPrintStockout('bill80')">🧾 Lưu/In Bill 80mm</button>
       </div>
     </div>
   </section>
 
   <section class="page" id="customers">
-    <div class="toolbar"><input id="custSearch" placeholder="Tìm tên / SĐT..." oninput="renderCustomers()"><button class="btn primary" onclick="openCustomer()">+ Thêm khách</button></div>
+    <div class="toolbar"><input id="custSearch" placeholder="Tìm tên / SĐT..." oninput="renderCustomers()" onfocus="this.select()" onclick="this.select()"><button class="btn primary" onclick="openCustomer()">+ Thêm khách</button></div>
     <div class="card"><div id="customersTable"></div></div>
   </section>
 
   <section class="page" id="suppliers">
-    <div class="toolbar"><input id="supSearch" placeholder="Tìm NCC / SĐT..." oninput="renderSuppliers()"><button class="btn primary" onclick="openSupplier()">+ Thêm NCC</button></div>
+    <div class="toolbar"><input id="supSearch" placeholder="Tìm NCC / SĐT..." oninput="renderSuppliers()" onfocus="this.select()" onclick="this.select()"><button class="btn primary" onclick="openSupplier()">+ Thêm NCC</button></div>
     <div class="card"><div id="suppliersTable"></div></div>
   </section>
 
 
   <section class="page" id="warranty">
     <div class="toolbar">
-      <input id="warSearch" placeholder="Tìm khách / hàng bảo hành..." oninput="renderWarranty()">
+      <input id="warSearch" placeholder="Tìm khách / hàng bảo hành..." oninput="renderWarranty()" onfocus="this.select()" onclick="this.select()">
       <select id="warStatus" onchange="renderWarranty()">
         <option value="">Tất cả trạng thái</option>
         <option value="Đang xử lý">Đang xử lý</option>
         <option value="Chờ trả">Chờ trả</option>
-        <option value="Đã trả">Đã trả</option>
+        <option value="Đã trả">Đã trả</option><option value="Đã trả lại">Đã trả lại</option>
       </select>
-      <button class="btn primary" onclick="openWarranty()">+ Nhận bảo hành</button><span class="small" style="align-self:center">Hàng BH chưa trả sẽ tự hiện khi chọn đúng khách trên Phiếu Xuất.</span>
+      <button class="btn primary" onclick="openWarranty()">+ Nhận bảo hành</button><span class="small" style="align-self:center">Có thể nhận nhiều sản phẩm trên 1 phiếu. Chọn đúng hàng trong danh mục; từng sản phẩm xử lý riêng hoặc “Khách trả lại”.</span>
     </div>
     <div class="card"><div id="warrantyTable"></div></div>
   </section>
 
   <section class="page" id="debts">
     <div class="grid two">
-      <div id="customerDebtCard" class="card"><h3>Công nợ khách hàng</h3><div id="customerDebtTable"></div></div>
+      <div id="customerDebtCard" class="card">
+        <div class="customer-debt-head">
+          <h3 style="margin:0">Công nợ khách hàng</h3>
+          <div class="recent-limit-setting manager-hidden" data-manager-only="1">
+            <span>Phiếu gần đây:</span>
+            <select id="recentOutLimit" onchange="saveRecentOutLimit()">
+              <option value="10">10 phiếu</option>
+              <option value="20">20 phiếu</option>
+              <option value="30">30 phiếu</option>
+              <option value="50">50 phiếu</option>
+            </select>
+          </div>
+        </div>
+        <div class="hint manager-hidden" data-manager-only="1" style="margin:5px 0 9px">Cài số phiếu xuất gần nhất hiển thị ở Tổng quan Nhân viên.</div>
+        <div id="customerDebtTable"></div>
+      </div>
       <div id="supplierDebtCard" class="card"><h3>Công nợ nhà cung cấp</h3><div id="supplierDebtTable"></div></div>
+    </div>
+  </section>
+
+  
+  <section class="page" id="payments">
+    <div class="card">
+      <div class="settings-card-head">
+        <div>
+          <h3 style="margin:0">Thanh toán & đối soát công nợ</h3>
+          <div class="hint">Giao dịch thanh toán được lưu riêng, không sửa Phiếu Xuất/Nhập cũ.</div>
+        </div>
+      </div>
+
+      <div class="payment-tabs">
+        <button id="payCustomerTab" class="btn payment-tab active" onclick="setPaymentTab('customer')">Khách hàng trả nợ</button>
+        <button id="paySupplierTab" class="btn payment-tab" data-manager-only="1" onclick="setPaymentTab('supplier')">Trả nợ Nhà cung cấp</button>
+      </div>
+
+      <div id="paymentCustomerPanel" class="payment-box">
+        <div class="payment-customer-grid">
+          <div>
+            <label>Tìm khách hàng</label>
+            <input id="payCustomerSearch" list="payCustomerList" placeholder="Nhập tên hoặc SĐT..."
+            onfocus="this.select()" onclick="this.select()" oninput="selectPaymentCustomer()">
+            <datalist id="payCustomerList"></datalist>
+          </div>
+          <div class="payment-debt-box">
+            <span>Tổng công nợ hiện tại</span>
+            <b id="payCustomerDebt">0 đ</b>
+          </div>
+          <div>
+            <label>Số tiền khách thanh toán</label>
+            <input id="payCustomerAmount" type="number" min="0" placeholder="0">
+          </div>
+          <button class="btn primary" onclick="saveCustomerPayment()">Xác nhận thanh toán</button>
+        </div>
+        <div class="payment-history-head"><h3>Lịch sử khách hàng thanh toán</h3><span class="small">Quản lý được sửa/xóa để đối soát.</span></div>
+        <div id="customerPaymentHistory"></div>
+      </div>
+
+      <div id="paymentSupplierPanel" class="payment-box" style="display:none">
+        <div class="payment-customer-grid">
+          <div>
+            <label>Tìm Nhà cung cấp</label>
+            <input id="paySupplierSearch" list="paySupplierList" placeholder="Nhập tên hoặc SĐT..." oninput="selectPaymentSupplier()" onfocus="this.select()" onclick="this.select()">
+            <datalist id="paySupplierList"></datalist>
+          </div>
+          <div class="payment-debt-box">
+            <span>Tổng công nợ hiện tại</span>
+            <b id="paySupplierDebt">0 đ</b>
+          </div>
+          <div>
+            <label>Số tiền trả Nhà cung cấp</label>
+            <input id="paySupplierAmount" type="number" min="0" placeholder="0">
+          </div>
+          <button class="btn primary" onclick="saveSupplierPayment()">Xác nhận trả nợ</button>
+        </div>
+        <div class="payment-history-head"><h3>Lịch sử trả Nhà cung cấp</h3><span class="small">Chỉ Quản lý sử dụng.</span></div>
+        <div id="supplierPaymentHistory"></div>
+      </div>
     </div>
   </section>
 
@@ -2617,17 +4008,45 @@ html,body{
     <div class="card">
       <div class="settings-card-head">
         <div>
-          <h3 style="margin:0">Ghi chi phí</h3>
-          <div class="hint">Nhân viên chỉ thấy và được nhập các loại chi phí đã được Quản lý cho phép.</div>
+          <h3 style="margin:0">Lịch chi phí</h3>
+          <div class="hint" id="expenseRoleHint">Bấm vào ngày trên lịch để ghi và xem chi phí của ngày đó.</div>
         </div>
-        <button class="btn primary" onclick="openAddExpense()">+ Ghi chi phí</button>
+        <button class="btn primary" onclick="openAddExpense(currentISODate())">+ Ghi chi phí hôm nay</button>
       </div>
-      <div class="expense-entry-filter">
-        <input id="expenseEntryFrom" type="date" onchange="renderExpenseEntryPage()">
-        <span>đến</span>
-        <input id="expenseEntryTo" type="date" onchange="renderExpenseEntryPage()">
+
+      <div class="expense-calendar-toolbar">
+        <div class="expense-calendar-nav">
+          <button class="btn" onclick="moveExpenseMonth(-1)">← Tháng trước</button>
+          <input id="expenseCalendarMonth" type="month" onchange="renderExpenseCalendar()">
+          <button class="btn" onclick="moveExpenseMonth(1)">Tháng sau →</button>
+          <button class="btn" onclick="goExpenseCurrentMonth()">Tháng này</button>
+        </div>
       </div>
-      <div id="expenseEntryTable"></div>
+
+      <div id="expenseCalendarSummary" class="expense-calendar-summary"></div>
+      <div class="expense-calendar-help">
+        Nhân viên bấm ngày để ghi chi phí phát sinh. Quản lý thấy toàn bộ chi phí, kể cả khoản riêng của Quản lý/Lương.
+        Tất cả khoản đã lưu tự động chạy vào Báo cáo → Chi phí tổng.
+      </div>
+
+      <div class="expense-calendar-scroll">
+        <div id="expenseCalendarGrid" class="expense-calendar-grid"></div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="settings-card-head">
+          <div>
+            <h3 style="margin:0;font-size:16px">Danh sách chi phí</h3>
+            <div class="hint">Có thể lọc thêm theo khoảng ngày.</div>
+          </div>
+        </div>
+        <div class="expense-entry-filter">
+          <input id="expenseEntryFrom" type="date" onchange="renderExpenseEntryPage()">
+          <span>đến</span>
+          <input id="expenseEntryTo" type="date" onchange="renderExpenseEntryPage()">
+        </div>
+        <div id="expenseEntryTable"></div>
+      </div>
     </div>
   </section>
 
@@ -2656,7 +4075,7 @@ html,body{
                    placeholder="Tìm sản phẩm..."
                    oninput="filterReportProducts()"
                    onkeydown="reportProductKey(event)"
-                   onblur="reportProductBlur()">
+                   onblur="reportProductBlur()" onfocus="this.select()" onclick="this.select()">
             <button type="button"
                     class="report-product-drop"
                     onmousedown="event.preventDefault()"
@@ -2684,15 +4103,86 @@ html,body{
       </div>
       <div class="modal-actions"><button class="btn primary" onclick="saveSettings()">Lưu cài đặt</button></div>
     </div>
-<div class="card" style="margin-top:14px">
+
+    <div class="card" style="margin-top:14px">
       <div class="settings-card-head">
         <div>
-          <h3 style="margin:0">Danh mục chi phí</h3>
-          <div class="hint">Dùng cho Báo cáo → Chi phí tổng. Có thể thêm hoặc xóa loại chi phí.</div>
+          <h3 style="margin:0">Module Nhân viên</h3>
+          <div class="hint">Quản lý chọn chức năng nào Nhân viên được nhìn thấy trên menu. Nhập hàng, Khách hàng, Nhà cung cấp và Cài đặt luôn chỉ dành cho Quản lý.</div>
         </div>
-        <button class="btn primary" onclick="openAddExpenseCategory()">+ Thêm loại</button>
       </div>
-      <div id="expenseCategoryList"></div>
+
+      <div id="staffModuleSettings" class="staff-module-grid">
+        <label class="staff-module-row"><span>🏠 Tổng quan</span><input type="checkbox" data-staff-module="dashboard" onchange="saveStaffModuleSettings()"></label>
+        <label class="staff-module-row"><span>⬆️ Xuất kho</span><input type="checkbox" data-staff-module="stockout" onchange="saveStaffModuleSettings()"></label>
+        <label class="staff-module-row"><span>💰 Thanh toán</span><input type="checkbox" data-staff-module="payments" onchange="saveStaffModuleSettings()"></label>
+        <label class="staff-module-row"><span>🛠️ Bảo hành</span><input type="checkbox" data-staff-module="warranty" onchange="saveStaffModuleSettings()"></label>
+        <label class="staff-module-row"><span>💸 Chi phí</span><input type="checkbox" data-staff-module="expenses" onchange="saveStaffModuleSettings()"></label>
+        <label class="staff-module-row"><span>🏬 Hàng hóa &amp; Kho</span><input type="checkbox" data-staff-module="warehouse" onchange="saveStaffModuleSettings()"></label>
+        <label class="staff-module-row"><span>👥 Khách hàng <small style="color:#71818a">• xem & thêm mới</small></span><input type="checkbox" data-staff-module="customers" onchange="saveStaffModuleSettings()"></label>
+        <label class="staff-module-row"><span>💳 Công nợ khách hàng</span><input type="checkbox" data-staff-module="debts" onchange="saveStaffModuleSettings()"></label>
+        <label class="staff-module-row"><span>🧑‍💼 Nhân viên</span><input type="checkbox" data-staff-module="employees" onchange="saveStaffModuleSettings()"></label>
+        <label class="staff-module-row"><span>📊 Báo cáo</span><input type="checkbox" data-staff-module="reports" onchange="saveStaffModuleSettings()"></label>
+      </div>
+
+      <div class="hint" style="margin-top:10px">Lương nhân viên vẫn là dữ liệu riêng của Quản lý. Nhân viên chỉ thấy phần lịch công/cá nhân nếu module Nhân viên được bật.</div>
+    </div>
+
+    
+    <div class="card" style="margin-top:14px">
+      <div class="settings-card-head">
+        <div>
+          <h3 style="margin:0">Đổi mã PIN Quản lý</h3>
+          <div class="hint">PIN dùng để mở quyền Quản lý trên thanh trên cùng.</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label>PIN mới</label>
+          <input id="setManagerPin" type="password" inputmode="numeric" maxlength="8" placeholder="4–8 chữ số">
+        </div>
+        <div>
+          <label>Nhập lại PIN mới</label>
+          <input id="setManagerPin2" type="password" inputmode="numeric" maxlength="8" placeholder="Nhập lại PIN">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary" onclick="changeManagerPin()">Đổi mã PIN</button>
+      </div>
+    </div>
+
+    
+    <div class="card" style="margin-top:14px">
+      <div class="settings-card-head">
+        <div>
+          <h3 style="margin:0">Chốt & lưu trữ dữ liệu cũ</h3>
+          <div class="hint">Dùng khi app đã vận hành lâu năm. Hệ thống chốt công nợ hiện tại thành công nợ đầu kỳ mới, lưu các phiếu cũ vào Kho lưu trữ rồi làm gọn dữ liệu đang sử dụng.</div>
+        </div>
+      </div>
+
+      <div class="archive-grid">
+        <div>
+          <label>Chốt dữ liệu đến hết ngày</label>
+          <input id="archiveCutoffDate" type="date">
+        </div>
+        <div>
+          <label>Ghi chú kỳ lưu trữ</label>
+          <input id="archiveNote" placeholder="Ví dụ: Chốt dữ liệu năm 2027">
+        </div>
+        <button class="btn primary" onclick="prepareArchiveData()">Chốt & lưu trữ</button>
+      </div>
+
+      <div class="archive-warning">
+        Trước khi chốt, hệ thống sẽ yêu cầu tải bản Sao lưu. Khách hàng/NCC còn công nợ không bị xóa; số dư được chuyển thành công nợ đầu kỳ mới. Hàng hóa và khách hàng không tự xóa khỏi danh mục.
+      </div>
+
+      <div class="settings-card-head" style="margin-top:12px">
+        <div>
+          <h3 style="margin:0;font-size:15px">Kho lưu trữ</h3>
+          <div class="hint">Các kỳ đã chốt vẫn giữ để tra cứu khi cần.</div>
+        </div>
+      </div>
+      <div id="archiveHistory"></div>
     </div>
 
     <div class="card" style="margin-top:14px">
@@ -2711,25 +4201,9 @@ html,body{
       </div>
       <div class="hint" id="lastBackupText" style="margin-top:8px">Chưa có lần sao lưu nào.</div>
     </div>
-
-    <div class="card" style="margin-top:14px">
-      <h3>Phân quyền & PIN</h3>
-      <div class="hint" style="margin-bottom:12px">Mặc định app mở ở chế độ Nhân viên. Nhập PIN để mở quyền Quản lý.</div>
-      <div class="form-grid">
-        <div>
-          <label>PIN quản lý mới</label>
-          <input id="setManagerPin" type="password" inputmode="numeric" maxlength="8" placeholder="4–8 chữ số">
-        </div>
-        <div>
-          <label>Nhập lại PIN</label>
-          <input id="setManagerPin2" type="password" inputmode="numeric" maxlength="8" placeholder="Nhập lại PIN">
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn primary" onclick="changeManagerPin()">Đổi PIN quản lý</button>
-      </div>
     </div>
-  </section>
+
+</section>
 </main>
 </div>
 
@@ -2781,6 +4255,20 @@ html,body{
   </div>
 </div>
 
+
+<div class="bill-preview-overlay" id="billPreview">
+  <div class="bill-preview-shell">
+    <div class="bill-preview-toolbar">
+      <div><b>Xem trước Bill 80mm</b></div>
+      <div class="right">
+        <button class="btn" onclick="closeBillPreview()">Đóng</button>
+        <button class="btn primary" onclick="printBillPreview()">🧾 In Bill</button>
+      </div>
+    </div>
+    <div class="bill-preview-paper" id="billPreviewPaper"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -2798,6 +4286,7 @@ let warehouseProductIndex=-1;
 let reportProductIndex=-1;
 let isManager=false;
 let afterManagerUnlock=null;
+let warrantyDraftItems=[],warrantyPickerIndex=-1,warrantySelectedProductId='';
 
 const $=id=>document.getElementById(id);
 const money=n=>new Intl.NumberFormat('vi-VN').format(Math.round(Number(n)||0))+' đ';
@@ -3140,9 +4629,19 @@ function stockoutDateTimeValue(s){
     Number(m[4]||0),Number(m[5]||0),0,0
   ).getTime();
 }
+
+function stockinDateTimeValue(s){
+  let m=String(s||'').match(/(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}))?/);
+  if(!m)return 0;
+  return new Date(
+    Number(m[3]),Number(m[2])-1,Number(m[1]),
+    Number(m[4]||0),Number(m[5]||0),0,0
+  ).getTime();
+}
 function getStockoutHistoryForDate(date){
-  return [...db.stockout]
-    .filter(o=>!date || ymdFromDateText(o.dateText)===date)
+  /* Lịch sử mũi tên luôn là TOÀN BỘ phiếu xuất theo thứ tự thời gian.
+     Tham số date chỉ giữ để tương thích các chỗ cũ, không dùng để giới hạn danh sách. */
+  return [...(db.stockout||[])]
     .sort((a,b)=>stockoutDateTimeValue(a.dateText)-stockoutDateTimeValue(b.dateText));
 }
 function updateStockoutHistoryControls(){
@@ -3158,21 +4657,47 @@ function updateStockoutHistoryControls(){
     return;
   }
 
+  /* Khi đang ở Phiếu mới, index = total (một vị trí ảo sau phiếu cuối).
+     Vì vậy mũi tên lùi vẫn sáng để quay lại phiếu vừa lưu. */
+  if(stockoutHistoryIndex===total){
+    if(status)status.textContent='Phiếu mới • '+total+' phiếu lịch sử';
+    if(prev)prev.disabled=total===0;
+    if(next)next.disabled=true;
+    return;
+  }
+
   if(status)status.textContent=(stockoutHistoryIndex+1)+' / '+total+' phiếu';
   if(prev)prev.disabled=stockoutHistoryIndex<=0;
   if(next)next.disabled=stockoutHistoryIndex>=total-1;
 }
 function loadStockoutHistoryDate(autoOpen=true){
-  let date=$('stockoutHistoryDate')?.value||'';
-  stockoutHistoryList=getStockoutHistoryForDate(date);
+  const date=$('stockoutHistoryDate')?.value||todayYMD();
+  if($('stockoutHistoryDate') && !$('stockoutHistoryDate').value){
+    $('stockoutHistoryDate').value=date;
+  }
 
-  if(!stockoutHistoryList.length){
-    stockoutHistoryIndex=-1;
+  stockoutHistoryList=getStockoutHistoryForDate('');
+  const sameDateIndexes=[];
+  stockoutHistoryList.forEach((o,i)=>{
+    if(ymdFromDateText(o.dateText)===date)sameDateIndexes.push(i);
+  });
+
+  if(!sameDateIndexes.length){
+    /* Không có phiếu trong ngày đã chọn: vẫn đứng ở Phiếu mới,
+       mũi tên ← sẽ quay về phiếu gần nhất toàn hệ thống. */
+    stockoutHistoryIndex=stockoutHistoryList.length;
     updateStockoutHistoryControls();
+    if(autoOpen){
+      newStockout();
+      if($('stockoutHistoryDate'))$('stockoutHistoryDate').value=date;
+      toast('Ngày '+date.split('-').reverse().join('/')+' chưa có phiếu • bấm ← để xem phiếu gần nhất.');
+    }
     return;
   }
 
-  stockoutHistoryIndex=stockoutHistoryList.length-1;
+  /* Có phiếu trong ngày: nhảy tới phiếu cuối cùng của ngày đó.
+     Sau đó ← / → vẫn duyệt toàn bộ lịch sử, kể cả sang ngày khác. */
+  stockoutHistoryIndex=sameDateIndexes[sameDateIndexes.length-1];
   updateStockoutHistoryControls();
 
   if(autoOpen){
@@ -3189,85 +4714,91 @@ function refreshStockinHistoryNav(){
 }
 
 function getStockinHistoryForDate(date){
-  return [...(db.stockin||[])]
-    .filter(o=>!date || ymdFromDateText(o.dateText)===date)
-    .sort((a,b)=>stockoutDateTimeValue(a.dateText)-stockoutDateTimeValue(b.dateText));
+  return [...(db.stockin||[])].sort((a,b)=>stockinDateTimeValue(a.dateText)-stockinDateTimeValue(b.dateText));
 }
 
 function updateStockinHistoryControls(){
-  const total=stockinHistoryList.length;
+  const total=(stockinHistoryList||[]).length;
   const status=$('stockinHistoryStatus');
   const prev=$('stockinPrevBtn');
   const next=$('stockinNextBtn');
 
-  if(!total || stockinHistoryIndex<0){
-    if(status)status.textContent='0 phiếu';
+  if(!total){
+    if(status)status.textContent='Phiếu mới • 0 phiếu lịch sử';
     if(prev)prev.disabled=true;
     if(next)next.disabled=true;
     return;
   }
 
+  if(stockinHistoryIndex>=total){
+    if(status)status.textContent='Phiếu mới • '+total+' phiếu lịch sử';
+    if(prev)prev.disabled=false;   // ← mở phiếu gần nhất
+    if(next)next.disabled=true;
+    return;
+  }
+
+  if(stockinHistoryIndex<0)stockinHistoryIndex=0;
   if(status)status.textContent=(stockinHistoryIndex+1)+' / '+total+' phiếu';
   if(prev)prev.disabled=stockinHistoryIndex<=0;
   if(next)next.disabled=stockinHistoryIndex>=total-1;
 }
 
 function loadStockinHistoryDate(autoOpen=true){
-  const date=$('stockinHistoryDate')?.value||'';
-  stockinHistoryList=getStockinHistoryForDate(date);
-
-  if(!stockinHistoryList.length){
-    stockinHistoryIndex=-1;
+  const date=$('stockinHistoryDate')?.value||todayYMD();
+  if($('stockinHistoryDate') && !$('stockinHistoryDate').value)$('stockinHistoryDate').value=date;
+  stockinHistoryList=getStockinHistoryForDate('');
+  const indexes=[];
+  stockinHistoryList.forEach((o,i)=>{if(ymdFromDateText(o.dateText)===date)indexes.push(i)});
+  if(!indexes.length){
+    stockinHistoryIndex=stockinHistoryList.length;
     updateStockinHistoryControls();
+    if(autoOpen){
+      newStockin();
+      if($('stockinHistoryDate'))$('stockinHistoryDate').value=date;
+      toast('Ngày đã chọn chưa có phiếu nhập • bấm ← để xem phiếu gần nhất.');
+    }
     return;
   }
-
-  stockinHistoryIndex=stockinHistoryList.length-1;
+  stockinHistoryIndex=indexes[indexes.length-1];
   updateStockinHistoryControls();
-
-  if(autoOpen){
-    loadStockinIntoForm(stockinHistoryList[stockinHistoryIndex]);
-  }
+  if(autoOpen)loadStockinIntoForm(stockinHistoryList[stockinHistoryIndex]);
 }
 
 function browseStockinHistory(step){
-  const date=$('stockinHistoryDate')?.value||'';
-  const latest=getStockinHistoryForDate(date);
-
-  const changed=latest.length!==stockinHistoryList.length ||
-    latest.some((x,i)=>x.id!==stockinHistoryList[i]?.id);
-
-  if(changed){
-    const currentId=stockinHistoryList[stockinHistoryIndex]?.id;
-    stockinHistoryList=latest;
-    const found=currentId?stockinHistoryList.findIndex(x=>x.id===currentId):-1;
-    stockinHistoryIndex=found>=0?found:(stockinHistoryList.length-1);
-  }
-
-  if(!stockinHistoryList.length){
-    stockinHistoryIndex=-1;
-    updateStockinHistoryControls();
+  const latest=getStockinHistoryForDate('');
+  const currentId=(stockinHistoryIndex>=0 && stockinHistoryIndex<stockinHistoryList.length)?stockinHistoryList[stockinHistoryIndex]?.id:'';
+  stockinHistoryList=latest;
+  if(!stockinHistoryList.length){stockinHistoryIndex=0;updateStockinHistoryControls();return}
+  if(stockinHistoryIndex>=stockinHistoryList.length){
+    if(step<0){
+      stockinHistoryIndex=stockinHistoryList.length-1;
+      updateStockinHistoryControls();
+      const invoice=stockinHistoryList[stockinHistoryIndex];
+      loadStockinIntoForm(invoice);
+      const d=ymdFromDateText(invoice.dateText);
+      if($('stockinHistoryDate')&&d)$('stockinHistoryDate').value=d;
+    }
     return;
   }
-
-  const nextIndex=stockinHistoryIndex+step;
-  if(nextIndex<0 || nextIndex>=stockinHistoryList.length){
-    updateStockinHistoryControls();
-    return;
+  if(currentId){
+    const found=stockinHistoryList.findIndex(x=>String(x.id)===String(currentId));
+    if(found>=0)stockinHistoryIndex=found;
   }
-
-  stockinHistoryIndex=nextIndex;
+  const next=stockinHistoryIndex+step;
+  if(next<0||next>=stockinHistoryList.length){updateStockinHistoryControls();return}
+  stockinHistoryIndex=next;
   updateStockinHistoryControls();
-
-  requestAnimationFrame(()=>{
-    loadStockinIntoForm(stockinHistoryList[stockinHistoryIndex]);
-  });
+  const invoice=stockinHistoryList[stockinHistoryIndex];
+  loadStockinIntoForm(invoice);
+  const d=ymdFromDateText(invoice.dateText);
+  if($('stockinHistoryDate')&&d)$('stockinHistoryDate').value=d;
 }
 
 function initStockinHistoryNav(){
   if(!$('stockinHistoryDate'))return;
   if(!$('stockinHistoryDate').value)$('stockinHistoryDate').value=todayYMD();
-  loadStockinHistoryDate(false);
+  stockinHistoryList=getStockinHistoryForDate('');
+  stockinHistoryIndex=stockinHistoryList.length;
   updateStockinHistoryControls();
   refreshStockinHistoryNav();
 }
@@ -3541,24 +5072,41 @@ function loadStockoutIntoForm(invoice){
   setStockoutLocked(true);
 }
 function browseStockoutHistory(step){
-  let date=$('stockoutHistoryDate')?.value||'';
-  let latest=getStockoutHistoryForDate(date);
+  const latest=getStockoutHistoryForDate('');
 
-  /* Chỉ cập nhật danh sách nếu dữ liệu thật sự thay đổi */
-  let changed=latest.length!==stockoutHistoryList.length ||
-    latest.some((x,i)=>x.id!==stockoutHistoryList[i]?.id);
+  /* Luôn đồng bộ toàn bộ lịch sử theo thời gian */
+  const currentId=(stockoutHistoryIndex>=0 && stockoutHistoryIndex<stockoutHistoryList.length)
+    ? stockoutHistoryList[stockoutHistoryIndex]?.id
+    : '';
 
-  if(changed){
-    let currentId=stockoutHistoryList[stockoutHistoryIndex]?.id;
-    stockoutHistoryList=latest;
-    let found=currentId?stockoutHistoryList.findIndex(x=>x.id===currentId):-1;
-    stockoutHistoryIndex=found>=0?found:(stockoutHistoryList.length-1);
-  }
+  stockoutHistoryList=latest;
 
   if(!stockoutHistoryList.length){
-    stockoutHistoryIndex=-1;
+    stockoutHistoryIndex=0;
     updateStockoutHistoryControls();
     return;
+  }
+
+  /* Đang ở Phiếu mới: ← mở phiếu gần nhất, → không làm gì */
+  if(stockoutHistoryIndex>=stockoutHistoryList.length){
+    if(step<0){
+      stockoutHistoryIndex=stockoutHistoryList.length-1;
+      updateStockoutHistoryControls();
+      requestAnimationFrame(()=>{
+        loadStockoutIntoForm(stockoutHistoryList[stockoutHistoryIndex]);
+        const d=ymdFromDateText(stockoutHistoryList[stockoutHistoryIndex].dateText);
+        if($('stockoutHistoryDate') && d)$('stockoutHistoryDate').value=d;
+      });
+    }else{
+      updateStockoutHistoryControls();
+    }
+    return;
+  }
+
+  /* Nếu dữ liệu vừa đồng bộ lại, giữ đúng phiếu đang xem */
+  if(currentId){
+    const found=stockoutHistoryList.findIndex(x=>String(x.id)===String(currentId));
+    if(found>=0)stockoutHistoryIndex=found;
   }
 
   let nextIndex=stockoutHistoryIndex+step;
@@ -3570,15 +5118,19 @@ function browseStockoutHistory(step){
   stockoutHistoryIndex=nextIndex;
   updateStockoutHistoryControls();
 
-  /* requestAnimationFrame giúp đổi phiếu mượt, không giật toàn giao diện */
   requestAnimationFrame(()=>{
-    loadStockoutIntoForm(stockoutHistoryList[stockoutHistoryIndex]);
+    const invoice=stockoutHistoryList[stockoutHistoryIndex];
+    loadStockoutIntoForm(invoice);
+    const d=ymdFromDateText(invoice.dateText);
+    if($('stockoutHistoryDate') && d)$('stockoutHistoryDate').value=d;
   });
 }
 function initStockoutHistoryNav(){
   if(!$('stockoutHistoryDate'))return;
   if(!$('stockoutHistoryDate').value)$('stockoutHistoryDate').value=todayYMD();
-  loadStockoutHistoryDate(false);
+
+  stockoutHistoryList=getStockoutHistoryForDate('');
+  stockoutHistoryIndex=stockoutHistoryList.length; // Phiếu mới nằm sau phiếu cuối
   updateStockoutHistoryControls();
   refreshStockoutHistoryNav();
 }
@@ -3645,7 +5197,7 @@ function lockManager(){
   afterManagerUnlock=null;
 
   const active=document.querySelector('.page.active')?.id;
-  if(['stockin','suppliers','reports','settings'].includes(active)){
+  if(['stockin','suppliers','settings'].includes(active) || (active==='customers' && !staffModuleEnabled('customers'))){
     go('dashboard');
   }else{
     renderAll();
@@ -3670,30 +5222,44 @@ function applyPermissions(){
     roleBtn.title=isManager?'Bấm để khóa quyền Quản lý':'Bấm để nhập PIN Quản lý';
   }
 
-  const managerPages=['suppliers','reports','settings'];
-  document.querySelectorAll('#nav button').forEach(btn=>{
-    if(managerPages.includes(btn.dataset.page)){
-      btn.classList.toggle('manager-hidden',!isManager);
+  const managerPages=['stockin','suppliers','settings'];
+  document.querySelectorAll('#nav button[data-page]').forEach(btn=>{
+    const page=btn.dataset.page;
+    let hide=false;
+
+    if(!isManager){
+      if(managerPages.includes(page)){
+        hide=true;
+      }else{
+        hide=!staffModuleEnabled(page);
+      }
     }
-    /* Kho hàng luôn hiển thị cho cả Nhân viên và Quản lý */
-    if(btn.dataset.page==='warehouse'){
-      btn.classList.remove('manager-hidden');
-      btn.style.display='';
-    }
-    if(btn.dataset.page==='employees'){
-      btn.classList.remove('manager-hidden');
-      btn.style.display='';
-    }
+
+    btn.classList.toggle('manager-hidden',hide);
+    if(!hide)btn.style.display='';
   });
 
+  document.querySelectorAll('.manager-menu-extra').forEach(el=>el.classList.toggle('manager-hidden',!isManager));
+  renderStaffModuleSettings();
   if($('resetDemoBtn'))$('resetDemoBtn').classList.toggle('manager-hidden',!isManager);
   if($('addProductBtn'))$('addProductBtn').classList.toggle('manager-hidden',!isManager);
   if($('manageGroupBtn'))$('manageGroupBtn').classList.toggle('manager-hidden',!isManager);
   if($('productCostNote'))$('productCostNote').classList.toggle('manager-hidden',!isManager);
   if($('supplierDebtCard'))$('supplierDebtCard').classList.toggle('manager-hidden',!isManager);
+  if($('paySupplierTab'))$('paySupplierTab').classList.toggle('manager-hidden',!isManager);
+  if(!isManager && paymentTab==='supplier')paymentTab='customer';
+  if($('paymentCustomerPanel'))$('paymentCustomerPanel').style.display=paymentTab==='customer'?'block':'none';
+  if($('paymentSupplierPanel'))$('paymentSupplierPanel').style.display=(isManager && paymentTab==='supplier')?'block':'none';
   if($('employeeAddBtn'))$('employeeAddBtn').classList.toggle('manager-hidden',!isManager);
   if($('employeePayrollCard'))$('employeePayrollCard').classList.toggle('manager-hidden',!isManager);
   if($('employeeSelfCheckCard'))$('employeeSelfCheckCard').style.display=isManager?'none':'block';
+  const warehouseForStaff=isManager || staffModuleEnabled('warehouse');
+  if($('warehouseManageGroupBtn')){
+    $('warehouseManageGroupBtn').classList.toggle('manager-hidden',!warehouseForStaff);
+  }
+  if($('warehouseAddProductBtn')){
+    $('warehouseAddProductBtn').classList.toggle('manager-hidden',!warehouseForStaff);
+  }
 
   if($('soEditBtn') && stockoutViewingHistory){
     $('soEditBtn').style.display=(isManager && !stockoutEditingHistory)?'inline-flex':'none';
@@ -3741,7 +5307,7 @@ function openProductGroupManager(){
     <div class="hint" style="margin-bottom:10px">Tạo nhóm trước, sau đó khi thêm hàng hóa chỉ cần chọn nhóm.</div>
     <div style="display:flex;gap:8px;margin-bottom:14px">
       <input id="newProductGroupName" placeholder="Tên nhóm mới, ví dụ: Quạt máy" style="flex:1"
-             onkeydown="if(event.key==='Enter')addProductGroup()">
+             onkeydown="if(event.key==='Enter')addProductGroup()" onfocus="this.select()" onclick="this.select()">
       <button class="btn primary" onclick="addProductGroup()">+ Tạo nhóm</button>
     </div>
     <div class="group-manage-list">${rows}</div>
@@ -3753,7 +5319,7 @@ function openProductGroupManager(){
 }
 
 async function addProductGroup(){
-  if(!isManager)return requireManager(()=>addProductGroup(),'Tạo nhóm cần quyền Quản lý.');
+  if(!isManager && !staffModuleEnabled('warehouse'))return toast('Module Hàng hóa & Kho đang bị ẩn.');
   const name=String($('newProductGroupName')?.value||'').trim();
   if(!name)return alert('Nhập tên nhóm hàng.');
 
@@ -3820,8 +5386,9 @@ async function changeManagerPin(){
 }
 
 function go(id){
-  if(['stockin','suppliers','reports','settings'].includes(id) && !isManager){
-    return requireManager(()=>go(id),'Mục này chỉ dành cho Quản lý.');
+  if(!isManager && !staffModuleEnabled(id)){
+    toast('Chức năng này đang được Quản lý ẩn khỏi giao diện Nhân viên.');
+    return;
   }
 
   const target=$(id);
@@ -3831,14 +5398,15 @@ function go(id){
   document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));
   $('pageTitle').textContent={
     dashboard:'Tổng quan',
-    products:'Hàng hóa',
-    warehouse:'Kho hàng',
+    products:'Tồn kho',
+    warehouse:'Hàng hóa & Kho',
     stockin:'Nhập hàng',
-    stockout:'Xuất kho',
+    stockout:'Phiếu xuất hàng',
     customers:'Khách hàng',
     suppliers:'Nhà cung cấp',
     warranty:'Bảo hành',
-    debts:'Công nợ',
+    debts:'Công nợ khách hàng',
+    payments:'Thanh toán',
     employees:'Nhân viên',
     expenses:'Chi phí',
     reports:'Báo cáo',
@@ -3861,8 +5429,18 @@ function go(id){
 }
 $('nav').onclick=e=>{const btn=e.target.closest('button[data-page]');if(btn)go(btn.dataset.page)}
 
-function customerDebt(id){let c=db.customers.find(x=>x.id===id);return Math.max(0,(c?.oldDebt||0)+db.stockout.filter(o=>o.customerId===id).reduce((s,o)=>s+Number(o.debt||0),0))}
-function supplierDebt(id){let s=db.suppliers.find(x=>x.id===id);return Math.max(0,(s?.oldDebt||0)+db.stockin.filter(o=>o.supplierId===id).reduce((a,o)=>a+Number(o.debt||0),0))}
+function customerDebt(id){
+  let c=db.customers.find(x=>x.id===id);
+  const due=(c?.oldDebt||0)+db.stockout.filter(o=>o.customerId===id).reduce((s,o)=>s+Number(o.debt||0),0);
+  const paid=(db.customerPayments||[]).filter(p=>p.customerId===id).reduce((s,p)=>s+Number(p.amount||0),0);
+  return Math.max(0,due-paid);
+}
+function supplierDebt(id){
+  let s=db.suppliers.find(x=>x.id===id);
+  const due=(s?.oldDebt||0)+db.stockin.filter(o=>o.supplierId===id).reduce((a,o)=>a+Number(o.debt||0),0);
+  const paid=(db.supplierPayments||[]).filter(p=>p.supplierId===id).reduce((a,p)=>a+Number(p.amount||0),0);
+  return Math.max(0,due-paid);
+}
 
 function ensureExpenseData(){
   if(!Array.isArray(db.expenseCategories) || !db.expenseCategories.length){
@@ -3882,6 +5460,40 @@ function ensureExpenseData(){
   }
   if(!db.settings)db.settings={};
   if(!('lastBackupAt' in db.settings))db.settings.lastBackupAt='';
+  if(!db.settings.recentOutLimit)db.settings.recentOutLimit=20;
+
+  if(!db.settings.staffModules || typeof db.settings.staffModules!=='object'){
+    db.settings.staffModules={
+      dashboard:true,
+      stockout:true,
+      payments:true,
+      warranty:true,
+      expenses:true,
+      warehouse:true,
+      customers:false,
+      debts:true,
+      employees:false,
+      reports:false
+    };
+  }else{
+    const defaults={
+      dashboard:true,stockout:true,payments:true,warranty:true,expenses:true,
+      warehouse:true,customers:false,debts:true,employees:false,reports:false
+    };
+    Object.keys(defaults).forEach(k=>{
+      if(typeof db.settings.staffModules[k]!=='boolean')db.settings.staffModules[k]=defaults[k];
+    });
+  }
+  if(!db.settings.staffActions || typeof db.settings.staffActions!=='object'){
+    db.settings.staffActions={
+      manageGroups:false,
+      addProduct:false
+    };
+  }else{
+    if(typeof db.settings.staffActions.manageGroups!=='boolean')db.settings.staffActions.manageGroups=false;
+    if(typeof db.settings.staffActions.addProduct!=='boolean')db.settings.staffActions.addProduct=false;
+  }
+
 }
 
 function expenseCategoryIsPrivate(name){
@@ -4152,7 +5764,7 @@ function normalizeDB(){
 
   [
     'products','customers','suppliers','stockin','stockout',
-    'warranty','expenses','expenseCategories','expensePrivateCategories',
+    'warranty','expenses','expenseCategories','expensePrivateCategories','customerPayments','supplierPayments','archives',
     'employees','employeeAbsences','salaryPayments','employeeSundayOvertime','employeeAttendanceConfirmations','employeeAttendanceConfirmations'
   ].forEach(k=>{
     if(!Array.isArray(db[k]))db[k]=[];
@@ -4168,25 +5780,64 @@ function renderDashboard(){
   let rev=db.stockout.reduce((s,o)=>s+o.total,0);
   let purch=db.stockin.reduce((s,o)=>s+o.total,0);
 
+  const today=currentISODate();
+  const expenseToday=(db.expenses||[])
+    .filter(e=>expenseDateISO(e)===today && (isManager || !expenseCategoryIsPrivate(e.category)))
+    .reduce((s,e)=>s+Number(e.amount||0),0);
+
   let cards=isManager
     ? [
         ['Doanh thu',money(rev),db.stockout.length+' phiếu xuất'],
         ['Nhập hàng',money(purch),db.stockin.length+' phiếu nhập'],
         ['Giá trị tồn',money(db.products.reduce((s,p)=>s+p.stock*p.cost,0)),'Theo giá vốn'],
-        ['Công nợ KH',money(db.customers.reduce((s,c)=>s+customerDebt(c.id),0)),'Tổng còn nợ']
+        ['Công nợ KH',money(db.customers.reduce((s,c)=>s+customerDebt(c.id),0)),'Tổng còn nợ'],
+        ['Chi phí hôm nay',money(expenseToday),'Tự cộng từ sổ Chi phí']
       ]
     : [
         ['Doanh thu',money(rev),db.stockout.length+' phiếu xuất'],
         ['Đơn xuất',String(db.stockout.length),'Phiếu đã lưu'],
         ['Mặt hàng',String(db.products.length),'Sản phẩm đang quản lý'],
-        ['Công nợ KH',money(db.customers.reduce((s,c)=>s+customerDebt(c.id),0)),'Tổng còn nợ']
+        ['Công nợ KH',money(db.customers.reduce((s,c)=>s+customerDebt(c.id),0)),'Tổng còn nợ'],
+        ['Chi phí hôm nay',money(expenseToday),'Theo quyền Nhân viên']
       ];
 
   $('kpis').innerHTML=cards.map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="hint">${x[2]}</div></div>`).join('');
-  $('recentOut').innerHTML=table(['Mã','Ngày','Khách','Tổng','Còn nợ'],[...db.stockout].slice(-5).reverse().map(o=>`<tr><td>${o.id}</td><td>${o.dateText}</td><td>${db.customers.find(c=>c.id===o.customerId)?.name||''}</td><td>${money(o.total)}</td><td>${money(o.debt)}</td></tr>`));
+  const recentLimit=Math.max(1,Number(db.settings?.recentOutLimit)||20);
+  if($('recentOutNote'))$('recentOutNote').textContent='Hiển thị '+recentLimit+' phiếu gần nhất • Bấm tên khách để xem chi tiết (chỉ xem).';
+  $('recentOut').innerHTML=table(['Mã','Ngày xuất','Khách hàng','Tổng','Còn nợ'],[...db.stockout].slice(-recentLimit).reverse().map(o=>{
+    const customer=db.customers.find(c=>c.id===o.customerId);
+    return `<tr><td>${esc(o.id)}</td><td>${esc(o.dateText||'')}</td><td><button type="button" class="recent-invoice-link" style="border:0;background:none;padding:0;font:inherit" onclick="openRecentInvoice('${esc(o.id)}')">${esc(customer?.name||'Khách hàng')}</button></td><td>${money(o.total)}</td><td>${money(o.debt)}</td></tr>`;
+  }));
   let low=db.products.filter(p=>p.stock<=p.min);
   $('lowStock').innerHTML=low.length?low.map(p=>`<div style="padding:9px 0;border-bottom:1px solid #edf2f5"><b>${p.name}</b><div class="small">Tồn ${p.stock} • Cảnh báo ${p.min}</div></div>`).join(''):'<div class="small">Không có hàng sắp hết.</div>';
 }
+function openRecentInvoice(id){
+  const invoice=(db.stockout||[]).find(o=>String(o.id)===String(id));
+  if(!invoice)return alert('Không tìm thấy phiếu xuất.');
+  go('stockout');
+
+  /* Mở từ Tổng quan: chuyển thanh lịch sử về toàn bộ phiếu và trỏ đúng phiếu hiện tại. */
+  if($('stockoutHistoryDate'))$('stockoutHistoryDate').value='';
+  stockoutHistoryList=getStockoutHistoryForDate('');
+  stockoutHistoryIndex=stockoutHistoryList.findIndex(x=>String(x.id)===String(id));
+  updateStockoutHistoryControls();
+
+  loadStockoutIntoForm(invoice);
+  setStockoutLocked(true);
+  toast('Đang xem chi tiết '+id+' • Phiếu đã khóa, không thể sửa.');
+}
+
+async function saveRecentOutLimit(){
+  if(!isManager)return;
+  ensureExpenseData();
+  const el=$('recentOutLimit');
+  const n=Math.max(1,Number(el?.value)||20);
+  db.settings.recentOutLimit=n;
+  await saveDB();
+  renderDashboard();
+  toast('Đã cài Tổng quan hiển thị '+n+' phiếu xuất gần nhất');
+}
+
 function renderProducts(){
   let q=norm($('prodSearch')?.value||''),g=$('prodGroup')?.value||'';
   let filtered=db.products.filter(p=>(norm(p.id+' '+p.name).includes(q))&&(!g||p.group===g));
@@ -4219,7 +5870,7 @@ function renderProducts(){
 
   ensureProductGroups();
   let cur=$('prodGroup').value;
-  $('prodGroup').innerHTML='<option value="">Tất cả nhóm</option>'+db.productGroups.map(x=>`<option value="${esc(x)}" ${x===cur?'selected':''}>${esc(x)}</option>`).join('');
+  $('prodGroup').innerHTML='<option value="">Tất cả</option>'+db.productGroups.map(x=>`<option value="${esc(x)}" ${x===cur?'selected':''}>${esc(x)}</option>`).join('');
 }
 
 function productMovementTotals(productId){
@@ -4264,6 +5915,7 @@ function warehouseGroupChanged(){
   if($('warehouseProductList'))$('warehouseProductList').classList.remove('show');
   warehouseProductIndex=-1;
   renderWarehouse();
+  renderWarehousePrintGroups();
 }
 
 function warehouseProductMatches(text){
@@ -4297,7 +5949,7 @@ function renderWarehouseProductList(forceAll=false){
         <div class="name">${esc(p.name)}</div>
         <div class="meta">${esc(p.id)} • ${esc(p.group||'')} • ${esc(p.unit||'')}</div>
       </div>
-      <div class="qty">Tồn: ${Number(p.stock||0)}</div>
+      <div class="qty">${money(p.salePrice!==undefined?p.salePrice:(p.price||0))} • Tồn: ${Number(p.stock||0)}</div>
     </div>
   `).join('');
 
@@ -4387,7 +6039,7 @@ function renderWarehouse(){
   if(groupSelect){
     const cur=groupSelect.value;
     groupSelect.innerHTML=
-      '<option value="">Tồn tất cả</option>'+
+      '<option value="">Tất cả nhóm</option>'+
       db.productGroups.map(g=>`<option value="${esc(g)}" ${g===cur?'selected':''}>${esc(g)}</option>`).join('');
   }
 
@@ -4435,6 +6087,7 @@ function renderWarehouse(){
       <td><b>${esc(p.name)}</b></td>
       <td>${esc(p.group||'')}</td>
       <td class="center">${esc(p.unit||'')}</td>
+      <td class="right"><b>${money(p.salePrice!==undefined?p.salePrice:(p.price||0))}</b></td>
       <td class="center"><span class="stock-qty ${qtyClass}">${Number(p.stock||0)}</span></td>
       <td class="center">${Number(p.min||0)}</td>
       <td class="center">${statusHtml}</td>
@@ -4443,7 +6096,7 @@ function renderWarehouse(){
   });
 
   $('warehouseTable').innerHTML=table(
-    ['Mã','Tên hàng','Nhóm','ĐVT','Tồn hiện tại','Tồn tối thiểu','Trạng thái',''],
+    ['Mã','Tên hàng','Nhóm','ĐVT','Giá bán','Tồn hiện tại','Tồn tối thiểu','Trạng thái',''],
     rows
   );
 }
@@ -4486,31 +6139,94 @@ function productMovementRows(productId){
   return rows.sort((a,b)=>a.time-b.time || String(a.ref).localeCompare(String(b.ref)));
 }
 
+let warehouseMovementProductId='';
+
+function warehouseMovementFilterRows(productId){
+  const from=$('whMoveFrom')?.value||'';
+  const to=$('whMoveTo')?.value||'';
+  const type=$('whMoveType')?.value||'all';
+
+  return productMovementRows(productId).filter(m=>{
+    const d=ymdFromDateText(m.dateText);
+    if(from && d<from)return false;
+    if(to && d>to)return false;
+    if(type==='in' && m.type!=='Nhập')return false;
+    if(type==='out' && m.type!=='Xuất')return false;
+    return true;
+  });
+}
+
+function renderWarehouseMovementFiltered(){
+  const productId=warehouseMovementProductId;
+  const p=(db.products||[]).find(x=>x.id===productId);
+  const box=$('whMoveTable');
+  const summary=$('whMoveFilterSummary');
+  if(!p || !box)return;
+
+  /* Tồn sau giao dịch phải tính theo TOÀN BỘ lịch sử, rồi mới lọc dòng hiển thị. */
+  const opening=productOpeningStock(p);
+  const all=productMovementRows(productId);
+  let running=opening;
+  const runningByKey=new Map();
+
+  all.forEach((m,idx)=>{
+    running+=m.qtyIn-m.qtyOut;
+    runningByKey.set(String(m.ref)+'|'+String(m.time)+'|'+idx,running);
+    m.__rowKey=String(m.ref)+'|'+String(m.time)+'|'+idx;
+  });
+
+  const from=$('whMoveFrom')?.value||'';
+  const to=$('whMoveTo')?.value||'';
+  const type=$('whMoveType')?.value||'all';
+
+  const filtered=all.filter(m=>{
+    const d=ymdFromDateText(m.dateText);
+    if(from && d<from)return false;
+    if(to && d>to)return false;
+    if(type==='in' && m.type!=='Nhập')return false;
+    if(type==='out' && m.type!=='Xuất')return false;
+    return true;
+  });
+
+  const rows=filtered.map(m=>`<tr>
+    <td>${esc(m.dateText)}</td>
+    <td><span class="badge ${m.type==='Nhập'?'ok':'info'}">${m.type}</span></td>
+    <td><b>${esc(m.ref)}</b></td>
+    <td>${esc(m.partner)}</td>
+    <td class="right">${m.qtyIn||''}</td>
+    <td class="right">${m.qtyOut||''}</td>
+    <td class="right"><b>${runningByKey.get(m.__rowKey)??''}</b></td>
+  </tr>`);
+
+  box.innerHTML=table(
+    ['Ngày','Loại','Số phiếu','NCC / Khách hàng','Nhập','Xuất','Tồn sau GD'],
+    rows
+  );
+
+  const totalIn=filtered.reduce((s,m)=>s+m.qtyIn,0);
+  const totalOut=filtered.reduce((s,m)=>s+m.qtyOut,0);
+  if(summary){
+    summary.textContent=`Tìm thấy ${filtered.length} giao dịch • Nhập ${totalIn} • Xuất ${totalOut}`;
+  }
+}
+
+function resetWarehouseMovementFilters(){
+  if($('whMoveFrom'))$('whMoveFrom').value='';
+  if($('whMoveTo'))$('whMoveTo').value='';
+  if($('whMoveType'))$('whMoveType').value='all';
+  renderWarehouseMovementFiltered();
+}
+
 function openProductMovement(productId){
   const p=(db.products||[]).find(x=>x.id===productId);
   if(!p)return alert('Không tìm thấy hàng hóa.');
 
+  warehouseMovementProductId=productId;
   const opening=productOpeningStock(p);
-  const movements=productMovementRows(productId);
-  let running=opening;
-
-  const rows=movements.map(m=>{
-    running+=m.qtyIn-m.qtyOut;
-    return `<tr>
-      <td>${esc(m.dateText)}</td>
-      <td><span class="badge ${m.type==='Nhập'?'ok':'info'}">${m.type}</span></td>
-      <td><b>${esc(m.ref)}</b></td>
-      <td>${esc(m.partner)}</td>
-      <td class="right">${m.qtyIn||''}</td>
-      <td class="right">${m.qtyOut||''}</td>
-      <td class="right"><b>${running}</b></td>
-    </tr>`;
-  });
-
   const mv=productMovementTotals(productId);
 
   showModal(`
-    <h3>Lịch sử Nhập – Xuất</h3>
+    <h3>Lịch sử Nhập – Xuất theo hàng</h3>
     <div><b>${esc(p.name)}</b> <span class="small">• ${esc(p.id)} • ${esc(p.unit||'')}</span></div>
 
     <div class="warehouse-history-summary">
@@ -4520,14 +6236,35 @@ function openProductMovement(productId){
       <div><span class="small">Tồn hiện tại</span><b>${Number(p.stock||0)}</b></div>
     </div>
 
-    <div class="warehouse-history-box">
-      ${table(['Ngày','Loại','Số phiếu','NCC / Khách hàng','Nhập','Xuất','Tồn sau GD'],rows)}
+    <div style="display:grid;grid-template-columns:minmax(150px,1fr) minmax(150px,1fr) minmax(180px,1fr) auto;gap:8px;align-items:end;margin:12px 0">
+      <div>
+        <label>Từ ngày</label>
+        <input id="whMoveFrom" type="date" onchange="renderWarehouseMovementFiltered()">
+      </div>
+      <div>
+        <label>Đến ngày</label>
+        <input id="whMoveTo" type="date" onchange="renderWarehouseMovementFiltered()">
+      </div>
+      <div>
+        <label>Loại phiếu</label>
+        <select id="whMoveType" onchange="renderWarehouseMovementFiltered()">
+          <option value="all">Tất cả phiếu</option>
+          <option value="in">Phiếu nhập</option>
+          <option value="out">Phiếu xuất</option>
+        </select>
+      </div>
+      <button class="btn" onclick="resetWarehouseMovementFilters()">Xóa lọc</button>
     </div>
+
+    <div id="whMoveFilterSummary" class="small" style="margin:4px 0 8px"></div>
+    <div id="whMoveTable" class="warehouse-history-box"></div>
 
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Đóng</button>
     </div>
   `);
+
+  renderWarehouseMovementFiltered();
 }
 
 function renderCustomers(){
@@ -4546,32 +6283,48 @@ function renderWarranty(){
   const st=$('warStatus')?.value||'';
   const list=(db.warranty||[]).filter(w=>{
     const c=(db.customers||[]).find(x=>x.id===w.customerId);
+    const p=(db.products||[]).find(x=>x.id===w.productId);
     return (!st || w.status===st) &&
-      norm((c?.name||'')+' '+(w.item||'')+' '+(w.issue||'')).includes(q);
+      norm((c?.name||'')+' '+(p?.name||w.item||'')+' '+(w.issue||'')+' '+(w.batchId||'')).includes(q);
   });
 
   $('warrantyTable').innerHTML=table(
-    ['Mã','Ngày nhận','Khách hàng','Hàng bảo hành','Nội dung / lỗi','Trạng thái','Phiếu trả','Thao tác'],
+    ['Phiếu BH','Ngày nhận','Khách hàng','Hàng bảo hành','SL','Nội dung / lỗi','Trạng thái','Phiếu trả','Thao tác'],
     list.map(w=>{
       const c=(db.customers||[]).find(x=>x.id===w.customerId);
+      const p=(db.products||[]).find(x=>x.id===w.productId);
       let action='';
+
       if(w.status==='Đang xử lý'){
-        action='<span class="badge info">Chờ xử lý</span>';
+        action=`<div class="warranty-action-stack">
+          <button class="btn ok" onclick="setWarrantyReady('${w.id}')">✓ Sẵn sàng trả</button>
+          <button class="btn return-goods" onclick="openWarrantyCustomerReturn('${w.id}')">↩ Khách trả lại</button>
+        </div>`;
       }else if(w.status==='Chờ trả'){
-        action='<span class="badge warn">Chờ giao theo đơn</span>';
+        action=`<div class="warranty-action-stack">
+          <button class="btn" onclick="setWarrantyProcessing('${w.id}')">↩ Đang xử lý</button>
+          <button class="btn return-goods" onclick="openWarrantyCustomerReturn('${w.id}')">↩ Khách trả lại</button>
+        </div>`;
+      }else if(w.status==='Đã trả'){
+        action='<span class="badge ok">Hoàn tất</span>';
+      }else if(w.status==='Đã trả lại'){
+        action='<span class="badge ok">Đã nhập lại kho</span>';
       }
 
       const statusHtml=w.status==='Đã trả'
         ? '<span class="badge ok">Đã trả</span>'
-        : w.status==='Chờ trả'
-          ? '<span class="badge warn">Chờ trả</span>'
-          : '<span class="badge info">Đang xử lý</span>';
+        : w.status==='Đã trả lại'
+          ? '<span class="badge ok">Đã trả lại</span>'
+          : w.status==='Chờ trả'
+            ? '<span class="badge warn">Chờ trả</span>'
+            : '<span class="badge info">Đang xử lý</span>';
 
       return `<tr>
-        <td>${esc(w.id||'')}</td>
+        <td><b>${esc(w.batchId||w.id||'')}</b></td>
         <td>${esc(w.receivedDate||'')}</td>
         <td><b>${esc(c?.name||'')}</b></td>
-        <td>${esc(w.item||'')}</td>
+        <td>${esc(p?.name||w.item||'')}</td>
+        <td class="center">${Number(w.qty||1)}</td>
         <td>${esc(w.issue||'')}</td>
         <td>${statusHtml}</td>
         <td>${w.stockoutId?esc(w.stockoutId):''}</td>
@@ -4582,6 +6335,8 @@ function renderWarranty(){
 }
 
 function renderDebts(){
+  ensureExpenseData();
+  if($('recentOutLimit'))$('recentOutLimit').value=String(db.settings?.recentOutLimit||20);
   $('customerDebtTable').innerHTML=table(['Khách hàng','Còn nợ'],db.customers.filter(c=>customerDebt(c.id)>0).map(c=>`<tr><td>${c.name}</td><td class="right"><b>${money(customerDebt(c.id))}</b></td></tr>`));
 
   if(isManager){
@@ -4849,13 +6604,12 @@ function renderExpenseDetail(){
   }
 }
 
-function openAddExpense(){
+function openAddExpense(selectedDate=''){
   ensureExpenseData();
-  const today=new Date();
-  const d=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const d=selectedDate || currentISODate();
 
   showModal(`
-    <h3>Ghi chi phí</h3>
+    <h3>Ghi chi phí • ${esc(reportDateLabel(d))}</h3>
     <div class="form-grid">
       <div>
         <label>Ngày</label>
@@ -4863,21 +6617,19 @@ function openAddExpense(){
       </div>
       <div>
         <label>Loại chi phí</label>
-        <select id="expenseCategory">
-          ${expenseCategoriesForCurrentRole().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}
-        </select>
+        <input id="expenseCategory" placeholder="Ví dụ: Xăng xe, giao hàng, phí chành...">
       </div>
       <div class="full">
         <label>Nội dung</label>
-        <input id="expenseContent" placeholder="Ví dụ: Lương tháng 8, giao hàng, chạy quảng cáo...">
+        <input id="expenseContent" placeholder="Ví dụ: Đổ xăng xe giao hàng, phí chành...">
       </div>
       <div>
         <label>Số tiền</label>
         <input id="expenseAmount" type="number" min="0" placeholder="0">
       </div>
-      <div class="full">
-        <label>Ghi chú</label>
-        <input id="expenseNote" placeholder="Không bắt buộc">
+      <div>
+        <label>Người chi / thực hiện</label>
+        <input id="expensePerson" placeholder="Ví dụ: Anh A đi giao hàng">
       </div>
     </div>
     <div class="modal-actions">
@@ -4892,7 +6644,8 @@ async function saveExpense(){
   const category=$('expenseCategory')?.value||'';
   const content=$('expenseContent')?.value.trim()||'';
   const amount=Number($('expenseAmount')?.value)||0;
-  const note=$('expenseNote')?.value.trim()||'';
+  const note='';
+  const person=$('expensePerson')?.value.trim()||'';
 
   if(!date)return alert('Chọn ngày chi phí');
   if(!category)return alert('Chọn loại chi phí');
@@ -4910,7 +6663,10 @@ async function saveExpense(){
     category,
     content,
     amount,
-    note
+    person,
+    note,
+    enteredRole:isManager?'Quản lý':'Nhân viên',
+    createdAt:nowText()
   };
 
   db.expenses.push(item);
@@ -4924,6 +6680,7 @@ async function saveExpense(){
   renderReports();
   renderExpenseDetail();
   if(typeof renderExpenseEntryPage==='function')renderExpenseEntryPage();
+  if(typeof renderExpenseCalendar==='function')renderExpenseCalendar();
   toast('Đã ghi chi phí');
 }
 
@@ -4947,9 +6704,7 @@ function editExpense(id){
       </div>
       <div>
         <label>Loại chi phí</label>
-        <select id="editExpenseCategory">
-          ${expenseCategoriesForCurrentRole().map(c=>`<option value="${esc(c)}" ${c===e.category?'selected':''}>${esc(c)}</option>`).join('')}
-        </select>
+        <input id="editExpenseCategory" value="${esc(e.category||'')}" placeholder="Tự ghi loại chi phí">
       </div>
       <div class="full">
         <label>Nội dung</label>
@@ -4959,9 +6714,9 @@ function editExpense(id){
         <label>Số tiền</label>
         <input id="editExpenseAmount" type="number" min="0" value="${Number(e.amount)||0}">
       </div>
-      <div class="full">
-        <label>Ghi chú</label>
-        <input id="editExpenseNote" value="${esc(e.note||'')}">
+      <div>
+        <label>Người chi / thực hiện</label>
+        <input id="editExpensePerson" value="${esc(e.person||'')}">
       </div>
     </div>
     <div class="modal-actions">
@@ -4983,14 +6738,15 @@ async function saveEditedExpense(id){
   const category=$('editExpenseCategory')?.value||'';
   const content=$('editExpenseContent')?.value.trim()||'';
   const amount=Number($('editExpenseAmount')?.value)||0;
-  const note=$('editExpenseNote')?.value.trim()||'';
+  const note='';
+  const person=$('editExpensePerson')?.value.trim()||'';
 
   if(!date)return alert('Chọn ngày chi phí');
   if(!category)return alert('Chọn loại chi phí');
   if(amount<=0)return alert('Nhập số tiền chi phí');
 
   const old={...db.expenses[idx]};
-  db.expenses[idx]={...db.expenses[idx],date,category,content,amount,note};
+  db.expenses[idx]={...db.expenses[idx],date,category,content,amount,person,note};
 
   const ok=await saveDB();
   if(!ok){
@@ -5002,6 +6758,7 @@ async function saveEditedExpense(id){
   renderReports();
   renderExpenseDetail();
   renderExpenseEntryPage();
+  renderExpenseCalendar();
   toast('Đã sửa chi phí');
 }
 
@@ -5025,6 +6782,8 @@ async function deleteExpense(id){
   }
   renderReports();
   renderExpenseDetail();
+  renderExpenseEntryPage();
+  renderExpenseCalendar();
 }
 
 function renderExpenseCategories(){
@@ -5071,7 +6830,6 @@ async function toggleExpenseCategoryPrivacy(name){
     return;
   }
 
-  renderExpenseCategories();
   renderExpenseEntryPage();
 }
 
@@ -5106,7 +6864,6 @@ async function saveExpenseCategory(){
   }
 
   closeModal();
-  renderExpenseCategories();
   toast('Đã thêm loại chi phí');
 }
 
@@ -5125,7 +6882,6 @@ async function deleteExpenseCategory(name){
     db.expenseCategories=old;
     return;
   }
-  renderExpenseCategories();
 }
 
 
@@ -5160,8 +6916,8 @@ function renderExpenseEntryPage(){
     <td>${esc(reportDateLabel(e.date))}</td>
     <td>${esc(e.category||'')}</td>
     <td>${esc(e.content||'')}</td>
+    <td>${esc(e.person||'')}</td>
     <td class="right"><b>${money(e.amount)}</b></td>
-    <td>${esc(e.note||'')}</td>
     <td class="center expense-row-actions">
       <button class="icon-btn" title="Sửa" onclick="editExpense('${e.id}')">✎</button>
       <button class="icon-btn danger-icon" title="Xóa" onclick="deleteExpense('${e.id}')">🗑</button>
@@ -5169,7 +6925,7 @@ function renderExpenseEntryPage(){
   </tr>`);
 
   $('expenseEntryTable').innerHTML=table(
-    ['Ngày','Loại chi phí','Nội dung','Số tiền','Ghi chú','Thao tác'],
+    ['Ngày','Loại chi phí','Nội dung','Người thực hiện','Số tiền','Thao tác'],
     tr
   );
 }
@@ -6527,7 +8283,6 @@ async function saveSalaryPayment(employeeId,month){
   renderEmployees();
   renderReports();
   renderExpenseEntryPage();
-  renderExpenseCategories();
   toast('Đã trừ tiền thanh toán khỏi lương còn lại và tự ghi vào chi phí');
 }
 
@@ -6543,12 +8298,14 @@ function renderSettings(){
   ['siPhone','soPhone'].forEach(id=>$(id).textContent=db.settings.phone);
   ['siAddress','soAddress'].forEach(id=>$(id).textContent=db.settings.address);
   renderLastBackup();
+  renderStaffModuleSettings();
 }
 function refreshLists(){
   $('customerList').innerHTML=db.customers.map(c=>`<option value="${esc(c.name+' - '+c.phone)}"></option>`).join('');
   $('supplierList').innerHTML=db.suppliers.map(s=>`<option value="${esc(supplierDisplay(s))}"></option>`).join('');
 }
 function renderAll(){
+  ensurePrintSettings();
   normalizeDB();
   renderDashboard();
   renderEmployeeToday();
@@ -6558,10 +8315,12 @@ function renderAll(){
   renderSuppliers();
   if(typeof renderWarranty==='function')renderWarranty();
   renderDebts();
+  renderPayments();
   renderReports();
   renderExpenseEntryPage();
+  renderExpenseCalendar();
   renderSettings();
-  renderExpenseCategories();
+  renderArchiveHistory();
   renderEmployees();
   renderEmployeeSelfCheck();
   refreshLists();
@@ -6577,6 +8336,10 @@ $('modal').onclick=e=>{if(e.target.id==='modal')closeModal()}
 $('expenseOverlay').onclick=e=>{if(e.target.id==='expenseOverlay')closeExpenseDetail()}
 
 function openCustomer(){
+  if(!isManager && !staffModuleEnabled('customers')){
+    toast('Module Khách hàng đang được Quản lý ẩn.');
+    return;
+  }
   showModal(`
     <h3>Thêm khách hàng</h3>
     <div class="form-grid">
@@ -6699,6 +8462,10 @@ function checkNewCustomerDuplicate(){
 }
 
 async function saveCustomer(){
+  if(!isManager && !staffModuleEnabled('customers')){
+    toast('Bạn chưa được cấp quyền thêm khách hàng.');
+    return;
+  }
   const c={
     id:$('mcid').value.trim(),
     name:$('mcname').value.trim(),
@@ -6853,7 +8620,7 @@ async function saveEditedProduct(){
 }
 
 function openAddProductGlobal(){
-  if(!isManager)return requireManager(()=>openAddProductGlobal(),'Thêm hàng hóa cần quyền Quản lý.');
+  if(!isManager && !staffModuleEnabled('warehouse'))return toast('Module Hàng hóa & Kho đang bị ẩn.');
 
   ensureProductGroups();
   if(!db.productGroups.length){
@@ -6888,7 +8655,7 @@ function openAddProductGlobal(){
   setTimeout(()=>$('mpname')?.focus(),50);
 }
 async function saveProductGlobal(){
-  if(!isManager)return requireManager(()=>saveProductGlobal(),'Thêm hàng hóa cần quyền Quản lý.');
+  if(!isManager && !staffModuleEnabled('warehouse'))return toast('Module Hàng hóa & Kho đang bị ẩn.');
 
   let p={
     id:$('mpid').value.trim(),
@@ -6917,57 +8684,207 @@ async function saveProductGlobal(){
     toast('Đã thêm hàng hóa');
   }
 }
+function warrantyProductMatches(q=''){
+  const s=norm(q);
+  const rows=(db.products||[]);
+  if(!s)return rows.slice(0,60);
+  return rows.filter(p=>norm((p.id||'')+' '+(p.name||'')+' '+(p.group||'')).includes(s)).slice(0,60);
+}
+
+function renderWarrantyProductList(forceAll=false){
+  const box=$('mwProductList'), input=$('mwProductSearch');
+  if(!box||!input)return;
+  const arr=forceAll?(db.products||[]).slice(0,60):warrantyProductMatches(input.value);
+  warrantyPickerIndex=-1;
+  box.innerHTML=arr.length?arr.map((p,i)=>`
+    <div class="warranty-product-item" onmousedown="event.preventDefault();chooseWarrantyProduct('${p.id}')">
+      <div><div class="name">${esc(p.name)}</div><div class="meta">${esc(p.id)} • ${esc(p.group||'')} • ${esc(p.unit||'')}</div></div>
+      <div class="small">Tồn ${Number(p.stock||0)}</div>
+    </div>`).join(''):'<div class="warranty-product-item">Không tìm thấy sản phẩm</div>';
+  box.classList.add('show');
+}
+
+function chooseWarrantyProduct(id){
+  const p=(db.products||[]).find(x=>x.id===id);
+  if(!p)return;
+  warrantySelectedProductId=p.id;
+  if($('mwProductSearch'))$('mwProductSearch').value=p.name;
+  $('mwProductList')?.classList.remove('show');
+  $('mwQty')?.focus();
+}
+
+function warrantyProductKey(e){
+  const box=$('mwProductList');
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const arr=warrantyProductMatches($('mwProductSearch')?.value||'');
+    if(warrantyPickerIndex>=0 && arr[warrantyPickerIndex]){
+      chooseWarrantyProduct(arr[warrantyPickerIndex].id);
+      return;
+    }
+    if(arr.length===1 && !warrantySelectedProductId){
+      chooseWarrantyProduct(arr[0].id);
+      return;
+    }
+    addWarrantyDraftItem();
+    return;
+  }
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault();
+    if(!box?.classList.contains('show'))renderWarrantyProductList(false);
+    const items=[...(box?.querySelectorAll('.warranty-product-item')||[])];
+    if(!items.length)return;
+    warrantyPickerIndex=e.key==='ArrowDown'
+      ?Math.min(warrantyPickerIndex+1,items.length-1)
+      :Math.max(warrantyPickerIndex-1,0);
+    items.forEach((x,i)=>x.classList.toggle('active',i===warrantyPickerIndex));
+    items[warrantyPickerIndex]?.scrollIntoView({block:'nearest'});
+  }
+}
+
+function toggleWarrantyProductList(){
+  const box=$('mwProductList');
+  if(!box)return;
+  box.classList.contains('show')?box.classList.remove('show'):renderWarrantyProductList(true);
+}
+
+function filterWarrantyProduct(){
+  warrantySelectedProductId='';
+  renderWarrantyProductList(false);
+}
+
+function renderWarrantyDraftItems(){
+  const box=$('mwItemsTable'); if(!box)return;
+  const rows=warrantyDraftItems.map((x,i)=>{
+    const p=(db.products||[]).find(y=>y.id===x.productId);
+    return `<tr>
+      <td>${i+1}</td>
+      <td><b>${esc(p?.name||'')}</b><div class="small">${esc(p?.id||'')}</div></td>
+      <td class="center">${Number(x.qty||1)}</td>
+      <td>${esc(x.issue||'')}</td>
+      <td class="center"><button class="btn danger-lite" onclick="removeWarrantyDraftItem(${i})">Xóa</button></td>
+    </tr>`;
+  });
+  box.innerHTML=table(['#','Sản phẩm','SL','Nội dung / lỗi',''],rows);
+}
+
+function addWarrantyDraftItem(){
+  const p=(db.products||[]).find(x=>x.id===warrantySelectedProductId);
+  if(!p)return alert('Chọn đúng sản phẩm trong danh mục hàng hóa.');
+  const qty=Math.max(1,Number($('mwQty')?.value)||1);
+  const issue=String($('mwIssue')?.value||'').trim();
+
+  warrantyDraftItems.push({productId:p.id,qty,issue});
+  warrantySelectedProductId='';
+  if($('mwProductSearch'))$('mwProductSearch').value='';
+  if($('mwQty'))$('mwQty').value='1';
+  if($('mwIssue'))$('mwIssue').value='';
+  renderWarrantyDraftItems();
+  setTimeout(()=>$('mwProductSearch')?.focus(),30);
+}
+
+function removeWarrantyDraftItem(index){
+  warrantyDraftItems.splice(index,1);
+  renderWarrantyDraftItems();
+}
+
 function openWarranty(){
   if(!db.customers.length){
     alert('Chưa có khách hàng. Vui lòng thêm khách hàng trước khi nhận bảo hành.');
     return;
   }
-  showModal(`<h3>Nhận bảo hành</h3>
-    <div class="form-grid">
-      <div><label>Mã phiếu BH</label><input id="mwid" value="${code('BH')}"></div>
-      <div><label>Khách hàng</label><select id="mwcustomer">${db.customers.map(c=>`<option value="${c.id}">${esc(c.name)} - ${esc(c.phone)}</option>`).join('')}</select></div>
-      <div><label>Ngày nhận</label><input id="mwdate" value="${new Date().toLocaleDateString('vi-VN')}"></div>
-      <div><label>Trạng thái</label><select id="mwstatus"><option value="Đang xử lý">Chờ xử lý</option></select></div>
-      <div class="full"><label>Hàng bảo hành</label><input id="mwitem" placeholder="Ví dụ: 1 thân quạt SHINKO D18"></div>
-      <div class="full"><label>Nội dung / lỗi</label><input id="mwissue" placeholder="Ví dụ: không chạy, kêu lớn..."></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal()">Hủy</button>
-      <button class="btn primary" onclick="saveWarranty()">Lưu bảo hành</button>
-    </div>`);
-}
-async function saveWarranty(){
-  const w={
-    id:$('mwid')?.value.trim()||code('BH'),
-    customerId:$('mwcustomer')?.value||'',
-    receivedDate:$('mwdate')?.value.trim()||'',
-    item:$('mwitem')?.value.trim()||'',
-    issue:$('mwissue')?.value.trim()||'',
-    status:$('mwstatus')?.value||'Đang xử lý',
-    returnedDate:'',
-    stockoutId:''
-  };
-
-  if(!w.customerId)return alert('Chọn khách hàng');
-  if(!w.receivedDate)return alert('Nhập ngày nhận');
-  if(!w.item)return alert('Nhập hàng bảo hành');
-
-  if((db.warranty||[]).some(x=>x.id===w.id)){
-    return alert('Mã bảo hành đã tồn tại');
-  }
-
-  db.warranty.push(w);
-
-  const ok=await saveDB();
-
-  if(!ok){
-    db.warranty=db.warranty.filter(x=>x.id!==w.id);
+  if(!(db.products||[]).length){
+    alert('Chưa có hàng hóa. Vui lòng thêm hàng hóa trước khi nhận bảo hành.');
     return;
   }
 
+  warrantyDraftItems=[];
+  warrantySelectedProductId='';
+  const batchId=code('BH');
+
+  showModal(`<h3>Nhận bảo hành</h3>
+    <div class="warranty-receive-head">
+      <div><label>Mã phiếu BH</label><input id="mwid" value="${batchId}" readonly></div>
+      <div><label>Khách hàng</label><select id="mwcustomer">${db.customers.map(c=>`<option value="${c.id}">${esc(c.name)} - ${esc(c.phone)}</option>`).join('')}</select></div>
+      <div><label>Ngày nhận</label><input id="mwdate" value="${new Date().toLocaleDateString('vi-VN')}"></div>
+      <div><label>Trạng thái</label><input value="Đang xử lý" readonly></div>
+    </div>
+
+    <div class="warranty-product-add">
+      <div>
+        <label>Hàng bảo hành</label>
+        <div class="warranty-product-picker">
+          <input id="mwProductSearch" autocomplete="off" placeholder="Gõ mã hoặc tên sản phẩm..."
+            oninput="filterWarrantyProduct()" onkeydown="warrantyProductKey(event)"
+            onfocus="this.select();renderWarrantyProductList(false)">
+          <button type="button" class="warranty-product-drop"
+            onmousedown="event.preventDefault()" onclick="toggleWarrantyProductList()">▼</button>
+          <div id="mwProductList" class="warranty-product-list"></div>
+        </div>
+      </div>
+      <div><label>SL</label><input id="mwQty" type="number" min="1" value="1" onkeydown="if(event.key==='Enter'){event.preventDefault();$('mwIssue')?.focus()}"></div>
+      <div class="warranty-issue-cell"><label>Nội dung / lỗi</label><input id="mwIssue" placeholder="Ví dụ: không chạy, kêu lớn..." onkeydown="if(event.key==='Enter'){event.preventDefault();addWarrantyDraftItem()}"></div>
+      <button class="btn primary" onclick="addWarrantyDraftItem()">+ Thêm sản phẩm</button>
+    </div>
+
+    <div class="warranty-added-wrap">
+      <div class="small" style="margin-bottom:5px">Một phiếu có thể nhận nhiều sản phẩm. Mỗi sản phẩm sẽ được xử lý riêng.</div>
+      <div id="mwItemsTable"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Hủy</button>
+      <button class="btn primary" onclick="saveWarranty()">Lưu phiếu bảo hành</button>
+    </div>`);
+  renderWarrantyDraftItems();
+  setTimeout(()=>$('mwProductSearch')?.focus(),50);
+}
+
+async function saveWarranty(){
+  const batchId=$('mwid')?.value.trim()||code('BH');
+  const customerId=$('mwcustomer')?.value||'';
+  const receivedDate=$('mwdate')?.value.trim()||'';
+
+  if(!customerId)return alert('Chọn khách hàng');
+  if(!receivedDate)return alert('Nhập ngày nhận');
+  if(!warrantyDraftItems.length)return alert('Thêm ít nhất 1 sản phẩm bảo hành.');
+
+  if((db.warranty||[]).some(x=>x.batchId===batchId || x.id===batchId)){
+    return alert('Mã phiếu bảo hành đã tồn tại.');
+  }
+
+  const created=warrantyDraftItems.map((x,i)=>{
+    const p=(db.products||[]).find(y=>y.id===x.productId);
+    return {
+      id:batchId+'-'+String(i+1).padStart(2,'0'),
+      batchId,
+      customerId,
+      receivedDate,
+      productId:x.productId,
+      item:p?.name||'',
+      qty:Number(x.qty)||1,
+      issue:x.issue||'',
+      status:'Đang xử lý',
+      returnedDate:'',
+      stockoutId:'',
+      customerReturned:false,
+      returnAmount:0,
+      returnQty:0
+    };
+  });
+
+  db.warranty.push(...created);
+  const ok=await saveDB();
+  if(!ok){
+    const ids=new Set(created.map(x=>x.id));
+    db.warranty=db.warranty.filter(x=>!ids.has(x.id));
+    return;
+  }
+
+  warrantyDraftItems=[];
   closeModal();
   renderAll();
-  toast('Đã lưu nhận bảo hành');
+  toast('Đã lưu phiếu '+batchId+' • '+created.length+' sản phẩm');
 }
 
 async function setWarrantyReady(id){
@@ -7012,7 +8929,7 @@ function renderWarrantyDebtSummary(){
     $('soWarrantyDebtSummary').textContent='Chưa chọn khách hàng.';
     return;
   }
-  let active=(db.warranty||[]).filter(w=>w.customerId===selectedCustomerId && w.status!=='Đã trả');
+  let active=(db.warranty||[]).filter(w=>w.customerId===selectedCustomerId && !['Đã trả','Đã trả lại'].includes(w.status));
   if(!active.length){
     $('soWarrantyDebtSummary').className='warranty-debt-summary none';
     $('soWarrantyDebtSummary').innerHTML='<b>Bảo hành:</b> Không còn hàng nợ bảo hành.';
@@ -7041,7 +8958,7 @@ function renderCustomerWarranty(){
   /* Trên Phiếu Xuất: mọi BH chưa trả đều xem là còn nợ BH.
      Bấm nút để đánh dấu SẼ TRẢ THEO ĐƠN. */
   let active=(db.warranty||[]).filter(w=>
-    w.customerId===selectedCustomerId && w.status!=='Đã trả'
+    w.customerId===selectedCustomerId && !['Đã trả','Đã trả lại'].includes(w.status)
   );
 
   if(!active.length){
@@ -7401,6 +9318,9 @@ function newStockin(){
   }
   setStockinLocked(false);
   addSIRow(true);
+  stockinHistoryList=getStockinHistoryForDate('');
+  stockinHistoryIndex=stockinHistoryList.length; // Phiếu mới nằm sau phiếu nhập cuối cùng
+  updateStockinHistoryControls();
 }
 function newStockout(){
   selectedCustomerId='';
@@ -7430,6 +9350,12 @@ function newStockout(){
 
   setStockoutLocked(false);
   if($('soEditBtn'))$('soEditBtn').style.display='none';
+
+  const d=$('stockoutHistoryDate')?.value||todayYMD();
+  if($('stockoutHistoryDate') && !$('stockoutHistoryDate').value)$('stockoutHistoryDate').value=d;
+  stockoutHistoryList=getStockoutHistoryForDate('');
+  stockoutHistoryIndex=stockoutHistoryList.length; // Phiếu mới nằm sau phiếu cuối toàn hệ thống
+  updateStockoutHistoryControls();
 }
 
 function matchesProducts(text){let q=norm(text.trim());if(!q)return [];return db.products.filter(p=>norm(p.name+' '+p.id).includes(q)).slice(0,12)}
@@ -7566,6 +9492,7 @@ function resolveSupplierBeforeStockinSave(){
 }
 
 async function handleStockinSave(doPrint=false){
+  const attemptedId=$('siNo')?.textContent?.trim()||'';
   try{
     if(stockinViewingHistory){
       const id=$('siNo')?.textContent?.trim()||'';
@@ -7583,9 +9510,8 @@ async function handleStockinSave(doPrint=false){
     if(!resolveSupplierBeforeStockinSave()){
       setStockinSaving(false,'');
       const raw=$('siSupplier')?.value.trim()||'';
-      if(raw){
-        askCreateNewSupplier(raw);
-      }else{
+      if(raw)askCreateNewSupplier(raw);
+      else{
         alert('Anh chọn hoặc nhập Nhà cung cấp trước khi lưu.');
         $('siSupplier')?.focus();
       }
@@ -7593,16 +9519,24 @@ async function handleStockinSave(doPrint=false){
     }
 
     const ok=await saveStockin(doPrint);
-    if(!ok){
-      setStockinSaving(false,'');
-      return;
+    setStockinSaving(false,'');
+    return ok;
+  }catch(err){
+    console.error('Lỗi thao tác Lưu phiếu nhập:',err);
+    setStockinSaving(false,'');
+
+    /* Nếu ID đã có trong db thì phiếu thực tế đã lưu; chỉ lỗi phần giao diện sau lưu. */
+    const actuallySaved=attemptedId && (db.stockin||[]).some(x=>x.id===attemptedId);
+    if(actuallySaved){
+      stockinHistoryList=getStockinHistoryForDate('');
+      stockinHistoryIndex=stockinHistoryList.length;
+      updateStockinHistoryControls();
+      toast('Đã lưu '+attemptedId+' • bấm ← để xem lại');
+      return true;
     }
 
-    setStockinSaving(false,'');
-  }catch(err){
-    console.error('Lỗi Lưu phiếu nhập:',err);
-    setStockinSaving(false,'');
     alert('Phiếu nhập chưa lưu được: '+(err?.message||err));
+    return false;
   }
 }
 
@@ -7718,24 +9652,37 @@ async function saveStockin(doPrint=false){
     return false;
   }
 
-  /* Chỉ sau khi saveDB thành công mới cập nhật giao diện */
-  renderAll();
-
-  if($('stockinHistoryDate')){
-    $('stockinHistoryDate').value=ymdFromDateText(savedInvoice.dateText);
-    loadStockinHistoryDate(false);
+  /* Từ đây phiếu đã lưu thành công vào IndexedDB.
+     Lỗi giao diện sau bước này KHÔNG được báo nhầm là "phiếu chưa lưu". */
+  try{
+    renderAll();
+  }catch(uiErr){
+    console.error('Lỗi làm mới giao diện sau khi đã lưu phiếu nhập:',uiErr);
   }
 
-  /* QUAN TRỌNG: lưu xong phải chuyển sang phiếu nhập mới TRƯỚC */
-  newStockin();
+  if($('stockinHistoryDate'))$('stockinHistoryDate').value=ymdFromDateText(savedInvoice.dateText);
+
+  try{
+    /* Lưu xong sang Phiếu mới; mũi tên ← mở đúng phiếu vừa lưu */
+    newStockin();
+  }catch(uiErr){
+    console.error('Lỗi mở Phiếu nhập mới sau khi đã lưu:',uiErr);
+    stockinHistoryList=getStockinHistoryForDate('');
+    stockinHistoryIndex=stockinHistoryList.length;
+    updateStockinHistoryControls();
+  }
 
   if(doPrint){
-    /* Phiếu mới đã nằm phía sau; gọi in phiếu vừa lưu bằng dữ liệu đã chụp */
-    buildStockinPreview(savedInvoice);
-    toast('Đã lưu '+stockinId+' • đang mở hệ thống in');
-    setTimeout(()=>printStockinPreview(true),80);
+    try{
+      buildStockinPreview(savedInvoice);
+      toast('Đã lưu '+stockinId+' • đang mở hệ thống in');
+      setTimeout(()=>printStockinPreview(true),80);
+    }catch(printErr){
+      console.error('Phiếu đã lưu nhưng chưa mở được cửa sổ in:',printErr);
+      toast('Đã lưu '+stockinId+' • có thể bấm ← để xem lại');
+    }
   }else{
-    toast('Đã lưu '+stockinId+' • đã chuyển sang phiếu nhập mới');
+    toast('Đã lưu '+stockinId+' • bấm ← để xem lại');
   }
 
   return true;
@@ -7916,10 +9863,20 @@ function clearStockoutSearch(){
 
 function openStockoutInvoice(id){
   const invoice=db.stockout.find(o=>o.id===id);
+  if($('stockoutLastSaved')){
+    $('stockoutLastSaved').classList.remove('show');
+    $('stockoutLastSaved').innerHTML='';
+  }
   if(!invoice){
     alert('Không tìm thấy phiếu xuất.');
     return;
   }
+
+  if($('stockoutHistoryDate'))$('stockoutHistoryDate').value='';
+  stockoutHistoryList=getStockoutHistoryForDate('');
+  stockoutHistoryIndex=stockoutHistoryList.findIndex(x=>x.id===id);
+  updateStockoutHistoryControls();
+
   loadStockoutIntoForm(invoice);
 }
 
@@ -8091,6 +10048,9 @@ function closeInvoicePreview(){
 
 async function handleStockoutSavePrint(){
   try{
+    ensurePrintSettings();
+    const printer=(db.settings?.defaultPrinter||'a4');
+
     if(stockoutViewingHistory && !stockoutEditingHistory){
       let id=$('soNo')?.textContent?.trim()||'';
       let invoice=(db.stockout||[]).find(x=>x.id===id);
@@ -8104,13 +10064,37 @@ async function handleStockoutSavePrint(){
         return;
       }
 
-      buildInvoicePreview(invoice);
-      toast('Đã mở phiếu '+invoice.id+' để in lại');
+      if(printer==='bill80'){
+        buildBillPreview(invoice);
+        $('billPreview')?.classList.add('show');
+        toast('Đã mở Bill 80mm của phiếu '+invoice.id);
+      }else{
+        buildInvoicePreview(invoice);
+        $('invoicePreview')?.classList.add('show');
+        toast('Đã mở phiếu A4 '+invoice.id);
+      }
       return;
     }
 
-    let ok=await saveStockout(true);
-    if(ok!==true)return;
+    const result=await saveStockout(false);
+    if(!result || result!==true)return;
+
+    /* saveStockout() đã tạo phiếu mới sau khi lưu, nên lấy phiếu vừa lưu cuối danh sách */
+    const invoice=(db.stockout||[])[(db.stockout||[]).length-1];
+    if(!invoice){
+      alert('Đã lưu nhưng không tìm thấy phiếu vừa lưu để in.');
+      return;
+    }
+
+    if(printer==='bill80'){
+      buildBillPreview(invoice);
+      $('billPreview')?.classList.add('show');
+      toast('Đã lưu và mở Bill 80mm • '+invoice.id);
+    }else{
+      buildInvoicePreview(invoice);
+      $('invoicePreview')?.classList.add('show');
+      toast('Đã lưu và mở phiếu A4 • '+invoice.id);
+    }
   }catch(err){
     console.error('Lỗi Lưu/In:',err);
     alert('Lưu/In gặp lỗi: '+(err?.message||err));
@@ -8265,13 +10249,27 @@ async function saveStockout(doPrint=false){
   }
 
   renderAll();
-  if($('stockoutHistoryDate'))loadStockoutHistoryDate(false);
 
+  /* Sau khi lưu: tạo phiếu mới để nhập tiếp, nhưng thanh lịch sử phải giữ
+     đúng ngày của phiếu vừa lưu để có thể xem lại ngay. */
   newStockout();
+  const savedDate=ymdFromDateText(savedInvoice.dateText)||todayYMD();
+  if($('stockoutHistoryDate'))$('stockoutHistoryDate').value=savedDate;
+  stockoutHistoryList=getStockoutHistoryForDate('');
+  stockoutHistoryIndex=stockoutHistoryList.length; // vị trí Phiếu mới sau phiếu mới nhất toàn hệ thống
+  updateStockoutHistoryControls();
 
   if(doPrint){
-    buildInvoicePreview(savedInvoice);
-    toast((editing?'Đã cập nhật ':'Đã lưu ')+'phiếu '+stockoutId+' • bấm In để chọn máy in');
+    ensurePrintSettings();
+    if((db.settings?.defaultPrinter||'a4')==='bill80'){
+      buildBillPreview(savedInvoice);
+      $('billPreview')?.classList.add('show');
+      toast((editing?'Đã cập nhật ':'Đã lưu ')+'phiếu '+stockoutId+' • Bill 80mm');
+    }else{
+      buildInvoicePreview(savedInvoice);
+      $('invoicePreview')?.classList.add('show');
+      toast((editing?'Đã cập nhật ':'Đã lưu ')+'phiếu '+stockoutId+' • A4');
+    }
     return true;
   }
 
@@ -8288,6 +10286,8 @@ async function saveSettings(){
   db.settings.name=$('setName').value.trim()||'NPP NGỌC TRAI';
   db.settings.phone=$('setPhone').value.trim();
   db.settings.address=$('setAddress').value.trim();
+  
+  db.settings.defaultPrinter=$('setDefaultPrinter')?.value||'a4';
   if(await saveDB()){
     renderAll();
     toast('Đã lưu cài đặt');
@@ -8333,6 +10333,1209 @@ init().catch(err=>{
  console.error(err);
  alert('Không khởi động được hệ thống dữ liệu: '+(err?.message||err));
 });
+
+/* ===== MOBILE MENU ===== */
+function toggleMobileMenu(){
+  document.body.classList.toggle('mobile-menu-open');
+}
+function closeMobileMenu(){
+  document.body.classList.remove('mobile-menu-open');
+}
+document.addEventListener('click',function(e){
+  if(window.innerWidth<=900){
+    const navBtn=e.target.closest('#nav button[data-page]');
+    if(navBtn)closeMobileMenu();
+  }
+});
+window.addEventListener('resize',function(){
+  if(window.innerWidth>900)closeMobileMenu();
+});
+
+
+/* ===== BILL 80MM ===== */
+function ensurePrintSettings(){
+  if(!db.settings)db.settings={};
+  if(!db.settings.defaultPrinter)db.settings.defaultPrinter='a4';
+  const s=$('setDefaultPrinter');
+  if(s)s.value=db.settings.defaultPrinter;
+  const h=$('printerModeHint');
+  if(h)h.textContent=db.settings.defaultPrinter==='bill80'?'Mặc định: Bill 80mm':'Mặc định: A4';
+}
+
+function stockoutCurrentDataForBill(){
+  const currentId=$('soNo')?.textContent?.trim()||'';
+  if(stockoutViewingHistory && currentId){
+    const saved=(db.stockout||[]).find(o=>o.id===currentId);
+    if(saved)return saved;
+  }
+
+  const rows=compactRows(soRows||[]);
+  const total=rows.reduce((s,r)=>s+(Number(r.qty)||0)*calcNet(r),0);
+  const paid=Math.max(Number($('soPaid')?.value)||0,0);
+  const debt=Math.max(Number($('soDebt')?.textContent?.replace(/[^\d-]/g,''))||0,0);
+
+  return {
+    id:currentId||code('PX'),
+    dateText:nowText(),
+    customerId:selectedCustomerId||'',
+    items:rows.map(r=>({...r,net:calcNet(r)})),
+    total,
+    paid,
+    debt,
+    content:$('soContent')?.value||'',
+    warrantyIds:(selectedWarrantyIds||[]).slice()
+  };
+}
+
+function buildBillPreview(data){
+  const customer=(db.customers||[]).find(c=>c.id===data.customerId);
+  const rows=data.items||[];
+
+  /* Công nợ trên Bill phải giống phiếu A4, kể cả khi in lại phiếu cũ. */
+  const oldDebt=historicalOldDebtForInvoice(data);
+  const oldDebtDate=historicalOldDebtDateForInvoice(data);
+  const totalReceivable=data.totalReceivable!==undefined
+    ? Number(data.totalReceivable)||0
+    : oldDebt+Number(data.total||0);
+  const paid=Number(data.paid||0);
+  const customerDebtAfter=data.remainingCustomerDebt!==undefined
+    ? Number(data.remainingCustomerDebt)||0
+    : Math.max(oldDebt+Number(data.debt||0),0);
+
+  const warrantyItems=(data.warrantyIds||[])
+    .map(id=>(db.warranty||[]).find(w=>w.id===id))
+    .filter(Boolean);
+
+  const itemsHtml=rows.map((r,i)=>{
+    const p=(db.products||[]).find(x=>x.id===r.productId);
+    const qty=Number(r.qty)||0;
+    const net=Number(r.net!==undefined?r.net:calcNet(r))||0; /* ĐG sau CK */
+    const line=qty*net;
+    const name=esc(r.productText||p?.name||'');
+    return `<tr>
+      <td>${i+1}. ${name}${qty!==1?` <span class="bill-muted">×${qty}</span>`:''}</td>
+      <td class="r">${money(net).replace(' đ','')}</td>
+      <td class="r"><b>${money(line).replace(' đ','')}</b></td>
+    </tr>`;
+  }).join('');
+
+  const warrantyHtml=warrantyItems.length
+    ? `<div class="bill-rule"></div>
+       <div><b>Bảo hành kèm:</b></div>
+       ${warrantyItems.map(w=>`<div class="bill-muted">• ${esc(w.item||'')} - ${esc(w.receivedDate||'')}</div>`).join('')}`
+    : '';
+
+  const paper=$('billPreviewPaper');
+  if(!paper)return;
+
+  paper.innerHTML=`
+    <div class="bill-center">
+      <div class="bill-title">${esc(db.settings?.name||'NPP NGỌC TRAI')}</div>
+      <div class="bill-muted">${esc(db.settings?.address||'')}</div>
+      <div class="bill-muted">ĐT: ${esc(db.settings?.phone||'')}</div>
+    </div>
+
+    <div class="bill-rule"></div>
+    <div class="bill-center"><b>PHIẾU XUẤT HÀNG</b></div>
+    <div class="bill-info">Số phiếu: <b>${esc(data.id||'')}</b></div>
+    <div class="bill-info">Ngày: ${esc(data.dateText||'')}</div>
+    <div class="bill-info">Khách: <b>${esc(customer?.name||'Khách lẻ')}</b></div>
+    ${customer?.phone?`<div class="bill-info">SĐT: ${esc(customer.phone)}</div>`:''}
+    ${customer?.address?`<div class="bill-info">Đ/c: ${esc(customer.address)}</div>`:''}
+
+    <div class="bill-rule"></div>
+    <table class="bill-items-table">
+      <thead>
+        <tr>
+          <th>Hàng hóa</th>
+          <th class="r">ĐG</th>
+          <th class="r">TT</th>
+        </tr>
+      </thead>
+      <tbody>${itemsHtml||'<tr><td colspan="3">Không có hàng hóa</td></tr>'}</tbody>
+    </table>
+
+    <div class="bill-rule"></div>
+    <div class="bill-total grand"><span>TIỀN HÀNG</span><span>${money(data.total||0)}</span></div>
+    <div class="bill-total"><span>Nợ cũ${oldDebtDate?` (${esc(oldDebtDate)})`:''}</span><span>${money(oldDebt)}</span></div>
+    <div class="bill-total grand"><span>TỔNG PHẢI THU</span><span>${money(totalReceivable)}</span></div>
+    <div class="bill-total"><span>Khách thanh toán</span><span>${money(paid)}</span></div>
+    <div class="bill-total grand"><span>CÒN NỢ</span><span>${money(customerDebtAfter)}</span></div>
+    ${data.content?`<div class="bill-info"><b>Nội dung:</b> ${esc(data.content)}</div>`:''}
+    ${warrantyHtml}
+
+    <div class="bill-rule"></div>
+    <div class="bill-footer">Cảm ơn Quý khách!</div>
+  `;
+}
+
+function openBillPreviewFromCurrent(){
+  const data=stockoutCurrentDataForBill();
+  buildBillPreview(data);
+  $('billPreview')?.classList.add('show');
+}
+
+function closeBillPreview(){
+  $('billPreview')?.classList.remove('show');
+}
+
+function printBillPreview(){
+  const paper=$('billPreviewPaper');
+  if(!paper || !paper.innerHTML.trim())return alert('Chưa có bill để in.');
+  document.body.classList.add('print-bill-mode');
+  const cleanup=()=>{
+    document.body.classList.remove('print-bill-mode');
+    window.removeEventListener('afterprint',cleanup);
+  };
+  window.addEventListener('afterprint',cleanup);
+  try{
+    window.focus();
+    window.print();
+  }catch(err){
+    cleanup();
+    alert('Không mở được hệ thống máy in. Vui lòng kiểm tra máy in Bill 80mm đã kết nối với thiết bị.');
+  }
+}
+
+
+async function saveDefaultPrinterChoice(){
+  if(!db.settings)db.settings={};
+  db.settings.defaultPrinter=$('setDefaultPrinter')?.value||'a4';
+  const ok=await saveDB();
+  if(ok){
+    toast(db.settings.defaultPrinter==='bill80'
+      ?'Đã chọn mặc định: Bill 80mm'
+      :'Đã chọn mặc định: A4');
+  }
+}
+
+
+async function saveAndPrintStockout(mode){
+  try{
+    const isBill=mode==='bill80';
+
+    /* Phiếu lịch sử chỉ xem: in lại ngay, không lưu/sửa dữ liệu. */
+    if(stockoutViewingHistory && !stockoutEditingHistory){
+      const id=$('soNo')?.textContent?.trim()||'';
+      let invoice=(db.stockout||[]).find(x=>String(x.id)===String(id));
+      if(!invoice && stockoutHistoryIndex>=0)invoice=stockoutHistoryList[stockoutHistoryIndex];
+      if(!invoice)return alert('Không tìm thấy phiếu để in.');
+
+      if(isBill){
+        buildBillPreview(invoice);
+        $('billPreview')?.classList.add('show');
+      }else{
+        buildInvoicePreview(invoice);
+        $('invoicePreview')?.classList.add('show');
+      }
+      return;
+    }
+
+    /* Phiếu mới / đang sửa: lưu trước, sau đó mở đúng kiểu in người dùng vừa chọn. */
+    const beforeIds=new Set((db.stockout||[]).map(x=>String(x.id)));
+    const currentId=$('soNo')?.textContent?.trim()||'';
+    const ok=await saveStockout(false);
+    if(ok!==true)return;
+
+    let invoice=(db.stockout||[]).find(x=>String(x.id)===String(currentId));
+    if(!invoice){
+      const newly=(db.stockout||[]).filter(x=>!beforeIds.has(String(x.id)));
+      invoice=newly[newly.length-1] || (db.stockout||[])[(db.stockout||[]).length-1];
+    }
+    if(!invoice)return alert('Đã lưu nhưng không tìm thấy phiếu vừa lưu để in.');
+
+    if(isBill){
+      buildBillPreview(invoice);
+      $('billPreview')?.classList.add('show');
+      toast('Đã lưu và mở Bill 80mm • '+invoice.id);
+    }else{
+      buildInvoicePreview(invoice);
+      $('invoicePreview')?.classList.add('show');
+      toast('Đã lưu và mở phiếu A4 • '+invoice.id);
+    }
+  }catch(err){
+    console.error('Lỗi Lưu/In:',err);
+    alert('Lưu/In gặp lỗi: '+(err?.message||err));
+  }
+}
+
+
+/* ===== LỊCH CHI PHÍ ===== */
+function ensureExpenseCalendarMonth(){
+  const el=$('expenseCalendarMonth');
+  if(!el)return currentISODate().slice(0,7);
+  if(!el.value)el.value=currentISODate().slice(0,7);
+  return el.value;
+}
+
+function expenseVisibleToCurrentRole(e){
+  return isManager || !expenseCategoryIsPrivate(e.category);
+}
+
+function expenseMonthRows(month){
+  ensureExpenseData();
+  return (db.expenses||[]).filter(e=>{
+    if(!expenseVisibleToCurrentRole(e))return false;
+    return expenseDateISO(e).slice(0,7)===month;
+  });
+}
+
+function moveExpenseMonth(delta){
+  const month=ensureExpenseCalendarMonth();
+  const [y,m]=month.split('-').map(Number);
+  const d=new Date(y,m-1+delta,1);
+  const v=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  $('expenseCalendarMonth').value=v;
+  renderExpenseCalendar();
+}
+
+function goExpenseCurrentMonth(){
+  if($('expenseCalendarMonth'))$('expenseCalendarMonth').value=currentISODate().slice(0,7);
+  renderExpenseCalendar();
+}
+
+function renderExpenseCalendar(){
+  const grid=$('expenseCalendarGrid');
+  if(!grid)return;
+
+  ensureExpenseData();
+  const month=ensureExpenseCalendarMonth();
+  const [y,m]=month.split('-').map(Number);
+  const rows=expenseMonthRows(month);
+  const today=currentISODate();
+
+  const byDay={};
+  rows.forEach(e=>{
+    const d=expenseDateISO(e);
+    if(!byDay[d])byDay[d]=[];
+    byDay[d].push(e);
+  });
+
+  const monthTotal=rows.reduce((s,e)=>s+(Number(e.amount)||0),0);
+  const todayRows=rows.filter(e=>expenseDateISO(e)===today);
+  const todayTotal=todayRows.reduce((s,e)=>s+(Number(e.amount)||0),0);
+
+  if($('expenseCalendarSummary')){
+    $('expenseCalendarSummary').innerHTML=`
+      <div><span>Chi phí tháng</span><b>${money(monthTotal)}</b></div>
+      <div><span>Chi phí hôm nay</span><b>${money(todayTotal)}</b></div>
+      <div><span>Số khoản chi</span><b>${rows.length}</b></div>
+    `;
+  }
+
+  if($('expenseRoleHint')){
+    $('expenseRoleHint').textContent=isManager
+      ?'Quản lý thấy toàn bộ chi phí. Bấm ngày để xem, thêm, sửa hoặc xóa.'
+      :'Bấm ngày để ghi chi phí phát sinh. Các khoản riêng của Quản lý/Lương không hiển thị.';
+  }
+
+  const heads=['T2','T3','T4','T5','T6','T7','CN']
+    .map(x=>`<div class="expense-cal-head">${x}</div>`).join('');
+
+  const first=new Date(y,m-1,1);
+  const days=new Date(y,m,0).getDate();
+  const offset=(first.getDay()+6)%7; // Monday=0
+  let cells='';
+
+  for(let i=0;i<offset;i++)cells+='<div class="expense-cal-day blank"></div>';
+
+  for(let day=1;day<=days;day++){
+    const iso=`${month}-${String(day).padStart(2,'0')}`;
+    const arr=byDay[iso]||[];
+    const total=arr.reduce((s,e)=>s+(Number(e.amount)||0),0);
+    const privateCount=isManager?arr.filter(e=>expenseCategoryIsPrivate(e.category)).length:0;
+
+    cells+=`
+      <div class="expense-cal-day ${iso===today?'today':''} ${arr.length?'has-expense':''}"
+           onclick="openExpenseDay('${iso}')">
+        <div class="expense-cal-date">${day}</div>
+        ${arr.length?`
+          <div class="expense-cal-total">${money(total)}</div>
+          <div class="expense-cal-count">${arr.length} khoản</div>
+          ${privateCount?`<div class="expense-cal-private">🔒 ${privateCount} khoản riêng</div>`:''}
+        `:''}
+      </div>`;
+  }
+
+  grid.innerHTML=heads+cells;
+}
+
+function openExpenseDay(date){
+  ensureExpenseData();
+  const rows=(db.expenses||[])
+    .filter(e=>expenseDateISO(e)===date && expenseVisibleToCurrentRole(e))
+    .sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||'')));
+
+  const total=rows.reduce((s,e)=>s+(Number(e.amount)||0),0);
+
+  const body=rows.length?rows.map(e=>`
+    <div class="expense-day-row">
+      <div>
+        <b>${esc(e.category||'')}</b>
+        <div class="expense-person">${esc(e.enteredRole||'')} ${e.person?'• '+esc(e.person):''}</div>
+      </div>
+      <div>
+        <b>${esc(e.content||'')}</b>
+
+      </div>
+      <div class="amount">${money(e.amount)}</div>
+      <div class="expense-row-actions">
+        <button class="icon-btn" title="Sửa" onclick="editExpense('${e.id}')">✎</button>
+        <button class="icon-btn danger-icon" title="Xóa" onclick="deleteExpense('${e.id}')">🗑</button>
+      </div>
+    </div>
+  `).join(''):'<div class="small" style="padding:14px">Ngày này chưa có chi phí.</div>';
+
+  showModal(`
+    <div class="settings-card-head">
+      <div>
+        <h3 style="margin:0">Chi phí ngày ${esc(reportDateLabel(date))}</h3>
+        <div class="hint">Tổng: <b>${money(total)}</b> • ${rows.length} khoản</div>
+      </div>
+      <button class="btn primary" onclick="openAddExpense('${date}')">+ Ghi chi phí</button>
+    </div>
+    <div class="expense-day-list">${body}</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Đóng</button>
+    </div>
+  `);
+}
+
+
+/* ===== THANH TOÁN & ĐỐI SOÁT ===== */
+let paymentTab='customer';
+let selectedPayCustomerId='';
+let selectedPaySupplierId='';
+
+function ensurePaymentData(){
+  if(!Array.isArray(db.customerPayments))db.customerPayments=[];
+  if(!Array.isArray(db.supplierPayments))db.supplierPayments=[];
+}
+
+function paymentNowText(){return nowText()}
+
+function setPaymentTab(tab){
+  if(tab==='supplier' && !isManager)return requireManager(()=>setPaymentTab('supplier'),'Thanh toán Nhà cung cấp cần quyền Quản lý.');
+  paymentTab=tab==='supplier'?'supplier':'customer';
+  if($('paymentCustomerPanel'))$('paymentCustomerPanel').style.display=paymentTab==='customer'?'block':'none';
+  if($('paymentSupplierPanel'))$('paymentSupplierPanel').style.display=paymentTab==='supplier'?'block':'none';
+  $('payCustomerTab')?.classList.toggle('active',paymentTab==='customer');
+  $('paySupplierTab')?.classList.toggle('active',paymentTab==='supplier');
+  renderPayments();
+}
+
+function renderPayments(){
+  if(!$('customerPaymentHistory'))return;
+  ensurePaymentData();
+
+  if($('payCustomerList')){
+    $('payCustomerList').innerHTML=(db.customers||[]).map(c=>
+      `<option value="${esc(c.name+' - '+(c.phone||''))}"></option>`).join('');
+  }
+  if($('paySupplierList')){
+    $('paySupplierList').innerHTML=(db.suppliers||[]).map(s=>
+      `<option value="${esc(s.name+' - '+(s.phone||''))}"></option>`).join('');
+  }
+
+  const selectedCustomerPayments=selectedPayCustomerId
+    ? (db.customerPayments||[]).filter(p=>p.customerId===selectedPayCustomerId)
+    : [];
+
+  const cRows=[...selectedCustomerPayments].sort((a,b)=>Number(b.ts||0)-Number(a.ts||0)).map(p=>{
+    const c=(db.customers||[]).find(x=>x.id===p.customerId);
+    const laterPaid=(db.customerPayments||[])
+      .filter(x=>x.customerId===p.customerId && Number(x.ts||0)>Number(p.ts||0))
+      .reduce((s,x)=>s+Number(x.amount||0),0);
+    const debtAfter=Math.max(0,customerDebt(p.customerId)+laterPaid);
+    return `<tr>
+      <td>${esc(p.dateText||'')}</td>
+      <td>${isManager
+        ? `<button class="recent-invoice-link" style="border:0;background:none;padding:0;font:inherit;font-weight:800" onclick="openCustomerPaymentManage('${p.id}')">${esc(c?.name||'')}</button>${p.transactionType==='warranty_return'?`<div class="small">${esc(p.content||'Khách trả lại hàng')}</div>`:''}`
+        : `<b>${esc(c?.name||'')}</b>${p.transactionType==='warranty_return'?`<div class="small">${esc(p.content||'Khách trả lại hàng')}</div>`:''}`}</td>
+      <td class="right"><b>${money(p.amount)}</b></td>
+      <td class="right"><b>${money(debtAfter)}</b></td>
+      <td>${esc(p.operator||'')}</td>
+    </tr>`;
+  });
+
+  $('customerPaymentHistory').innerHTML=selectedPayCustomerId
+    ? table(['Ngày giờ','Khách hàng','Đã thanh toán','Nợ còn lại','Người ghi'],cRows)
+    : '<div class="small" style="padding:14px;border:1px dashed #ccd8de;border-radius:9px">Chọn khách hàng phía trên để xem lịch sử thanh toán.</div>';
+
+  if($('supplierPaymentHistory')){
+    if(isManager){
+      const sRows=[...(db.supplierPayments||[])].sort((a,b)=>Number(b.ts||0)-Number(a.ts||0)).map(p=>{
+        const s=(db.suppliers||[]).find(x=>x.id===p.supplierId);
+        return `<tr>
+          <td>${esc(p.dateText||'')}</td>
+          <td><b>${esc(s?.name||'')}</b></td>
+          <td class="right"><b>${money(p.amount)}</b></td>
+          <td>${esc(p.operator||'Quản lý')}</td>
+          <td class="center">
+            <button class="btn" onclick="editSupplierPayment('${p.id}')">Sửa</button>
+            <button class="btn danger-lite" onclick="deleteSupplierPayment('${p.id}')">Xóa</button>
+          </td>
+        </tr>`;
+      });
+      $('supplierPaymentHistory').innerHTML=table(['Ngày giờ','Nhà cung cấp','Đã trả','Người thao tác','Thao tác'],sRows);
+    }else{
+      $('supplierPaymentHistory').innerHTML='';
+    }
+  }
+
+  updatePaymentDebtDisplays();
+}
+
+function findCustomerByPaymentInput(){
+  const q=norm($('payCustomerSearch')?.value||'');
+  if(!q)return null;
+  return (db.customers||[]).find(c=>norm(c.name+' - '+(c.phone||''))===q)
+    || (db.customers||[]).find(c=>norm(c.name+' '+(c.phone||'')).includes(q));
+}
+function selectPaymentCustomer(){
+  const c=findCustomerByPaymentInput();
+  selectedPayCustomerId=c?.id||'';
+  updatePaymentDebtDisplays();
+  renderCustomerPaymentHistoryOnly();
+}
+function findSupplierByPaymentInput(){
+  const q=norm($('paySupplierSearch')?.value||'');
+  if(!q)return null;
+  return (db.suppliers||[]).find(s=>norm(s.name+' - '+(s.phone||''))===q)
+    || (db.suppliers||[]).find(s=>norm(s.name+' '+(s.phone||'')).includes(q));
+}
+function selectPaymentSupplier(){
+  const s=findSupplierByPaymentInput();
+  selectedPaySupplierId=s?.id||'';
+  updatePaymentDebtDisplays();
+}
+function updatePaymentDebtDisplays(){
+  if($('payCustomerDebt'))$('payCustomerDebt').textContent=money(selectedPayCustomerId?customerDebt(selectedPayCustomerId):0);
+  if($('paySupplierDebt'))$('paySupplierDebt').textContent=money(selectedPaySupplierId?supplierDebt(selectedPaySupplierId):0);
+}
+
+async function saveCustomerPayment(){
+  ensurePaymentData();
+  const c=findCustomerByPaymentInput();
+  if(!c)return alert('Chọn đúng khách hàng.');
+  const amount=Math.max(0,Number($('payCustomerAmount')?.value)||0);
+  if(amount<=0)return alert('Nhập số tiền khách thanh toán.');
+  const debt=customerDebt(c.id);
+  if(amount>debt && !confirm('Số tiền lớn hơn công nợ hiện tại. Vẫn ghi nhận thanh toán?'))return;
+
+  const p={id:'TTKH'+Date.now(),customerId:c.id,amount,dateText:paymentNowText(),ts:Date.now(),operator:isManager?'Quản lý':'Nhân viên'};
+  db.customerPayments.push(p);
+  if(!await saveDB()){db.customerPayments=db.customerPayments.filter(x=>x.id!==p.id);return;}
+  selectedPayCustomerId=c.id;
+  if($('payCustomerAmount'))$('payCustomerAmount').value='';
+  renderAll();
+  toast('Đã ghi khách hàng thanh toán '+money(amount));
+}
+
+async function saveSupplierPayment(){
+  if(!isManager)return requireManager(saveSupplierPayment,'Trả nợ Nhà cung cấp cần quyền Quản lý.');
+  ensurePaymentData();
+  const s=findSupplierByPaymentInput();
+  if(!s)return alert('Chọn đúng Nhà cung cấp.');
+  const amount=Math.max(0,Number($('paySupplierAmount')?.value)||0);
+  if(amount<=0)return alert('Nhập số tiền trả Nhà cung cấp.');
+  const debt=supplierDebt(s.id);
+  if(amount>debt && !confirm('Số tiền lớn hơn công nợ hiện tại. Vẫn ghi nhận thanh toán?'))return;
+
+  const p={id:'TTNCC'+Date.now(),supplierId:s.id,amount,dateText:paymentNowText(),ts:Date.now(),operator:'Quản lý'};
+  db.supplierPayments.push(p);
+  if(!await saveDB()){db.supplierPayments=db.supplierPayments.filter(x=>x.id!==p.id);return;}
+  selectedPaySupplierId=s.id;
+  if($('paySupplierAmount'))$('paySupplierAmount').value='';
+  renderAll();
+  toast('Đã ghi trả Nhà cung cấp '+money(amount));
+}
+
+function editCustomerPayment(id){
+  if(!isManager)return requireManager(()=>editCustomerPayment(id),'Sửa thanh toán cần quyền Quản lý.');
+  const p=(db.customerPayments||[]).find(x=>x.id===id); if(!p)return;
+  const c=(db.customers||[]).find(x=>x.id===p.customerId);
+  showModal(`<h3>Sửa thanh toán khách hàng</h3>
+    <div class="form-grid">
+      <div><label>Khách hàng</label><input value="${esc(c?.name||'')}" disabled></div>
+      <div><label>Ngày giờ đã ghi</label><input value="${esc(p.dateText||'')}" disabled></div>
+      <div><label>Số tiền</label><input id="editCustomerPaymentAmount" type="number" min="0" value="${Number(p.amount)||0}"></div>
+    </div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Hủy</button><button class="btn primary" onclick="saveEditedCustomerPayment('${id}')">Lưu sửa</button></div>`);
+}
+async function saveEditedCustomerPayment(id){
+  if(!isManager)return;
+  const p=(db.customerPayments||[]).find(x=>x.id===id); if(!p)return;
+  const amount=Math.max(0,Number($('editCustomerPaymentAmount')?.value)||0);
+  if(amount<=0)return alert('Số tiền phải lớn hơn 0.');
+  const old=p.amount;p.amount=amount;p.editedAt=paymentNowText();p.editedBy='Quản lý';
+  if(!await saveDB()){p.amount=old;return;}
+  closeModal();renderAll();toast('Đã sửa giao dịch thanh toán.');
+}
+async function deleteCustomerPayment(id){
+  if(!isManager)return requireManager(()=>deleteCustomerPayment(id),'Xóa thanh toán cần quyền Quản lý.');
+  const p=(db.customerPayments||[]).find(x=>x.id===id); if(!p)return;
+  if(!confirm('Xóa giao dịch thanh toán này? Công nợ khách hàng sẽ được cộng lại tương ứng.'))return;
+  const old=[...db.customerPayments];db.customerPayments=db.customerPayments.filter(x=>x.id!==id);
+  if(!await saveDB()){db.customerPayments=old;return;}
+  renderAll();toast('Đã xóa giao dịch thanh toán.');
+}
+
+function editSupplierPayment(id){
+  if(!isManager)return requireManager(()=>editSupplierPayment(id),'Sửa thanh toán NCC cần quyền Quản lý.');
+  const p=(db.supplierPayments||[]).find(x=>x.id===id); if(!p)return;
+  const s=(db.suppliers||[]).find(x=>x.id===p.supplierId);
+  showModal(`<h3>Sửa thanh toán Nhà cung cấp</h3>
+    <div class="form-grid">
+      <div><label>Nhà cung cấp</label><input value="${esc(s?.name||'')}" disabled></div>
+      <div><label>Ngày giờ đã ghi</label><input value="${esc(p.dateText||'')}" disabled></div>
+      <div><label>Số tiền</label><input id="editSupplierPaymentAmount" type="number" min="0" value="${Number(p.amount)||0}"></div>
+    </div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Hủy</button><button class="btn primary" onclick="saveEditedSupplierPayment('${id}')">Lưu sửa</button></div>`);
+}
+async function saveEditedSupplierPayment(id){
+  if(!isManager)return;
+  const p=(db.supplierPayments||[]).find(x=>x.id===id); if(!p)return;
+  const amount=Math.max(0,Number($('editSupplierPaymentAmount')?.value)||0);
+  if(amount<=0)return alert('Số tiền phải lớn hơn 0.');
+  const old=p.amount;p.amount=amount;p.editedAt=paymentNowText();p.editedBy='Quản lý';
+  if(!await saveDB()){p.amount=old;return;}
+  closeModal();renderAll();toast('Đã sửa giao dịch trả NCC.');
+}
+async function deleteSupplierPayment(id){
+  if(!isManager)return requireManager(()=>deleteSupplierPayment(id),'Xóa thanh toán NCC cần quyền Quản lý.');
+  const p=(db.supplierPayments||[]).find(x=>x.id===id); if(!p)return;
+  if(!confirm('Xóa giao dịch trả NCC này? Công nợ Nhà cung cấp sẽ được cộng lại tương ứng.'))return;
+  const old=[...db.supplierPayments];db.supplierPayments=db.supplierPayments.filter(x=>x.id!==id);
+  if(!await saveDB()){db.supplierPayments=old;return;}
+  renderAll();toast('Đã xóa giao dịch trả NCC.');
+}
+
+
+function openCustomerPaymentManage(id){
+  if(!isManager)return;
+  const p=(db.customerPayments||[]).find(x=>x.id===id); if(!p)return;
+  const c=(db.customers||[]).find(x=>x.id===p.customerId);
+  showModal(`<h3>Thanh toán • ${esc(c?.name||'Khách hàng')}</h3>
+    <div class="small" style="margin-bottom:12px">${esc(p.dateText||'')} • Đã thanh toán <b>${money(p.amount)}</b></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Đóng</button>
+      <button class="btn" onclick="closeModal();editCustomerPayment('${id}')">Sửa</button>
+      <button class="btn danger-lite" onclick="closeModal();deleteCustomerPayment('${id}')">Xóa</button>
+    </div>`);
+}
+
+
+function renderCustomerPaymentHistoryOnly(){
+  const box=$('customerPaymentHistory');
+  if(!box)return;
+  ensurePaymentData();
+
+  if(!selectedPayCustomerId){
+    box.innerHTML='<div class="small" style="padding:14px;border:1px dashed #ccd8de;border-radius:9px">Chọn khách hàng phía trên để xem lịch sử thanh toán.</div>';
+    return;
+  }
+
+  const rows=(db.customerPayments||[])
+    .filter(p=>p.customerId===selectedPayCustomerId)
+    .sort((a,b)=>Number(b.ts||0)-Number(a.ts||0))
+    .map(p=>{
+      const c=(db.customers||[]).find(x=>x.id===p.customerId);
+      const laterPaid=(db.customerPayments||[])
+        .filter(x=>x.customerId===p.customerId && Number(x.ts||0)>Number(p.ts||0))
+        .reduce((s,x)=>s+Number(x.amount||0),0);
+      const debtAfter=Math.max(0,customerDebt(p.customerId)+laterPaid);
+      return `<tr>
+        <td>${esc(p.dateText||'')}</td>
+        <td>${isManager
+          ? `<button class="recent-invoice-link" style="border:0;background:none;padding:0;font:inherit;font-weight:800" onclick="openCustomerPaymentManage('${p.id}')">${esc(c?.name||'')}</button>`
+          : `<b>${esc(c?.name||'')}</b>`}</td>
+        <td class="right"><b>${money(p.amount)}</b></td>
+        <td class="right"><b>${money(debtAfter)}</b></td>
+        <td>${esc(p.operator||'')}</td>
+      </tr>`;
+    });
+
+  box.innerHTML=table(['Ngày giờ','Khách hàng','Đã thanh toán','Nợ còn lại','Người ghi'],rows);
+}
+
+
+function staffModuleEnabled(page){
+  ensureExpenseData();
+  if(isManager)return true;
+  const fixedManagerOnly=['stockin','suppliers','settings'];
+  if(fixedManagerOnly.includes(page))return false;
+  return db.settings?.staffModules?.[page]!==false;
+}
+
+function renderStaffModuleSettings(){
+  ensureExpenseData();
+  document.querySelectorAll('[data-staff-module]').forEach(el=>{
+    const key=el.dataset.staffModule;
+    el.checked=db.settings.staffModules[key]!==false;
+  });
+  document.querySelectorAll('[data-staff-action]').forEach(el=>{
+    const key=el.dataset.staffAction;
+    el.checked=db.settings.staffActions?.[key]===true;
+  });
+}
+
+async function saveStaffModuleSettings(){
+  if(!isManager)return;
+  ensureExpenseData();
+  document.querySelectorAll('[data-staff-module]').forEach(el=>{
+    db.settings.staffModules[el.dataset.staffModule]=!!el.checked;
+  });
+  document.querySelectorAll('[data-staff-action]').forEach(el=>{
+    db.settings.staffActions[el.dataset.staffAction]=!!el.checked;
+  });
+  if(await saveDB()){
+    applyPermissions();
+    toast('Đã lưu phân quyền Module Nhân viên');
+  }
+}
+
+
+function showLastSavedStockoutLink(invoice){
+  const box=$('stockoutLastSaved');
+  if(!box || !invoice)return;
+  box.classList.add('show');
+  box.innerHTML=`Đã lưu <b>${esc(invoice.id)}</b> • ${esc(invoice.dateText||'')}
+    <button type="button" class="btn" style="margin-left:8px" onclick="openStockoutInvoice('${esc(invoice.id)}')">Xem phiếu vừa lưu</button>`;
+}
+
+
+/* ===== IN DANH SÁCH KHÁCH HÀNG / TỒN KHO ===== */
+function printHTMLDocument(title, body){
+  const w=window.open('','_blank','width=1000,height=760');
+  if(!w){alert('Trình duyệt đang chặn cửa sổ in. Vui lòng cho phép pop-up.');return;}
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>
+  <style>
+    body{font-family:Arial,sans-serif;color:#111;padding:18px;font-size:12px}
+    h2{margin:0 0 5px;text-align:center}
+    .sub{text-align:center;color:#555;margin-bottom:14px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid #999;padding:6px 7px;vertical-align:top}
+    th{background:#eee}
+    .right{text-align:right}.center{text-align:center}
+    @media print{body{padding:0}}
+  </style></head><body>${body}</body></html>`);
+  w.document.close();
+  setTimeout(()=>{w.focus();w.print();},250);
+}
+
+function printCustomerList(){
+  const rows=[...(db.customers||[])].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'vi'));
+  const body=`<h2>DANH SÁCH KHÁCH HÀNG</h2>
+    <div class="sub">${esc(db.settings?.nppName||'Ngọc Trai Manager')} • ${esc(nowText())}</div>
+    <table>
+      <thead><tr><th>STT</th><th>Tên khách hàng</th><th>SĐT</th><th>Địa chỉ</th><th>Công nợ</th></tr></thead>
+      <tbody>${rows.map((c,i)=>`<tr>
+        <td class="center">${i+1}</td>
+        <td>${esc(c.name||'')}</td>
+        <td>${esc(c.phone||'')}</td>
+        <td>${esc(c.address||'')}</td>
+        <td class="right">${money(customerDebt(c.id))}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  printHTMLDocument('Danh sách khách hàng',body);
+}
+
+function renderWarehousePrintGroups(){
+  /* V42: không cần chọn nhóm in riêng.
+     Nút In luôn theo đúng dữ liệu đang xem trên màn hình. */
+}
+
+function getVisibleWarehouseProducts(){
+  const group=$('warehouseGroup')?.value||'';
+  const search=norm($('warehouseSearch')?.value||'');
+
+  return (db.products||[]).filter(p=>{
+    if(group && p.group!==group)return false;
+    if(selectedWarehouseProductId)return p.id===selectedWarehouseProductId;
+    if(search && !norm((p.id||'')+' '+(p.name||'')).includes(search))return false;
+    return true;
+  });
+}
+
+function printWarehouseStock(){
+  const group=$('warehouseGroup')?.value||'';
+  const rows=getVisibleWarehouseProducts()
+    .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'vi'));
+
+  const viewText=selectedWarehouseProductId
+    ? 'Sản phẩm đang xem'
+    : (group?'Nhóm: '+group:'Tất cả hàng hóa');
+
+  const body=`<h2>BÁO CÁO TỒN KHO</h2>
+    <div class="sub">${esc(viewText)} • ${esc(nowText())}</div>
+    <table>
+      <thead><tr><th>STT</th><th>Mã</th><th>Tên hàng</th><th>Nhóm</th><th>ĐVT</th><th>Giá bán</th><th>Tồn</th></tr></thead>
+      <tbody>${rows.map((p,i)=>`<tr>
+        <td class="center">${i+1}</td>
+        <td>${esc(p.id||'')}</td>
+        <td>${esc(p.name||'')}</td>
+        <td>${esc(p.group||'')}</td>
+        <td class="center">${esc(p.unit||'')}</td>
+        <td class="right">${money(p.salePrice!==undefined?p.salePrice:(p.price||0))}</td>
+        <td class="center">${Number(p.stock||0)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+
+  printHTMLDocument('Báo cáo tồn kho',body);
+}
+
+/* ===== CHỐT & LƯU TRỮ DỮ LIỆU ===== */
+function ensureArchiveData(){
+  if(!Array.isArray(db.archives))db.archives=[];
+}
+
+function renderArchiveHistory(){
+  const box=$('archiveHistory'); if(!box)return;
+  ensureArchiveData();
+  const rows=[...db.archives].sort((a,b)=>Number(b.ts||0)-Number(a.ts||0)).map(a=>`<tr>
+    <td>${esc(a.createdAt||'')}</td>
+    <td>${esc(a.cutoffDate||'')}</td>
+    <td>${esc(a.note||'')}</td>
+    <td class="center">${Number(a.stockoutCount||0)}</td>
+    <td class="center">${Number(a.stockinCount||0)}</td>
+    <td class="center"><button class="btn" onclick="viewArchive('${a.id}')">Xem</button></td>
+  </tr>`);
+  box.innerHTML=table(['Ngày chốt','Chốt đến','Kỳ lưu trữ','Phiếu xuất','Phiếu nhập',''],rows);
+}
+
+function prepareArchiveData(){
+  if(!isManager)return requireManager(prepareArchiveData,'Chốt dữ liệu cần quyền Quản lý.');
+  const cutoff=$('archiveCutoffDate')?.value||'';
+  if(!cutoff)return alert('Chọn ngày chốt dữ liệu.');
+  const oldOut=(db.stockout||[]).filter(o=>(ymdFromDateText(o.dateText)||'9999-99-99')<=cutoff);
+  const oldIn=(db.stockin||[]).filter(o=>(ymdFromDateText(o.dateText)||'9999-99-99')<=cutoff);
+  if(!oldOut.length && !oldIn.length)return alert('Không có Phiếu Xuất/Nhập nào đến ngày đã chọn để lưu trữ.');
+
+  showModal(`<h3>Chốt & lưu trữ dữ liệu</h3>
+    <div class="archive-warning">
+      Sẽ lưu trữ <b>${oldOut.length} Phiếu Xuất</b> và <b>${oldIn.length} Phiếu Nhập</b> đến hết ${esc(cutoff.split('-').reverse().join('/'))}.
+      Công nợ hiện tại của Khách hàng/NCC sẽ được chuyển thành <b>công nợ đầu kỳ mới</b> trước khi bỏ các phiếu cũ khỏi dữ liệu làm việc.
+    </div>
+    <p class="small">Bước 1: tải Sao lưu hiện tại. Bước 2: xác nhận chốt. Không xóa Khách hàng, NCC hoặc Hàng hóa.</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Hủy</button>
+      <button class="btn" onclick="backupAppData()">1. Sao lưu trước</button>
+      <button class="btn primary" onclick="confirmArchiveData('${cutoff}')">2. Xác nhận chốt</button>
+    </div>`);
+}
+
+async function confirmArchiveData(cutoff){
+  if(!isManager)return;
+  ensureArchiveData();
+
+  const oldOut=(db.stockout||[]).filter(o=>(ymdFromDateText(o.dateText)||'9999-99-99')<=cutoff);
+  const oldIn=(db.stockin||[]).filter(o=>(ymdFromDateText(o.dateText)||'9999-99-99')<=cutoff);
+  if(!oldOut.length && !oldIn.length)return alert('Không còn dữ liệu để chốt.');
+
+  /* Chụp số dư công nợ TRƯỚC khi bỏ phiếu cũ */
+  const customerBalances={};
+  (db.customers||[]).forEach(c=>customerBalances[c.id]=customerDebt(c.id));
+  const supplierBalances={};
+  (db.suppliers||[]).forEach(s=>supplierBalances[s.id]=supplierDebt(s.id));
+
+  const note=$('archiveNote')?.value.trim()||('Chốt đến '+cutoff.split('-').reverse().join('/'));
+  const archive={
+    id:'LT'+Date.now(),
+    ts:Date.now(),
+    createdAt:nowText(),
+    cutoffDate:cutoff,
+    note,
+    stockoutCount:oldOut.length,
+    stockinCount:oldIn.length,
+    stockout:oldOut,
+    stockin:oldIn,
+    customerPayments:(db.customerPayments||[]).filter(p=>{
+      const d=String(p.dateText||'').match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      return d ? `${d[3]}-${d[2]}-${d[1]}`<=cutoff : false;
+    }),
+    supplierPayments:(db.supplierPayments||[]).filter(p=>{
+      const d=String(p.dateText||'').match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      return d ? `${d[3]}-${d[2]}-${d[1]}`<=cutoff : false;
+    })
+  };
+
+  /* Đưa số dư thành nợ đầu kỳ mới */
+  (db.customers||[]).forEach(c=>{c.oldDebt=Number(customerBalances[c.id]||0)});
+  (db.suppliers||[]).forEach(s=>{s.oldDebt=Number(supplierBalances[s.id]||0)});
+
+  /* Bỏ dữ liệu cũ khỏi vùng làm việc */
+  db.stockout=(db.stockout||[]).filter(o=>(ymdFromDateText(o.dateText)||'9999-99-99')>cutoff);
+  db.stockin=(db.stockin||[]).filter(o=>(ymdFromDateText(o.dateText)||'9999-99-99')>cutoff);
+
+  /* Các thanh toán cũ đã được phản ánh vào số dư đầu kỳ nên bỏ khỏi vùng làm việc */
+  const oldCPIds=new Set(archive.customerPayments.map(p=>p.id));
+  const oldSPIds=new Set(archive.supplierPayments.map(p=>p.id));
+  db.customerPayments=(db.customerPayments||[]).filter(p=>!oldCPIds.has(p.id));
+  db.supplierPayments=(db.supplierPayments||[]).filter(p=>!oldSPIds.has(p.id));
+
+  db.archives.push(archive);
+
+  if(!await saveDB()){
+    alert('Không lưu được dữ liệu chốt. Hãy khôi phục từ bản Sao lưu vừa tải nếu cần.');
+    return;
+  }
+
+  closeModal();
+  renderAll();
+  renderArchiveHistory();
+  toast('Đã chốt và lưu trữ dữ liệu đến '+cutoff.split('-').reverse().join('/'));
+}
+
+function viewArchive(id){
+  ensureArchiveData();
+  const a=db.archives.find(x=>x.id===id); if(!a)return;
+  showModal(`<h3>${esc(a.note||'Kho lưu trữ')}</h3>
+    <div class="form-grid">
+      <div><label>Ngày chốt</label><input value="${esc(a.createdAt||'')}" disabled></div>
+      <div><label>Chốt dữ liệu đến</label><input value="${esc(a.cutoffDate||'')}" disabled></div>
+    </div>
+    <div class="expense-calendar-summary" style="margin-top:12px">
+      <div><span>Phiếu xuất lưu trữ</span><b>${Number(a.stockoutCount||0)}</b></div>
+      <div><span>Phiếu nhập lưu trữ</span><b>${Number(a.stockinCount||0)}</b></div>
+      <div><span>Thanh toán cũ</span><b>${Number((a.customerPayments||[]).length+(a.supplierPayments||[]).length)}</b></div>
+    </div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Đóng</button></div>`);
+}
+
+
+function staffActionEnabled(action){
+  ensureExpenseData();
+  if(isManager)return true;
+  return db.settings?.staffActions?.[action]===true;
+}
+
+function openWarehouseGroupAction(){
+  if(isManager || staffModuleEnabled('warehouse')){
+    openProductGroupManager();
+    return;
+  }
+  toast('Module Hàng hóa & Kho đang bị ẩn.');
+}
+
+function openWarehouseAddProductAction(){
+  if(isManager || staffModuleEnabled('warehouse')){
+    openAddProductGlobal();
+    return;
+  }
+  toast('Module Hàng hóa & Kho đang bị ẩn.');
+}
+
+
+/* ===== KHÁCH TRẢ LẠI HÀNG TỪ BẢO HÀNH ===== */
+function openWarrantyCustomerReturn(id){
+  const w=(db.warranty||[]).find(x=>x.id===id);
+  if(!w)return;
+  if(w.customerReturned || w.status==='Đã trả lại'){
+    return alert('Sản phẩm này đã được xử lý trả lại trước đó.');
+  }
+
+  const p=(db.products||[]).find(x=>x.id===w.productId);
+  const c=(db.customers||[]).find(x=>x.id===w.customerId);
+  if(!p)return alert('Không tìm thấy sản phẩm trong danh mục.');
+
+  const maxQty=Math.max(1,Number(w.qty||1));
+  const defaultAmount=(Number(p.salePrice)||0)*maxQty;
+  const debt=customerDebt(w.customerId);
+
+  showModal(`<h3>Khách trả lại hàng</h3>
+    <div class="warranty-return-info">
+      <b>${esc(c?.name||'Khách hàng')}</b> • Công nợ hiện tại: <b>${money(debt)}</b><br>
+      Sản phẩm: <b>${esc(p.name)}</b> • Số lượng đã nhận BH: ${maxQty}
+    </div>
+    <div class="form-grid">
+      <div><label>Số lượng trả lại</label><input id="wReturnQty" type="number" min="1" max="${maxQty}" value="${maxQty}" oninput="syncWarrantyReturnAmount('${esc(w.id)}')"></div>
+      <div><label>Giá trị trừ công nợ</label><input id="wReturnAmount" type="number" min="0" value="${defaultAmount}"></div>
+      <div class="full"><label>Nội dung</label><input id="wReturnContent" value="Khách trả lại ${esc(p.name)}"></div>
+    </div>
+    <div class="small" style="margin-top:8px">Xác nhận sẽ cộng lại tồn kho và trừ công nợ khách hàng. Thao tác này chỉ thực hiện được 1 lần.</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Hủy</button>
+      <button class="btn return-goods" onclick="confirmWarrantyCustomerReturn('${esc(w.id)}')">Xác nhận trả lại</button>
+    </div>`);
+}
+
+function syncWarrantyReturnAmount(id){
+  const w=(db.warranty||[]).find(x=>x.id===id);
+  const p=(db.products||[]).find(x=>x.id===w?.productId);
+  if(!w||!p)return;
+  const qty=Math.max(1,Math.min(Number(w.qty||1),Number($('wReturnQty')?.value)||1));
+  if($('wReturnAmount'))$('wReturnAmount').value=(Number(p.salePrice)||0)*qty;
+}
+
+async function confirmWarrantyCustomerReturn(id){
+  const w=(db.warranty||[]).find(x=>x.id===id);
+  if(!w)return;
+  if(w.customerReturned || w.status==='Đã trả lại')return alert('Sản phẩm này đã được xử lý trả lại.');
+
+  const p=(db.products||[]).find(x=>x.id===w.productId);
+  const c=(db.customers||[]).find(x=>x.id===w.customerId);
+  if(!p||!c)return alert('Thiếu dữ liệu sản phẩm hoặc khách hàng.');
+
+  const qty=Math.max(1,Math.min(Number(w.qty||1),Number($('wReturnQty')?.value)||1));
+  const amount=Math.max(0,Number($('wReturnAmount')?.value)||0);
+  const content=String($('wReturnContent')?.value||'').trim()||('Khách trả lại '+p.name);
+  const debtBefore=customerDebt(w.customerId);
+
+  if(amount<=0)return alert('Nhập giá trị hàng trả lại để trừ công nợ.');
+  if(amount>debtBefore){
+    return alert('Giá trị trả lại đang lớn hơn công nợ hiện tại ('+money(debtBefore)+'). Vui lòng nhập số tiền không vượt công nợ.');
+  }
+
+  if(!confirm(`Xác nhận khách trả lại ${qty} ${p.unit||'sp'} ${p.name}?\nTồn kho +${qty}\nCông nợ -${money(amount)}`))return;
+
+  const oldStock=Number(p.stock||0);
+  const oldWarranty={...w};
+  const payment={
+    id:'TLBH'+Date.now(),
+    customerId:w.customerId,
+    amount,
+    dateText:nowText(),
+    ts:Date.now(),
+    operator:isManager?'Quản lý':'Nhân viên',
+    transactionType:'warranty_return',
+    content,
+    warrantyId:w.id,
+    productId:p.id,
+    qty
+  };
+
+  p.stock=oldStock+qty;
+  if(!Array.isArray(db.customerPayments))db.customerPayments=[];
+  db.customerPayments.push(payment);
+
+  w.customerReturned=true;
+  w.returnQty=qty;
+  w.returnAmount=amount;
+  w.returnedDate=nowText();
+  w.status='Đã trả lại';
+  w.issue=(w.issue? w.issue+' • ':'')+
+    `${content} • SL ${qty} • ${money(amount)} • Đã trừ công nợ`;
+
+  const ok=await saveDB();
+  if(!ok){
+    p.stock=oldStock;
+    Object.assign(w,oldWarranty);
+    db.customerPayments=db.customerPayments.filter(x=>x.id!==payment.id);
+    return;
+  }
+
+  closeModal();
+  renderAll();
+  toast('Đã nhập lại kho +'+qty+' và trừ công nợ '+money(amount));
+}
+
+
+/* ===== V47: LƯU PHIẾU NHẬP ỔN ĐỊNH - KHÔNG ĐỤNG CÁC CHỨC NĂNG KHÁC ===== */
+async function saveStockinStable(doPrint=false){
+  const saveBtn=$('siSaveBtn');
+  const printBtn=$('siSavePrintBtn');
+
+  try{
+    if(stockinViewingHistory){
+      const oldInvoice=(db.stockin||[]).find(x=>x.id===($('siNo')?.textContent||''));
+      if(doPrint && oldInvoice){
+        buildStockinPreview(oldInvoice);
+        return true;
+      }
+      alert('Đây là phiếu nhập đã lưu. Bấm Phiếu mới để tạo phiếu mới.');
+      return false;
+    }
+
+    if(saveBtn)saveBtn.disabled=true;
+    if(printBtn)printBtn.disabled=true;
+    if($('siSaveStatus')){
+      $('siSaveStatus').textContent='Đang lưu phiếu nhập...';
+      $('siSaveStatus').classList.add('show');
+    }
+
+    /* 1. Xác định đúng NCC */
+    if(!resolveSupplierBeforeStockinSave()){
+      const raw=$('siSupplier')?.value.trim()||'';
+      if(raw){
+        alert('Vui lòng chọn đúng Nhà cung cấp trong danh sách trước khi lưu.');
+      }else{
+        alert('Chọn Nhà cung cấp trước khi lưu.');
+      }
+      return false;
+    }
+
+    const supplier=(db.suppliers||[]).find(s=>s.id===selectedSupplierId);
+    if(!supplier){
+      alert('Không tìm thấy Nhà cung cấp đã chọn.');
+      return false;
+    }
+
+    /* 2. Kiểm tra hàng */
+    const validRows=compactRows(siRows||[]);
+    if(!validRows.length){
+      alert('Chưa có hàng để nhập.');
+      return false;
+    }
+
+    for(let i=0;i<validRows.length;i++){
+      const r=validRows[i];
+      if(!r.productId){
+        alert('Dòng '+(i+1)+' chưa chọn đúng hàng hóa trong danh mục.');
+        return false;
+      }
+      const p=(db.products||[]).find(x=>x.id===r.productId);
+      if(!p){
+        alert('Không tìm thấy hàng hóa ở dòng '+(i+1)+'.');
+        return false;
+      }
+      if((Number(r.qty)||0)<=0){
+        alert('Nhập số lượng ở dòng '+(i+1)+'.');
+        return false;
+      }
+      if((Number(r.price)||0)<0){
+        alert('Giá nhập dòng '+(i+1)+' không hợp lệ.');
+        return false;
+      }
+    }
+
+    /* 3. Lập phiếu */
+    if(!Array.isArray(db.stockin))db.stockin=[];
+    const stockinId=String($('siNo')?.textContent||'').trim()||code('PN');
+    if(db.stockin.some(x=>x.id===stockinId)){
+      alert('Phiếu '+stockinId+' đã tồn tại. Bấm Phiếu mới để nhập phiếu khác.');
+      return false;
+    }
+
+    const total=validRows.reduce((s,r)=>s+(Number(r.qty)||0)*calcNet(r),0);
+    const oldDebtAtPurchase=supplierDebt(selectedSupplierId);
+    const totalPayable=Math.max(oldDebtAtPurchase+total,0);
+    const paidRaw=Math.max(Number($('siPaid')?.value)||0,0);
+    const paid=Math.min(paidRaw,totalPayable);
+    const debt=total-paid;
+    const remainingSupplierDebt=Math.max(oldDebtAtPurchase+debt,0);
+
+    const savedInvoice={
+      id:stockinId,
+      dateText:nowText(),
+      supplierId:selectedSupplierId,
+      supplierName:supplier.name||'',
+      supplierPhone:supplier.phone||'',
+      supplierAddress:supplier.address||'',
+      oldDebtAtPurchase,
+      totalPayable,
+      remainingSupplierDebt,
+      items:validRows.map(r=>({...r,net:calcNet(r)})),
+      total,
+      paid,
+      debt,
+      content:$('siContent')?.value||'',
+      note:$('siNote')?.value||'',
+      invoiceRef:$('siInvoiceRef')?.value||''
+    };
+
+    /* 4. Chụp dữ liệu để có thể hoàn tác */
+    const before=JSON.stringify(db);
+
+    /* 5. Cộng tồn + cập nhật giá vốn */
+    for(const r of validRows){
+      const p=db.products.find(x=>x.id===r.productId);
+      const oldStock=Number(p.stock||0);
+      const oldCost=Number(p.cost||0);
+      const qty=Number(r.qty)||0;
+      const net=calcNet(r);
+      const newStock=oldStock+qty;
+
+      p.cost=newStock>0
+        ? Math.round((oldStock*oldCost + qty*net)/newStock)
+        : net;
+      p.stock=newStock;
+      p.lastBuyPrice=Number(r.price)||0;
+    }
+
+    db.stockin.push(savedInvoice);
+
+    /* 6. LƯU THỰC SỰ. Chỉ khi saveDB trả true mới báo thành công */
+    const ok=await saveDB();
+    if(ok!==true){
+      db=JSON.parse(before);
+      alert('Phiếu nhập chưa lưu được. Dữ liệu đã được hoàn tác.');
+      return false;
+    }
+
+    /* Xác nhận phiếu thực sự đã ghi vào IndexedDB trước khi báo thành công. */
+    const verifyData=await idbRead();
+    const verified=!!(verifyData && Array.isArray(verifyData.stockin) &&
+      verifyData.stockin.some(x=>String(x.id)===String(stockinId)));
+    if(!verified){
+      db=JSON.parse(before);
+      try{await idbWrite(db)}catch(e){}
+      alert('Phiếu nhập chưa lưu được. Hệ thống đã hoàn tác để không sai tồn kho.');
+      return false;
+    }
+
+    /* 7. Phiếu đã lưu chắc chắn: chuyển sang phiếu mới.
+       Không cho lỗi giao diện sau đó làm báo nhầm là chưa lưu. */
+    try{
+      if($('stockinHistoryDate'))$('stockinHistoryDate').value=ymdFromDateText(savedInvoice.dateText);
+      stockinViewingHistory=false;
+      newStockin();
+
+      /* Chỉ làm mới dữ liệu liên quan Phiếu nhập; không đụng các module khác. */
+      renderWarehouse();
+      renderSuppliers();
+      renderDebts();
+      renderDashboard();
+      renderReports();
+
+      stockinHistoryList=getStockinHistoryForDate('');
+      stockinHistoryIndex=stockinHistoryList.length;
+      updateStockinHistoryControls();
+    }catch(uiErr){
+      console.error('Phiếu đã lưu, lỗi làm mới phần hiển thị:',uiErr);
+      stockinViewingHistory=false;
+      stockinHistoryList=getStockinHistoryForDate('');
+      stockinHistoryIndex=stockinHistoryList.length;
+      updateStockinHistoryControls();
+    }
+
+    if(doPrint){
+      try{
+        buildStockinPreview(savedInvoice);
+        setTimeout(()=>printStockinPreview(true),80);
+      }catch(e){
+        console.error('Đã lưu nhưng chưa mở được cửa sổ in:',e);
+      }
+    }
+
+    toast('Đã lưu '+stockinId+' • bấm ← để xem lại');
+    return true;
+
+  }catch(err){
+    console.error('Lỗi lưu Phiếu nhập:',err);
+    alert('Phiếu nhập chưa lưu được: '+(err?.message||err));
+    return false;
+  }finally{
+    if(saveBtn)saveBtn.disabled=false;
+    if(printBtn)printBtn.disabled=false;
+    if($('siSaveStatus')){
+      $('siSaveStatus').textContent='';
+      $('siSaveStatus').classList.remove('show');
+    }
+  }
+}
+
 </script>
+
+<div class="mobile-overlay" onclick="closeMobileMenu()"></div>
+
+<script id="pwa-register">
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(err){ console.warn('Service worker:', err); });
+  });
+}
+</script>
+
 </body>
 </html>
