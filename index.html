@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="54">
+<meta name="app-version" content="55">
 <title>Ngọc Trai Manager - Liên kết Nhập/Xuất/Kho/Công nợ</title>
 <style>
 :root{
@@ -3994,7 +3994,7 @@ body{
 
     <button data-page="suppliers"><span class="nav-ico">🚚</span><span class="nav-label">Nhà cung cấp</span></button>
     <button data-page="reports"><span class="nav-ico">📊</span><span class="nav-label">Báo cáo</span></button>
-    <button type="button" onclick="openAppQR()"><span class="nav-ico">▦</span><span class="nav-label">QR App</span></button>
+    <button id="qrAppBtn" type="button" onclick="openAppQR()"><span class="nav-ico">▦</span><span class="nav-label">QR App</span></button>
     <button data-page="settings"><span class="nav-ico">⚙️</span><span class="nav-label">Cài đặt</span></button>
 </div>
 </aside>
@@ -4848,6 +4848,10 @@ function startSyncPolling(){
 }
 
 async function openSyncSetup(){
+  if(!isManager){
+    toast('Nhân viên chỉ xem trạng thái Online.');
+    return;
+  }
   const old=loadSavedSyncPin();
   const pin=prompt('Mã đồng bộ thiết bị (6–12 chữ số):',old);
   if(pin===null)return;
@@ -5582,6 +5586,26 @@ function applyPermissions(){
     roleBtn.classList.toggle('manager',isManager);
     roleBtn.classList.toggle('employee',!isManager);
     roleBtn.title=isManager?'Bấm để khóa quyền Quản lý':'Bấm để nhập PIN Quản lý';
+  }
+
+  const syncBtn=$('syncStatusBtn');
+  if(syncBtn){
+    if(isManager){
+      syncBtn.onclick=openSyncSetup;
+      syncBtn.style.cursor='pointer';
+      syncBtn.title='Bấm để kiểm tra hoặc đổi mã đồng bộ';
+      syncBtn.setAttribute('aria-disabled','false');
+    }else{
+      syncBtn.onclick=null;
+      syncBtn.style.cursor='default';
+      syncBtn.title='Trạng thái kết nối online';
+      syncBtn.setAttribute('aria-disabled','true');
+    }
+  }
+
+  if($('qrAppBtn')){
+    $('qrAppBtn').classList.toggle('manager-hidden',!isManager);
+    $('qrAppBtn').style.display=isManager?'':'none';
   }
 
   const managerPages=['stockin','suppliers','settings'];
@@ -11903,11 +11927,15 @@ async function saveStockinStable(doPrint=false){
 <script id="pwa-register">
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js?v=54').catch(function(err){ console.warn('Service worker:', err); });
+    navigator.serviceWorker.register('./sw.js?v=55').catch(function(err){ console.warn('Service worker:', err); });
   });
 }
 
 function openAppQR(){
+  if(!isManager){
+    toast('QR App chỉ dành cho Quản lý.');
+    return;
+  }
   closeMobileMenu();
   const url='https://ngoctrai7785-afk.github.io/ngoc-trai-manager/';
   showModal(`

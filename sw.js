@@ -1,4 +1,4 @@
-const CACHE='ngoc-trai-manager-v54';
+const CACHE='ngoc-trai-manager-v55';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./QR_NGOC_TRAI_MANAGER.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));
