@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="53">
+<meta name="app-version" content="54">
 <title>Ngọc Trai Manager - Liên kết Nhập/Xuất/Kho/Công nợ</title>
 <style>
 :root{
@@ -3920,6 +3920,53 @@ body{
   .sidebar .nav button .nav-label{font-size:10.5px!important}
   .brand{padding:4px 7px 6px!important}
   .brand b{font-size:13px!important}
+}
+</style>
+
+
+<style id="v54-mobile-menu-vertical">
+/* V54 - MENU MOBILE XẾP DỌC */
+@media (max-width:900px) and (orientation:portrait){
+  .sidebar .nav{
+    display:flex!important;
+    flex-direction:column!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    gap:5px!important;
+    width:100%!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  .sidebar .nav button{
+    display:flex!important;
+    flex:0 0 auto!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:8px 10px!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    white-space:normal!important;
+  }
+  .sidebar .nav button .nav-label{
+    display:block!important;
+    flex:1 1 auto!important;
+    min-width:0!important;
+    text-align:left!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+  .sidebar .nav-divider{
+    display:block!important;
+    width:100%!important;
+    flex:0 0 auto!important;
+    margin:4px 0!important;
+  }
 }
 </style>
 
@@ -11856,7 +11903,7 @@ async function saveStockinStable(doPrint=false){
 <script id="pwa-register">
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js?v=53').catch(function(err){ console.warn('Service worker:', err); });
+    navigator.serviceWorker.register('./sw.js?v=54').catch(function(err){ console.warn('Service worker:', err); });
   });
 }
 
