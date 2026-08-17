@@ -12,6 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
+<meta name="app-version" content="52">
 <title>Ngọc Trai Manager - Liên kết Nhập/Xuất/Kho/Công nợ</title>
 <style>
 :root{
@@ -3609,6 +3610,86 @@ body{
 }
 </style>
 
+
+<style id="v52-mobile-drawer-fix">
+/* ===== V52 FIX MENU IPHONE/TABLET ===== */
+@media (max-width:900px){
+  .app{
+    display:block!important;
+    grid-template-columns:1fr!important;
+    width:100%!important;
+    min-height:100dvh!important;
+  }
+  .sidebar{
+    display:block!important;
+    position:fixed!important;
+    top:0!important;
+    bottom:0!important;
+    left:0!important;
+    width:min(82vw,290px)!important;
+    height:100dvh!important;
+    z-index:10000!important;
+    transform:translate3d(-105%,0,0)!important;
+    transition:transform .22s ease!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding-top:max(12px,env(safe-area-inset-top))!important;
+    padding-bottom:max(18px,env(safe-area-inset-bottom))!important;
+  }
+  body.mobile-menu-open .sidebar{
+    transform:translate3d(0,0,0)!important;
+    left:0!important;
+  }
+  .mobile-overlay{
+    display:block!important;
+    position:fixed!important;
+    inset:0!important;
+    z-index:9990!important;
+    background:rgba(8,20,30,.48)!important;
+    opacity:0!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+    transition:opacity .2s ease!important;
+  }
+  body.mobile-menu-open .mobile-overlay{
+    opacity:1!important;
+    visibility:visible!important;
+    pointer-events:auto!important;
+  }
+  .main{
+    margin-left:0!important;
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .mobile-menu-btn{
+    display:flex!important;
+    position:relative!important;
+    z-index:10020!important;
+  }
+  body.mobile-menu-open{overflow:hidden!important}
+}
+.qr-app-card{
+  text-align:center;
+}
+.qr-app-card img{
+  width:min(280px,78vw);
+  height:auto;
+  border:1px solid #d8e1e7;
+  border-radius:12px;
+  background:#fff;
+  padding:10px;
+}
+.qr-app-link{
+  margin-top:10px;
+  font-size:12px;
+  word-break:break-all;
+  color:#526873;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -3633,6 +3714,7 @@ body{
 
     <button data-page="suppliers"><span class="nav-ico">🚚</span><span class="nav-label">Nhà cung cấp</span></button>
     <button data-page="reports"><span class="nav-ico">📊</span><span class="nav-label">Báo cáo</span></button>
+    <button type="button" onclick="openAppQR()"><span class="nav-ico">▦</span><span class="nav-label">QR App</span></button>
     <button data-page="settings"><span class="nav-ico">⚙️</span><span class="nav-label">Cài đặt</span></button>
 </div>
 </aside>
@@ -10336,10 +10418,19 @@ init().catch(err=>{
 
 /* ===== MOBILE MENU ===== */
 function toggleMobileMenu(){
-  document.body.classList.toggle('mobile-menu-open');
+  const body=document.body;
+  const sidebar=document.querySelector('.sidebar');
+  if(!body || !sidebar)return;
+  const opening=!body.classList.contains('mobile-menu-open');
+  body.classList.toggle('mobile-menu-open',opening);
+  /* Fallback riêng Safari/iOS nếu CSS class bị cache/ghi đè */
+  sidebar.style.transform=opening?'translate3d(0,0,0)':'translate3d(-105%,0,0)';
 }
 function closeMobileMenu(){
-  document.body.classList.remove('mobile-menu-open');
+  const body=document.body;
+  const sidebar=document.querySelector('.sidebar');
+  body?.classList.remove('mobile-menu-open');
+  if(sidebar && window.innerWidth<=900)sidebar.style.transform='translate3d(-105%,0,0)';
 }
 document.addEventListener('click',function(e){
   if(window.innerWidth<=900){
@@ -11532,9 +11623,35 @@ async function saveStockinStable(doPrint=false){
 <script id="pwa-register">
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js').catch(function(err){ console.warn('Service worker:', err); });
+    navigator.serviceWorker.register('./sw.js?v=52').catch(function(err){ console.warn('Service worker:', err); });
   });
 }
+
+function openAppQR(){
+  closeMobileMenu();
+  const url='https://ngoctrai7785-afk.github.io/ngoc-trai-manager/';
+  showModal(`
+    <div class="qr-app-card">
+      <h3>QR Ngọc Trai Manager</h3>
+      <div class="small" style="margin-bottom:10px">Quét bằng camera điện thoại/tablet để mở app online.</div>
+      <img src="./QR_NGOC_TRAI_MANAGER.png" alt="QR Ngọc Trai Manager">
+      <div class="qr-app-link">${url}</div>
+      <div class="modal-actions" style="justify-content:center;margin-top:12px">
+        <button class="btn" onclick="copyAppLink()">Sao chép link</button>
+        <button class="btn primary" onclick="closeModal()">Đóng</button>
+      </div>
+    </div>`);
+}
+async function copyAppLink(){
+  const url='https://ngoctrai7785-afk.github.io/ngoc-trai-manager/';
+  try{
+    await navigator.clipboard.writeText(url);
+    toast('Đã sao chép link app');
+  }catch(e){
+    prompt('Sao chép link này:',url);
+  }
+}
+
 </script>
 
 </body>
