@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="166">
+<meta name="app-version" content="168">
 <title>AN BÙI - Quản lý nội bộ</title>
 <style>
 :root{
@@ -10674,6 +10674,50 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 </style>
 
 <!-- N-TRAI MASTER V166 • TOP STATUS: ONL + NHAN VIEN -->
+
+<style id="master-license-v167-fix-css">
+.master-license-status-v167{
+  min-height:20px;margin:2px 0 9px;padding:5px 8px;border-radius:7px;
+  font-size:11px;font-weight:750;color:#60727b;background:#f3f6f7
+}
+.master-license-status-v167.ok{background:#eaf7f0;color:#176847;border:1px solid #a8d5c0}
+.master-license-status-v167.wait{background:#fff7e7;color:#8a651d;border:1px solid #ead19b}
+.master-license-status-v167.bad{background:#fff0ee;color:#a62f27;border:1px solid #e7b2ad}
+</style>
+
+<!-- N-TRAI MASTER V167 • FIX CAP PHEP THUONG MAI -->
+
+<style id="master-v168-ui-fix">
+.master-expiry-row-v168{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.master-expiry-row-v168 > input[type="date"]{flex:1;min-width:145px}
+.master-unlimited-check-v168{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 8px;border:1px solid #c8d8dc;border-radius:8px;
+  background:#f7fafb;color:#365d66;font-size:11px;font-weight:850;
+  white-space:nowrap;cursor:pointer;
+}
+.master-unlimited-check-v168 input{width:15px;height:15px}
+
+/* Mục menu đang mở nổi rõ hơn nhưng vẫn giữ màu xanh cũ */
+.sidebar .nav button.active,
+.sidebar .nav button.master-active-v168{
+  background:rgba(255,255,255,.22)!important;
+  border:1px solid rgba(255,255,255,.60)!important;
+  box-shadow:0 3px 10px rgba(0,0,0,.22), inset 3px 0 0 rgba(255,255,255,.95)!important;
+  transform:translateX(3px)!important;
+  font-weight:900!important;
+  filter:brightness(1.13)!important;
+}
+.sidebar .nav button.active .nav-label,
+.sidebar .nav button.master-active-v168 .nav-label{
+  font-weight:900!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.18);
+}
+</style>
+
+<!-- N-TRAI MASTER V168 • HẠN KHÔNG GIỚI HẠN + MENU ACTIVE -->
 </head>
 <body>
 <div id="startupSafetyGate" class="startup-safety-gate show" aria-modal="true" role="dialog">
@@ -11474,7 +11518,17 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
           <div><label>Tên app</label><input id="masterNppAppName"></div>
           <div><label>Tên đơn vị / NPP</label><input id="masterNppUnitName"></div>
           <div><label>Trạng thái</label><select id="masterNppStatus"><option value="active">🟢 Hoạt động</option><option value="locked">🔴 Khóa app</option></select></div>
-          <div><label>Hạn sử dụng</label><input id="masterNppExpires" type="date" onchange="masterExpiryDateChanged()"><div id="masterNppExpiryNote" class="small">Để trống = chưa đặt hạn.</div></div>
+          <div>
+            <label>Hạn sử dụng</label>
+            <div class="master-expiry-row-v168">
+              <input id="masterNppExpires" type="date" onchange="masterExpiryDateChangedV168()">
+              <label class="master-unlimited-check-v168" title="App không hết hạn">
+                <input id="masterNppUnlimitedV168" type="checkbox" onchange="masterUnlimitedToggleV168()">
+                ∞ Không giới hạn
+              </label>
+            </div>
+            <div id="masterNppExpiryNote" class="small">Chọn ngày hết hạn hoặc “∞ Không giới hạn”.</div>
+          </div>
           <div><label>Dung lượng file app (MB)</label><input id="masterNppFileMb" type="number" min="0" step="0.01" placeholder="0"></div>
           <div><label>Dữ liệu đang dùng (MB)</label><input id="masterNppDataMb" type="number" min="0" step="0.01" placeholder="0"><div class="small">Nếu app có báo online, Master ưu tiên số online mới nhất.</div></div>
           <div><label>Giới hạn dung lượng (MB)</label><input id="masterNppQuotaMb" type="number" min="1" step="1" value="500"></div>
@@ -11488,12 +11542,16 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
         <div id="masterLicenseCard" class="master-license-card">
           <div class="master-license-head">
             <div><h4>🔐 Cấp phép thương mại</h4><div class="small">Master cấp mật khẩu và số máy. App con không được tự tăng máy hoặc tự gia hạn.</div></div>
-            <button class="btn" type="button" onclick="masterRefreshSelectedLicense()">↻ Kiểm tra thiết bị</button>
+            <div style="display:flex;gap:7px;flex-wrap:wrap">
+              <button class="btn primary" type="button" onclick="masterLicenseSaveNowV167()">💾 Lưu cấp phép</button>
+              <button class="btn" type="button" onclick="masterRefreshSelectedLicense()">↻ Kiểm tra thiết bị</button>
+            </div>
           </div>
+          <div id="masterLicenseStatusV167" class="master-license-status-v167"></div>
           <div class="master-license-grid">
-            <label class="master-license-toggle"><input id="masterLicenseEnabled" type="checkbox"> Bật quản lý từ Master</label>
-            <div><label>Số thiết bị được cấp</label><input id="masterLicenseDeviceLimit" type="number" min="1" max="50" value="1"></div>
-            <div><label>Mật khẩu mở app</label><input id="masterLicensePassword" type="password" inputmode="numeric" maxlength="8" placeholder="Để trống = giữ mật khẩu hiện tại"><div id="masterLicensePasswordNote" class="master-license-pass-note"></div></div>
+            <label class="master-license-toggle"><input id="masterLicenseEnabled" type="checkbox" onchange="masterLicenseDirtyV167()"> Bật quản lý từ Master</label>
+            <div><label>Số thiết bị được cấp</label><input id="masterLicenseDeviceLimit" type="number" min="1" max="50" value="1" oninput="masterLicenseDirtyV167()"></div>
+            <div><label>Mật khẩu mở app</label><input id="masterLicensePassword" type="password" inputmode="numeric" maxlength="8" oninput="masterLicenseDirtyV167()" placeholder="Để trống = giữ mật khẩu hiện tại"><div id="masterLicensePasswordNote" class="master-license-pass-note"></div></div>
           </div>
           <div id="masterLicenseDeviceSummary" class="master-device-summary"></div>
           <div id="masterLicenseDevices" class="master-device-table"></div>
@@ -12111,7 +12169,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":166,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":168,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=249; // App mẫu chuẩn AN BÙI V249.
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
 const KEY='manager_'+APP_ID.toLowerCase()+'_legacy_v1';
@@ -15141,6 +15199,7 @@ function go(id){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   target.classList.add('active');
   document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));
+  document.querySelectorAll('.sidebar .nav button').forEach(x=>x.classList.remove('master-active-v168'));
   document.body.classList.toggle('warranty-page-active',id==='warranty');
   document.body.classList.toggle('warehouse-page-active',id==='warehouse');
   const warrantyTopNav=$('warrantyTopNav');
@@ -26967,7 +27026,16 @@ function masterStatusView(r){
 }
 function goMasterPage(id){
   if(!APP_CONFIG.isMaster)return;
-  const open=()=>{go(id);if(id==='masterControl')renderMasterControl();if(id==='masterNpp')renderMasterNpp();};
+  const open=()=>{
+    go(id);
+    document.querySelectorAll('.sidebar .nav button').forEach(b=>b.classList.remove('master-active-v168'));
+    const map={masterTemplate:'Master Template',masterControl:'Master Control',masterNpp:'App NPP'};
+    document.querySelectorAll('.sidebar .nav button.master-business-nav-btn').forEach(b=>{
+      if((b.textContent||'').includes(map[id]||'__none__'))b.classList.add('master-active-v168');
+    });
+    if(id==='masterControl')renderMasterControl();
+    if(id==='masterNpp')renderMasterNpp();
+  };
   if(isManager)open(); else requireManager(open,'Khu vực kinh doanh app con cần quyền Quản lý.');
 }
 async function masterEnsureRemote(rec){
@@ -27019,10 +27087,62 @@ function masterRenderLicenseBox(rec){
   const devices=Array.isArray(lic?.devices)?lic.devices:[];
   if($('masterLicenseDevices'))$('masterLicenseDevices').innerHTML=devices.length?`<table><thead><tr><th>Thiết bị</th><th>Trạng thái</th><th>Lần dùng cuối</th><th>Thao tác</th></tr></thead><tbody>${devices.map(d=>`<tr><td><b>${esc(d.device_label||'Thiết bị')}</b><div class="master-device-id" title="${esc(d.device_id||'')}">${esc(d.device_id||'')}</div></td><td>${masterLicenseStatusText(d.status)}</td><td>${d.last_seen_at?esc(new Date(d.last_seen_at).toLocaleString('vi-VN')):'—'}</td><td><div class="master-device-actions">${d.status!=='active'?`<button class="btn ok" type="button" onclick="masterLicenseDeviceAction('${esc(d.device_id)}','active')">Duyệt</button>`:''}${d.status!=='blocked'?`<button class="btn" type="button" onclick="masterLicenseDeviceAction('${esc(d.device_id)}','blocked')">Khóa</button>`:''}<button class="btn master-danger" type="button" onclick="masterLicenseDeleteDevice('${esc(d.device_id)}')">Xóa</button></div></td></tr>`).join('')}</tbody></table>`:'<div class="small" style="padding:10px">Chưa có thiết bị nào gửi yêu cầu.</div>';
 }
-async function masterRefreshSelectedLicense(){const rec=masterRegistrySelected();if(!rec)return;if(!rec.online)return toast('App này chưa bật online.');try{await masterLicenseRemoteGet(rec);masterRenderLicenseBox(rec);renderMasterControl();toast('Đã cập nhật thiết bị')}catch(err){alert('Chưa đọc được cấp phép thiết bị:\\n'+(err?.message||err))}}
+
+function masterLicenseStatusSetV167(text,kind=''){
+  const el=$('masterLicenseStatusV167');
+  if(!el)return;
+  el.className='master-license-status-v167'+(kind?' '+kind:'');
+  el.textContent=text||'';
+}
+function masterLicenseDirtyV167(){
+  masterLicenseStatusSetV167('Có thay đổi chưa lưu. Bấm “Lưu cấp phép”.','wait');
+}
+async function masterLicenseSaveNowV167(){
+  const rec=masterCollectSelectedForm();
+  if(!rec)return alert('Chưa chọn app con.');
+
+  if(!rec.online){
+    masterLicenseStatusSetV167('App này chưa bật online nên chưa thể áp dụng cấp phép.','bad');
+    return alert('App này chưa bật online.');
+  }
+
+  const pass=String($('masterLicensePassword')?.value||'').trim();
+  if(pass && !/^\d{4,8}$/.test(pass)){
+    masterLicenseStatusSetV167('Mật khẩu phải gồm 4–8 chữ số.','bad');
+    return alert('Mật khẩu mở app phải gồm 4–8 chữ số.');
+  }
+  if(rec.licenseEnabled && !pass && !(rec.license?.password_set)){
+    masterLicenseStatusSetV167('Chưa có mật khẩu mở app.','bad');
+    return alert('Nhập mật khẩu 4–8 số trước khi bật quản lý từ Master.');
+  }
+
+  masterRegistryUpsert(rec);
+  masterLicenseStatusSetV167('Đang áp dụng cấp phép lên hệ thống…','wait');
+
+  try{
+    /* Ghi trạng thái app trước, sau đó ghi cấp phép + thiết bị. */
+    await masterControlRemoteSet(rec);
+    rec.remote=await masterControlRemoteGet(rec);
+    rec.license=await masterLicenseRemoteSet(rec,pass);
+    masterRegistryUpsert(rec);
+
+    if($('masterLicensePassword'))$('masterLicensePassword').value='';
+    masterRenderLicenseBox(rec);
+    renderMasterControl();
+    masterLicenseStatusSetV167('✓ Đã áp dụng cấp phép online cho '+(rec.unitName||rec.appId)+'.','ok');
+    if(typeof toast==='function')toast('Đã lưu cấp phép thương mại');
+  }catch(err){
+    const msg=String(err?.message||err);
+    console.error('masterLicenseSaveNowV167',err);
+    masterLicenseStatusSetV167('Không áp dụng được: '+msg,'bad');
+    alert('Không áp dụng được cấp phép thương mại:\n'+msg);
+  }
+}
+
+async function masterRefreshSelectedLicense(){const rec=masterRegistrySelected();if(!rec)return;if(!rec.online)return toast('App này chưa bật online.');masterLicenseStatusSetV167('Đang đọc danh sách thiết bị…','wait');try{await masterLicenseRemoteGet(rec);masterRenderLicenseBox(rec);renderMasterControl();masterLicenseStatusSetV167('✓ Đã cập nhật trạng thái thiết bị.','ok');toast('Đã cập nhật thiết bị')}catch(err){masterLicenseStatusSetV167('Không đọc được thiết bị: '+(err?.message||err),'bad');alert('Chưa đọc được cấp phép thiết bị:\n'+(err?.message||err))}}
 async function masterLicenseDeviceAction(deviceId,status){
   const rec=masterRegistrySelected();if(!rec)return;
-  try{await masterLicenseEnsureAdmin(rec);rec.license=await syncRpc('manager_app_license_device_set',{p_app_id:masterControlAppId(rec),p_admin_key:rec.licenseAdminKey,p_device_id:deviceId,p_status:status});masterRegistryUpsert(rec);masterRenderLicenseBox(rec);renderMasterControl();toast(status==='active'?'Đã duyệt thiết bị':'Đã khóa thiết bị')}
+  try{masterLicenseStatusSetV167(status==='active'?'Đang duyệt thiết bị…':'Đang khóa thiết bị…','wait');await masterLicenseEnsureAdmin(rec);rec.license=await syncRpc('manager_app_license_device_set',{p_app_id:masterControlAppId(rec),p_admin_key:rec.licenseAdminKey,p_device_id:deviceId,p_status:status});masterRegistryUpsert(rec);masterRenderLicenseBox(rec);renderMasterControl();masterLicenseStatusSetV167(status==='active'?'✓ Đã duyệt thiết bị.':'✓ Đã khóa thiết bị.','ok');toast(status==='active'?'Đã duyệt thiết bị':'Đã khóa thiết bị')}
   catch(err){const msg=String(err?.message||err);alert(msg.includes('DEVICE_LIMIT_REACHED')?'Đã đủ số thiết bị được cấp. Tăng “Số thiết bị được cấp” rồi lưu trước.':'Không cập nhật được thiết bị:\\n'+msg)}
 }
 async function masterLicenseDeleteDevice(deviceId){
@@ -27069,7 +27189,11 @@ function renderMasterNpp(){
   if(!APP_CONFIG.isMaster)return;const rec=masterRegistrySelected(),empty=$('masterNppEmpty'),editor=$('masterNppEditor');if(!empty||!editor)return;if(!rec){empty.style.display='block';editor.style.display='none';return}const ext=!!rec.externalManaged;
   empty.style.display='none';editor.style.display='block';if($('masterNppSubtitle'))$('masterNppSubtitle').textContent=(rec.unitName||rec.appName||rec.appId)+' • '+rec.appId;
   $('masterNppId').value=rec.appId;$('masterNppVersion').value='V'+(rec.remote?.last_client_version||rec.version||APP_VERSION_CURRENT);$('masterNppAppName').value=rec.appName||'';$('masterNppUnitName').value=rec.unitName||'';$('masterNppStatus').value=rec.license?.status||rec.remote?.status||rec.status||'active';
-  $('masterNppExpires').value=rec.unlimited?'':String(rec.license?.expires_at||rec.remote?.expires_at||rec.expiresAt||'').slice(0,10);$('masterNppPublicUrl').value=rec.publicUrl||rec.remote?.public_url||'';if($('masterNppExpiryNote'))$('masterNppExpiryNote').innerHTML=rec.unlimited?'∞ <b>Không giới hạn thời gian sử dụng</b>':'Chọn ngày hết hạn hoặc bấm “∞ Không giới hạn”.';
+  $('masterNppExpires').value=rec.unlimited?'':String(rec.license?.expires_at||rec.remote?.expires_at||rec.expiresAt||'').slice(0,10);
+  if($('masterNppUnlimitedV168'))$('masterNppUnlimitedV168').checked=!!rec.unlimited;
+  if($('masterNppExpires'))$('masterNppExpires').disabled=!!rec.unlimited;
+  $('masterNppPublicUrl').value=rec.publicUrl||rec.remote?.public_url||'';
+  if($('masterNppExpiryNote'))$('masterNppExpiryNote').innerHTML=rec.unlimited?'∞ <b>Không giới hạn thời gian sử dụng</b>':'Chọn ngày hết hạn hoặc “∞ Không giới hạn”.';
   const sx=masterStorageInfo(rec);$('masterNppFileMb').value=(sx.fileBytes/1024/1024).toFixed(3).replace(/\.?0+$/,'');$('masterNppDataMb').value=(sx.dataBytes/1024/1024).toFixed(3).replace(/\.?0+$/,'');$('masterNppQuotaMb').value=Math.round(sx.quota/1024/1024)||500;
   if($('masterAnBuiSyncPinWrap'))$('masterAnBuiSyncPinWrap').style.display=ext?'':'none';if($('masterAnBuiSyncPin'))$('masterAnBuiSyncPin').value=ext?(rec.syncPin||'12345678'):'';if($('masterNppMeasureResult'))$('masterNppMeasureResult').textContent='';
   $('masterNppCustom').value=rec.customModules||((rec.remote?.custom_modules||[]).join('\n'));$('masterNppNotes').value=rec.notes||rec.remote?.notes||'';
@@ -27079,9 +27203,10 @@ function renderMasterNpp(){
   const rem=rec.remote||{},remoteText=rec.online?`☁ Online • lần kết nối: <b>${rem.last_seen_at?esc(new Date(rem.last_seen_at).toLocaleString('vi-VN')):'chưa có'}</b> • ${masterStorageHtml(rec)}`:`⚪ Cục bộ • ${masterStorageHtml(rec)}`;$('masterNppRemoteInfo').innerHTML=remoteText;
   if($('masterNppBackupInfo')){const b=rec.backupInfo||{},status=b.enabled?(b.status==='ok'?'🟢 Đang tự sao lưu':'🟡 Đã bật – '+esc(b.status||'đang chờ')):'⚪ Sao lưu theo thao tác người dùng';$('masterNppBackupInfo').innerHTML=`<b>💾 Sao lưu:</b> ${status}<br><span class="small">Lần gần nhất: ${esc(b.lastAt||'Chưa có')}${b.folder?' • Thư mục: '+esc(b.folder):''}</span>`}
   masterRenderLicenseBox(rec);
+  if($('masterLicenseStatusV167'))masterLicenseStatusSetV167(rec.online?'Sẵn sàng quản lý cấp phép online.':'App này đang cục bộ.','');
 }
 function masterCollectSelectedForm(){
-  const rec=masterRegistrySelected();if(!rec)return null;rec.appName=$('masterNppAppName')?.value.trim()||rec.appName;rec.unitName=$('masterNppUnitName')?.value.trim()||rec.unitName;rec.status=$('masterNppStatus')?.value||'active';rec.expiresAt=$('masterNppExpires')?.value||'';if(rec.expiresAt)rec.unlimited=false;rec.publicUrl=$('masterNppPublicUrl')?.value.trim()||'';rec.customModules=$('masterNppCustom')?.value.trim()||'';rec.notes=$('masterNppNotes')?.value.trim()||'';rec.fileBytes=masterMbBytes($('masterNppFileMb')?.value||0);
+  const rec=masterRegistrySelected();if(!rec)return null;rec.appName=$('masterNppAppName')?.value.trim()||rec.appName;rec.unitName=$('masterNppUnitName')?.value.trim()||rec.unitName;rec.status=$('masterNppStatus')?.value||'active';rec.unlimited=!!$('masterNppUnlimitedV168')?.checked;rec.expiresAt=rec.unlimited?'':($('masterNppExpires')?.value||'');if(rec.expiresAt)rec.unlimited=false;rec.publicUrl=$('masterNppPublicUrl')?.value.trim()||'';rec.customModules=$('masterNppCustom')?.value.trim()||'';rec.notes=$('masterNppNotes')?.value.trim()||'';rec.fileBytes=masterMbBytes($('masterNppFileMb')?.value||0);
   if(rec.externalKey==='an-bui'&&$('masterAnBuiSyncPin')){const p=String($('masterAnBuiSyncPin').value||'').trim();if(/^\d{6,12}$/.test(p))rec.syncPin=p}if(!(rec.remote&&Number(rec.remote.last_data_bytes||0)>0))rec.dataBytes=masterMbBytes($('masterNppDataMb')?.value||0);rec.quotaBytes=masterMbBytes($('masterNppQuotaMb')?.value||500)||500*1024*1024;if(!rec.externalManaged){rec.modules=Array.from(document.querySelectorAll('[data-master-npp-module]:checked')).map(x=>x.dataset.masterNppModule);rec.targetVersion=APP_VERSION_CURRENT}
   rec.licenseEnabled=!!$('masterLicenseEnabled')?.checked;rec.licenseDeviceLimit=Math.max(1,Math.min(50,Number($('masterLicenseDeviceLimit')?.value)||1));if(!rec.licenseAdminKey)rec.licenseAdminKey=masterLicenseMakeKey();return rec;
 }
@@ -27090,7 +27215,29 @@ async function masterSaveSelectedApp(){
   if(rec.online){try{await masterControlRemoteSet(rec);rec.remote=await masterControlRemoteGet(rec);await masterLicenseRemoteSet(rec,pass);masterRegistryUpsert(rec);toast('Đã áp dụng quyền sử dụng cho '+(rec.unitName||rec.appId))}catch(err){return alert('Đã lưu trên Master nhưng chưa áp dụng online:\n'+(err?.message||err))}}else toast('Đã lưu hồ sơ app cục bộ');renderMasterControl();renderMasterNpp();
 }
 function masterAddMonthsISO(base,months){const d=base?new Date(base+'T00:00:00'):new Date();if(isNaN(d))return '';d.setMonth(d.getMonth()+months);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
-function masterExpiryDateChanged(){const rec=masterRegistrySelected();if(!rec)return;const v=$('masterNppExpires')?.value||'';if(v){rec.unlimited=false;if($('masterNppExpiryNote'))$('masterNppExpiryNote').textContent='Có thời hạn đến '+v}}
+function masterExpiryDateChangedV168(){
+  const rec=masterRegistrySelected();if(!rec)return;
+  const v=$('masterNppExpires')?.value||'';
+  if(v){
+    rec.unlimited=false;
+    if($('masterNppUnlimitedV168'))$('masterNppUnlimitedV168').checked=false;
+    if($('masterNppExpires'))$('masterNppExpires').disabled=false;
+    if($('masterNppExpiryNote'))$('masterNppExpiryNote').textContent='Có thời hạn đến '+v;
+  }
+}
+function masterUnlimitedToggleV168(){
+  const rec=masterRegistrySelected();if(!rec)return;
+  const checked=!!$('masterNppUnlimitedV168')?.checked;
+  rec.unlimited=checked;
+  if(checked){
+    rec.expiresAt='';
+    if($('masterNppExpires')){$('masterNppExpires').value='';$('masterNppExpires').disabled=true}
+    if($('masterNppExpiryNote'))$('masterNppExpiryNote').innerHTML='∞ <b>Không giới hạn thời gian sử dụng</b>';
+  }else{
+    if($('masterNppExpires'))$('masterNppExpires').disabled=false;
+    if($('masterNppExpiryNote'))$('masterNppExpiryNote').textContent='Chọn ngày hết hạn.';
+  }
+}
 async function masterQuickRenew(months){const rec=masterCollectSelectedForm();if(!rec)return;rec.unlimited=false;let base=rec.expiresAt&&rec.expiresAt>=new Date().toISOString().slice(0,10)?rec.expiresAt:new Date().toISOString().slice(0,10);rec.expiresAt=masterAddMonthsISO(base,months);rec.status='active';masterRegistryUpsert(rec);renderMasterNpp();await masterSaveSelectedApp()}
 async function masterSetUnlimited(){const rec=masterCollectSelectedForm();if(!rec)return;rec.unlimited=true;rec.expiresAt='';rec.status='active';masterRegistryUpsert(rec);renderMasterNpp();await masterSaveSelectedApp();toast('Đã đặt '+rec.appId+' sử dụng không giới hạn')}
 function masterOpenSelectedApp(){const rec=masterRegistrySelected();const u=$('masterNppPublicUrl')?.value.trim()||rec?.publicUrl||'';if(!u)return alert('Chưa có link online của app NPP.');window.open(u,'_blank','noopener')}
