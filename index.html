@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="164">
+<meta name="app-version" content="166">
 <title>AN BÙI - Quản lý nội bộ</title>
 <style>
 :root{
@@ -10647,6 +10647,33 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <!-- AN BUI V249 • APP CON AB123 • managedByMaster=true • isMaster=false -->
 <!-- N-TRAI MASTER V163 • UI/NGHIEP VU TRUC TIEP TU AN BUI V249 -->
 <!-- N-TRAI MASTER V164 • FIX PIN MO APP 2580 -->
+
+<style id="master-v165-online-fix-css">
+#syncStatusBtn.online{border-color:#79b89b!important;background:#eaf7f0!important;color:#176847!important}
+#syncStatusBtn.local{border-color:#d8bd82!important;background:#fff7e8!important;color:#8b6320!important}
+</style>
+
+<!-- N-TRAI MASTER V165 • HARD ONLINE PROTOCOL FIX -->
+
+<style id="master-v166-compact-status-css">
+#syncStatusBtn{
+  min-width:auto!important;
+  padding:5px 10px!important;
+  font-weight:900!important;
+}
+#syncStatusBtn.online{
+  border-color:#79b89b!important;
+  background:#eaf7f0!important;
+  color:#176847!important;
+}
+#syncStatusBtn.local{
+  border-color:#cbd5da!important;
+  background:#f4f7f8!important;
+  color:#52656e!important;
+}
+</style>
+
+<!-- N-TRAI MASTER V166 • TOP STATUS: ONL + NHAN VIEN -->
 </head>
 <body>
 <div id="startupSafetyGate" class="startup-safety-gate show" aria-modal="true" role="dialog">
@@ -12084,7 +12111,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":164,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":166,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=249; // App mẫu chuẩn AN BÙI V249.
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
 const KEY='manager_'+APP_ID.toLowerCase()+'_legacy_v1';
@@ -12378,6 +12405,8 @@ function commercialLicenseMessage(reason,extra={}){
   if(reason==='NETWORK_REQUIRED')return ['Cần Internet để kiểm tra quyền sử dụng từ Master.','bad'];
   return ['Không mở được app. Vui lòng liên hệ Master.','bad'];
 }
+
+
 function startupShowGate(){
   const gate=document.getElementById('startupSafetyGate');if(!gate)return;
   startupSafetyPassed=false;gate.classList.add('show');
@@ -12418,12 +12447,33 @@ async function startupUnlockApp(){
   }finally{if(input)input.disabled=false}
 }
 
+
+function masterWebStateV165(){
+  if(!APP_CONFIG?.isMaster)return null;
+  const proto=String(location.protocol||'').toLowerCase();
+  const online=(proto==='https:'||proto==='http:');
+  return {
+    online,
+    label:online?'Onl':'Onl',
+    state:online?'online':'local'
+  };
+}
+
 function syncStatus(label,state='local'){
   const b=document.getElementById('syncStatusBtn');
   if(!b)return;
-  if(state==='online')label='☁ Onl';
+
+  if(APP_CONFIG?.isMaster){
+    const ms=masterWebStateV165();
+    /* V166: giữ kiểm tra trạng thái thật ở bên trong,
+       giao diện chỉ hiện nhãn gọn "Onl" như bản cũ. */
+    label='Onl';
+    state=ms.online?'online':'local';
+    b.title=ms.online?'Master đang Online':'Master đang mở cục bộ';
+  }
+
   b.textContent=label;
-  b.classList.remove('online','syncing','offline','local');
+  b.classList.remove('online','offline','local');
   b.classList.add(state);
 }
 
@@ -23226,6 +23276,22 @@ async function deleteWarehouseSelectedProductV193(){
 }
 
 document.addEventListener('click',e=>{if(!e.target.closest('#productContextMenu'))closeProductContextMenu()});
+
+setInterval(()=>{
+  try{
+    if(APP_CONFIG?.isMaster){
+      const b=document.getElementById('syncStatusBtn');
+      const ms=masterWebStateV165();
+      if(b){
+        b.textContent='Onl';
+        b.classList.remove('online','offline','local');
+        b.classList.add(ms.online?'online':'local');
+        b.title=ms.online?'Master đang Online':'Master đang mở cục bộ';
+      }
+    }
+  }catch(e){}
+},1200);
+
 window.addEventListener('resize',closeProductContextMenu);window.addEventListener('scroll',closeProductContextMenu,true);
 
 function openEditProduct(id){
@@ -29849,6 +29915,7 @@ window.addEventListener('load',()=>{
   }catch(e){}
   setTimeout(syncVoucherTopActionsV159,150);
 });
+
 
 </script>
 
