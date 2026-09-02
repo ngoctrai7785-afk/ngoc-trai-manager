@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="158">
+<meta name="app-version" content="160">
 <title>N-TRAI MANAGER V154</title>
 <style>
 :root{
@@ -7235,6 +7235,7 @@ input[type="month"]::-webkit-calendar-picker-indicator{
 }
 </style>
 
+<!-- MASTER TRUNG TAM ONLINE V160 • 1 MASTER -> N APP CON -->
 </head>
 <body>
 <div class="app">
@@ -8476,7 +8477,7 @@ input[type="month"]::-webkit-calendar-picker-indicator{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","settings"],"appVersion":158,"managedByMaster":false});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","settings"],"appVersion":160,"managedByMaster":false});
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
 const KEY='manager_'+APP_ID.toLowerCase()+'_legacy_v1';
 let db={};
@@ -8652,6 +8653,15 @@ let syncRevision=-1;
 let syncBusy=false;
 let syncApplyingRemote=false;
 let syncPollTimer=null;
+
+
+function masterOnlineStateV160(){
+  if(!APP_CONFIG?.isMaster)return null;
+  const online = location.protocol==='https:' || location.protocol==='http:';
+  return online
+    ? {label:'🌐 Master Online',state:'online'}
+    : {label:'💻 Master cục bộ',state:'local'};
+}
 
 function syncStatus(label,state='local'){
   const b=document.getElementById('syncStatusBtn');
@@ -9099,7 +9109,12 @@ async function recoverStockOperationSaveFailure(result,beforeJson){
 async function syncBootstrap(){
   syncPin=requestSyncPin();
   if(!syncPin){
-    syncStatus('🛰️ Master quản trị','local');
+    if(APP_CONFIG.isMaster){
+      const ms=masterOnlineStateV160();
+      syncStatus(ms.label,ms.state);
+    }else{
+      syncStatus('⚠ Chưa đồng bộ','offline');
+    }
     return false;
   }
   syncStatus('↻ Đang kết nối','syncing');
@@ -9227,7 +9242,7 @@ async function saveDB(){
       syncBusy=wasBusy;
     }
   }else{
-    syncStatus('🛰️ Master quản trị','local');
+    {const ms=masterOnlineStateV160();syncStatus(ms.label,ms.state);}
   }
   return true;
 }
@@ -15210,7 +15225,7 @@ async function persistFullResetDatabase(fresh,oldSnapshot){
     normalizeDB();
     ensureSecuritySettings();
     try{await idbWrite(db)}catch(e){console.warn('Không ghi lại dữ liệu chuẩn hóa sau reset:',e)}
-    syncStatus(syncPin?'☁ Online':'🛰️ Master quản trị',syncPin?'online':'local');
+    if(syncPin){syncStatus('☁ Online','online')}else if(APP_CONFIG.isMaster){const ms=masterOnlineStateV160();syncStatus(ms.label,ms.state)}else{syncStatus('⚠ Chưa đồng bộ','offline')}
     return true;
   }catch(err){
     console.error('Reset dữ liệu thất bại:',err);
@@ -15225,7 +15240,7 @@ async function persistFullResetDatabase(fresh,oldSnapshot){
     try{await idbWrite(oldSnapshot)}catch(e){}
     db=oldSnapshot;
     normalizeDB();
-    syncStatus(syncPin?'⚠ Chưa reset':'🛰️ Master quản trị',syncPin?'offline':'local');
+    if(syncPin){syncStatus('⚠ Chưa reset','offline')}else if(APP_CONFIG.isMaster){const ms=masterOnlineStateV160();syncStatus(ms.label,ms.state)}else{syncStatus('⚠ Chưa đồng bộ','offline')}
     throw err;
   }finally{
     syncBusy=wasBusy;
@@ -21222,7 +21237,10 @@ function masterImportRegistry(){$('masterRegistryImportFile')?.click()}
 async function masterHandleRegistryImport(event){const f=event.target.files?.[0];event.target.value='';if(!f)return;try{const j=JSON.parse(await f.text());const apps=Array.isArray(j)?j:j.apps;if(!Array.isArray(apps))throw new Error('File không đúng định dạng');masterRegistrySave(apps);renderMasterControl();renderMasterNpp();toast('Đã khôi phục '+apps.length+' app')}catch(e){alert('Không đọc được file danh sách: '+e.message)}}
 
 /* V137: An Bùi nằm trong Master và có lớp cấp phép thương mại riêng. */
-setTimeout(async()=>{try{if(APP_CONFIG.isMaster){await masterRegistryInit();const ab=masterEnsureAnBui(false);renderMasterControl();renderMasterNpp();if(ab?.online){try{await masterRefreshOne(ab.appId)}catch(e){console.warn('Chưa tự cập nhật An Bùi:',e)}}masterStartPendingWatcher();}}catch(e){console.warn('Không khởi tạo được danh sách app con:',e)}},0);
+setTimeout(async()=>{try{if(APP_CONFIG.isMaster){
+  const ms=masterOnlineStateV160();
+  syncStatus(ms.label,ms.state);
+  await masterRegistryInit();const ab=masterEnsureAnBui(false);renderMasterControl();renderMasterNpp();if(ab?.online){try{await masterRefreshOne(ab.appId)}catch(e){console.warn('Chưa tự cập nhật An Bùi:',e)}}masterStartPendingWatcher();}}catch(e){console.warn('Không khởi tạo được danh sách app con:',e)}},0);
 
 function normalizeNewAppIdValue(v){
   return String(v||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/Đ/g,'D').replace(/[^A-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,24);
@@ -21539,7 +21557,7 @@ async function init(){
    await syncBootstrap();
    await managedControlRefresh(true);
  }else{
-   syncStatus('🛰️ Master quản trị','local');
+   {const ms=masterOnlineStateV160();syncStatus(ms.label,ms.state);}
  }
 
  normalizeDB();

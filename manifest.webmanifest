@@ -2,6 +2,7 @@
   "name": "N-TRAI MANAGER",
   "short_name": "N-TRAI",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#eef2f5",
   "theme_color": "#123b5d",
