@@ -1,11 +1,11 @@
 {
-  "name": "N-TRAI Manager Master",
-  "short_name": "N-TRAI Master",
+  "name": "N-TRAI Manager",
+  "short_name": "N-TRAI",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#eef3f3",
   "theme_color": "#147a73",
-  "description": "N-TRAI Manager Master V164 • An Bùi template V259",
+  "description": "N-TRAI Manager V174 • Template AN BÙI V259",
   "icons": []
 }
