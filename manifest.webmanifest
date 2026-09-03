@@ -4,8 +4,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eef3f3",
-  "theme_color": "#147a73",
-  "description": "N-TRAI Manager V174 • Template AN BÙI V259",
+  "background_color": "#eef2f5",
+  "theme_color": "#123b5d",
+  "description": "N-TRAI Manager V175 • Template An Bùi V259 • Fix GitHub device link",
   "icons": []
 }

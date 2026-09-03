@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="174">
+<meta name="app-version" content="175">
 <title>AN BÙI - Quản lý nội bộ</title>
 <style>
 :root{
@@ -12239,7 +12239,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":174,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":175,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=259; // App mẫu chuẩn AN BÙI V259.
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
 const KEY='manager_'+APP_ID.toLowerCase()+'_legacy_v1';
@@ -33000,6 +33000,49 @@ async function saveCustomerDebtEditUnifiedV193(id){
   };
 })();
 </script>
+
+<!-- N-TRAI MASTER V175 • FIX GITHUB DEVICE LINK / LICENSE ADMIN KEY TRANSFER -->
+<style id="master-v175-link-fix-css">
+.master-license-link-v175{margin:8px 0 2px;padding:8px 10px;border:1px solid #d8e4e8;border-radius:9px;background:#f8fbfc;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.master-license-link-v175 .txt{flex:1;min-width:260px;font-size:11.5px;color:#60737c;line-height:1.35}
+.master-license-link-v175 .txt b{color:#234b55}
+.master-license-link-v175 .btn{padding:6px 9px;font-size:11px}
+</style>
+<script>
+(function(){
+  function selected(){try{return masterRegistrySelected()}catch(_){return null}}
+  function isAnBui(rec){return !!rec&&(rec.externalKey==='an-bui'||String(rec.remoteAppId||'').toUpperCase()==='AB123'||String(rec.appId||'').toUpperCase()==='AN_BUI_MANAGER')}
+  function validKey(v){return /^MK_[A-Za-z0-9_-]{12,120}$/.test(String(v||'').trim())}
+  function currentKey(rec){return String(rec?.licenseAdminKey||'').trim()}
+  function setStatus(msg,kind){try{masterLicenseStatusSetV167(msg,kind||'')}catch(_){}}
+  function ensureBox(){
+    const host=document.getElementById('masterLicenseStatusV167');if(!host)return;
+    let box=document.getElementById('masterLicenseLinkV175');
+    if(!box){box=document.createElement('div');box.id='masterLicenseLinkV175';box.className='master-license-link-v175';box.innerHTML='<div class="txt"><b>Liên kết thiết bị Master ↔ GitHub</b><br><span id="masterLicenseLinkTextV175">Giữ cùng khóa quản trị để GitHub đọc đúng danh sách máy đã cấp.</span></div><button class="btn" type="button" onclick="masterCopyLicenseLinkV175()">📋 Sao chép khóa</button><button class="btn" type="button" onclick="masterImportLicenseLinkV175()">🔗 Nhập khóa bản thử</button>';host.insertAdjacentElement('afterend',box)}
+    const rec=selected(),txt=document.getElementById('masterLicenseLinkTextV175');if(!txt)return;
+    if(!isAnBui(rec))txt.textContent='Dùng khi chuyển Master sang trình duyệt/địa chỉ web khác.';
+    else if(validKey(currentKey(rec)))txt.innerHTML='An Bùi đang có khóa quản trị trên trình duyệt này. Khi chuyển sang GitHub, dùng <b>cùng khóa này</b> để thấy lại đúng các máy.';
+    else txt.innerHTML='<span style="color:#a15c00;font-weight:800">Chưa có khóa quản trị hợp lệ trên trình duyệt này.</span>';
+  }
+  window.masterCopyLicenseLinkV175=async function(){
+    const rec=selected();if(!rec)return alert('Chưa chọn app con.');
+    const key=currentKey(rec);if(!validKey(key))return alert('App này chưa có khóa quản trị hợp lệ để sao chép.');
+    try{await navigator.clipboard.writeText(key);setStatus('✓ Đã sao chép khóa liên kết. Mở Master GitHub rồi bấm “Nhập khóa bản thử”.','ok');if(typeof toast==='function')toast('Đã sao chép khóa liên kết')}
+    catch(e){prompt('Sao chép khóa này:',key)}
+  };
+  window.masterImportLicenseLinkV175=async function(){
+    const rec=selected();if(!rec)return alert('Chưa chọn app con.');
+    const raw=prompt('Dán KHÓA LIÊN KẾT đã sao chép từ bản Master đang thấy đúng danh sách máy:','');if(raw===null)return;
+    const key=String(raw||'').trim();if(!validKey(key))return alert('Khóa liên kết không hợp lệ. Khóa phải bắt đầu bằng MK_.');
+    const old=rec.licenseAdminKey;rec.licenseAdminKey=key;rec.license=null;masterRegistryUpsert(rec);setStatus('Đang nối lại hồ sơ thiết bị cũ…','wait');
+    try{rec.license=await masterLicenseRemoteGet(rec);masterRegistryUpsert(rec);masterRenderLicenseBox(rec);renderMasterControl();ensureBox();const n=Number(rec.license?.active_count||0),p=Number(rec.license?.pending_count||0),lim=Number(rec.license?.device_limit||rec.licenseDeviceLimit||1);setStatus('✓ Đã nối lại hồ sơ thiết bị: đang dùng '+n+'/'+lim+' • chờ duyệt '+p+'.','ok');if(typeof toast==='function')toast('Đã nối lại danh sách thiết bị')}
+    catch(err){rec.licenseAdminKey=old;masterRegistryUpsert(rec);ensureBox();setStatus('Khóa này chưa đọc được hồ sơ thiết bị: '+(err?.message||err),'bad');alert('Chưa nối lại được danh sách thiết bị.\n\n'+(err?.message||err))}
+  };
+  const oldRender=window.masterRenderLicenseBox;if(typeof oldRender==='function'){window.masterRenderLicenseBox=function(rec){const r=oldRender.apply(this,arguments);setTimeout(ensureBox,0);return r}}
+  window.addEventListener('load',()=>{setTimeout(ensureBox,500);setTimeout(ensureBox,1600)});
+})();
+</script>
+
 </body>
 </html>
 <style id="v151-stockout-customer-no-arrow">
