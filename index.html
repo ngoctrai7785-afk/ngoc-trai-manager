@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="175">
+<meta name="app-version" content="176">
 <title>AN BÙI - Quản lý nội bộ</title>
 <style>
 :root{
@@ -12239,7 +12239,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":175,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":176,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=259; // App mẫu chuẩn AN BÙI V259.
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
 const KEY='manager_'+APP_ID.toLowerCase()+'_legacy_v1';
@@ -27113,7 +27113,7 @@ function masterEnsureAnBui(openAfter=false){
   let list=masterRegistryLoad();
   let rec=list.find(x=>x.externalKey==='an-bui'||norm((x.appName||'')+' '+(x.unitName||'')).includes('an bui'));
   if(!rec){
-    rec={appId:'AN_BUI_MANAGER',appName:'AN BÙI MANAGER',unitName:'An Bùi',online:true,syncPin:'12345678',remoteAppId:'AB123',managerPin:'',modules:MASTER_STANDARD_MODULES.map(x=>x[0]),status:'active',expiresAt:'',unlimited:true,publicUrl:'',customModules:'',notes:'Master quản lý quyền sử dụng, mật khẩu, số thiết bị, hạn dùng và trạng thái. Không sửa dữ liệu kho/bán hàng An Bùi.',createdAt:masterIsoNow(),targetVersion:'',version:'136',remote:null,externalManaged:true,externalKey:'an-bui',fileBytes:0,dataBytes:0,quotaBytes:500*1024*1024,backupInfo:null,licenseAdminKey:masterLicenseMakeKey(),licenseEnabled:false,licenseDeviceLimit:1,license:null};
+    rec={appId:'AN_BUI_MANAGER',appName:'AN BÙI MANAGER',unitName:'An Bùi',online:true,syncPin:'12345678',remoteAppId:'AB123',managerPin:'',modules:MASTER_STANDARD_MODULES.map(x=>x[0]),status:'active',expiresAt:'',unlimited:true,publicUrl:'',customModules:'',notes:'Master quản lý quyền sử dụng, mật khẩu, số thiết bị, hạn dùng và trạng thái. Không sửa dữ liệu kho/bán hàng An Bùi.',createdAt:masterIsoNow(),targetVersion:'',version:String(MASTER_CHILD_TEMPLATE_VERSION),remote:null,externalManaged:true,externalKey:'an-bui',fileBytes:0,dataBytes:0,quotaBytes:500*1024*1024,backupInfo:null,licenseAdminKey:masterLicenseMakeKey(),licenseEnabled:false,licenseDeviceLimit:1,license:null};
     masterRegistryUpsert(rec);if(typeof toast==='function')toast('Đã thêm An Bùi Manager vào Master');
   }
   if(rec){
@@ -27126,7 +27126,8 @@ function masterEnsureAnBui(openAfter=false){
     if(!rec.licenseAdminKey){rec.licenseAdminKey=masterLicenseMakeKey();changed=true}
     if(typeof rec.licenseEnabled==='undefined'){rec.licenseEnabled=false;changed=true}
     if(!rec.licenseDeviceLimit){rec.licenseDeviceLimit=1;changed=true}
-    if(String(rec.version||'')==='126'||!rec.version){rec.version='136';changed=true}
+    if(!Number(rec.version)||Number(rec.version)<MASTER_CHILD_TEMPLATE_VERSION){rec.version=String(MASTER_CHILD_TEMPLATE_VERSION);changed=true}
+    if(!Number(rec.targetVersion)||Number(rec.targetVersion)<MASTER_CHILD_TEMPLATE_VERSION){rec.targetVersion=MASTER_CHILD_TEMPLATE_VERSION;changed=true}
     if(changed)masterRegistryUpsert(rec);
   }
   if(openAfter){masterSelectedAppId=rec.appId;renderMasterControl();renderMasterNpp();goMasterPage('masterNpp');setTimeout(()=>masterRefreshOne(rec.appId),50)}
@@ -27136,6 +27137,18 @@ function masterMeasureAppFile(event){
   const f=event?.target?.files?.[0]; if(!f)return;
   const mb=f.size/1024/1024; const inp=$('masterNppFileMb'); if(inp)inp.value=mb.toFixed(3);
   const out=$('masterNppMeasureResult'); if(out)out.textContent=masterBytesText(f.size)+' • '+f.name;
+}
+function masterAnBuiVersionV176(state,data,rec){
+  const settings=data?.settings||{};
+  const candidates=[
+    state?.client_version,state?.last_client_version,state?.app_version,state?.version,
+    data?.appVersion,data?.app_version,data?.version,
+    settings?.appVersion,settings?.app_version,settings?.version,
+    rec?.remote?.last_client_version,rec?.version
+  ].map(v=>Number(String(v??'').replace(/[^0-9.]/g,''))).filter(v=>Number.isFinite(v)&&v>0);
+  /* An Bùi chuẩn hiện tại là V259. Không cho cache/dữ liệu Master cũ kéo lùi về V136.
+     Khi An Bùi nâng lên V260+ và backend trả version thật, số lớn hơn vẫn được nhận. */
+  return String(Math.max(MASTER_CHILD_TEMPLATE_VERSION,...candidates));
 }
 function masterIsoNow(){return new Date().toISOString()}
 function masterStatusView(r){
@@ -27318,7 +27331,7 @@ async function masterSelectApp(id){masterSelectedAppId=id;goMasterPage('masterNp
 async function masterRefreshOne(id){
   const list=masterRegistryLoad(),rec=list.find(x=>x.appId===id);if(!rec)return;if(!rec.online)return toast('App này đang để chế độ cục bộ.');
   try{
-    if(rec.externalKey==='an-bui'){const state=await syncRpc('manager_app_get_state',{p_app_id:masterControlAppId(rec),p_pin:rec.syncPin||'12345678'}),data=state?.data||{},settings=data?.settings||{},bytes=new Blob([JSON.stringify(data)]).size;rec.dataBytes=bytes;rec.version='136';rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:rec.version,last_data_bytes:bytes,status:rec.status||'active'};rec.backupInfo={enabled:!!settings.autoBackupEnabled,lastAt:settings.autoBackupLastAt||settings.lastBackupAt||'',lastIso:settings.autoBackupLastIso||'',lastBytes:Number(settings.autoBackupLastBytes)||0,count:Number(settings.autoBackupCount)||0,status:settings.autoBackupStatus||'off',folder:settings.autoBackupDirName||''}}
+    if(rec.externalKey==='an-bui'){const state=await syncRpc('manager_app_get_state',{p_app_id:masterControlAppId(rec),p_pin:rec.syncPin||'12345678'}),data=state?.data||{},settings=data?.settings||{},bytes=new Blob([JSON.stringify(data)]).size;rec.dataBytes=bytes;rec.version=masterAnBuiVersionV176(state,data,rec);rec.targetVersion=Math.max(Number(rec.targetVersion)||0,MASTER_CHILD_TEMPLATE_VERSION);rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:rec.version,last_data_bytes:bytes,status:rec.status||'active'};rec.backupInfo={enabled:!!settings.autoBackupEnabled,lastAt:settings.autoBackupLastAt||settings.lastBackupAt||'',lastIso:settings.autoBackupLastIso||'',lastBytes:Number(settings.autoBackupLastBytes)||0,count:Number(settings.autoBackupCount)||0,status:settings.autoBackupStatus||'off',folder:settings.autoBackupDirName||''}}
     else{rec.remote=await masterControlRemoteGet(rec);if(rec.remote?.public_url&&!rec.publicUrl)rec.publicUrl=rec.remote.public_url}
     try{await masterLicenseRemoteGet(rec)}catch(e){console.warn('Chưa đọc được cấp phép '+rec.appId,e)}
     masterRegistryUpsert(rec);renderMasterControl();if(masterSelectedAppId===id)renderMasterNpp();toast('Đã cập nhật '+(rec.unitName||rec.appId));
@@ -27326,7 +27339,7 @@ async function masterRefreshOne(id){
 }
 async function masterRefreshAll(){
   const all=masterRegistryLoad();
-  for(const rec of all){if(!rec.online)continue;try{if(rec.externalKey==='an-bui'){const state=await syncRpc('manager_app_get_state',{p_app_id:masterControlAppId(rec),p_pin:rec.syncPin||'12345678'}),data=state?.data||{};rec.dataBytes=new Blob([JSON.stringify(data)]).size;rec.version='136';rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:rec.version,last_data_bytes:rec.dataBytes,status:rec.status||'active'}}else{rec.remote=await masterControlRemoteGet(rec);if(rec.remote?.public_url&&!rec.publicUrl)rec.publicUrl=rec.remote.public_url}try{await masterLicenseRemoteGet(rec)}catch(e){console.warn('Cấp phép:',e)}masterRegistryUpsert(rec)}catch(e){console.warn('Không kiểm tra được '+rec.appId,e)}}
+  for(const rec of all){if(!rec.online)continue;try{if(rec.externalKey==='an-bui'){const state=await syncRpc('manager_app_get_state',{p_app_id:masterControlAppId(rec),p_pin:rec.syncPin||'12345678'}),data=state?.data||{};rec.dataBytes=new Blob([JSON.stringify(data)]).size;rec.version=masterAnBuiVersionV176(state,data,rec);rec.targetVersion=Math.max(Number(rec.targetVersion)||0,MASTER_CHILD_TEMPLATE_VERSION);rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:rec.version,last_data_bytes:rec.dataBytes,status:rec.status||'active'}}else{rec.remote=await masterControlRemoteGet(rec);if(rec.remote?.public_url&&!rec.publicUrl)rec.publicUrl=rec.remote.public_url}try{await masterLicenseRemoteGet(rec)}catch(e){console.warn('Cấp phép:',e)}masterRegistryUpsert(rec)}catch(e){console.warn('Không kiểm tra được '+rec.appId,e)}}
   renderMasterControl();if(masterSelectedAppId)renderMasterNpp();toast('Đã kiểm tra danh sách app');
 }
 function renderMasterNpp(){
@@ -33002,6 +33015,7 @@ async function saveCustomerDebtEditUnifiedV193(id){
 </script>
 
 <!-- N-TRAI MASTER V175 • FIX GITHUB DEVICE LINK / LICENSE ADMIN KEY TRANSFER -->
+<!-- N-TRAI MASTER V176 • AN BUI VERSION: READ REAL / MINIMUM TEMPLATE V259 / NO V136 DOWNGRADE -->
 <style id="master-v175-link-fix-css">
 .master-license-link-v175{margin:8px 0 2px;padding:8px 10px;border:1px solid #d8e4e8;border-radius:9px;background:#f8fbfc;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .master-license-link-v175 .txt{flex:1;min-width:260px;font-size:11.5px;color:#60737c;line-height:1.35}
