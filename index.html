@@ -12,8 +12,8 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="177">
-<title>N-TRAI MANAGER V177</title>
+<meta name="app-version" content="178">
+<title>N-TRAI MANAGER V178</title>
 <style>
 :root{
   --nav:#0b4f5e;--nav2:#073b47;--bg:#eef2f5;--paper:#fff;--ink:#17324d;
@@ -11594,6 +11594,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
           <div class="full"><label>Ghi chú quản lý</label><textarea id="masterNppNotes" rows="2"></textarea></div>
         </div>
         <div id="masterNppExternalNote" class="master-external-note" style="display:none"></div>
+        <div id="masterNppSourceNoteV178" class="master-template-note" style="margin-top:10px"></div>
         <div id="masterLicenseCard" class="master-license-card">
           <div class="master-license-head">
             <div><h4>🔐 Cấp phép thương mại</h4><div class="small">Master cấp mật khẩu và số máy. App con không được tự tăng máy hoặc tự gia hạn.</div></div>
@@ -11630,6 +11631,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
           <button class="btn" type="button" onclick="masterQuickRenew(12)">+12 tháng</button>
           <button class="btn ok" type="button" onclick="masterSetUnlimited()">∞ Không giới hạn</button>
           <button id="masterNppUpgradeBtn" class="btn" type="button" onclick="masterDownloadUpgrade()">⬇ Tạo file nâng cấp</button>
+          <button id="masterNppReissueBtnV178" class="btn ok" type="button" onclick="masterReissueAppV178()">📦 Cấp lại app</button>
           <button class="btn" type="button" onclick="masterOpenSelectedApp()">↗ Mở app NPP</button>
           <button class="btn master-danger" type="button" onclick="masterRemoveSelectedRegistry()">Xóa khỏi danh sách Master</button>
         </div>
@@ -12239,7 +12241,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":177,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":178,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=259; // App mẫu chuẩn AN BÙI V259.
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
 const KEY='manager_'+APP_ID.toLowerCase()+'_legacy_v1';
@@ -27358,6 +27360,7 @@ function renderMasterNpp(){
   const selected=new Set(Array.isArray(rec.modules)?rec.modules:[]),moduleSet=ext?new Set(MASTER_STANDARD_MODULES.map(x=>x[0])):selected;$('masterNppModules').innerHTML=MASTER_STANDARD_MODULES.map(([id,label])=>`<label><input type="checkbox" data-master-npp-module="${id}" ${moduleSet.has(id)?'checked':''} ${ext?'disabled':''}>${label}</label>`).join('');
   if($('masterNppModuleBlock')){const h=$('masterNppModuleBlock').querySelector('h4');if(h)h.textContent=ext?'Module nghiệp vụ An Bùi (chỉ xem)':'Module chuẩn được bật cho NPP'}if($('masterNppUpgradeBtn')){$('masterNppUpgradeBtn').disabled=ext;$('masterNppUpgradeBtn').title=ext?'An Bùi nâng cấp bằng file An Bùi riêng; Master chỉ quản lý quyền sử dụng.':''}
   if($('masterNppExternalNote')){$('masterNppExternalNote').style.display=ext?'block':'none';$('masterNppExternalNote').innerHTML=ext?'🔐 <b>An Bùi đã nằm trong Master:</b> Master có quyền cấp mật khẩu, số thiết bị, duyệt/khóa máy, hạn dùng và khóa/mở app. Dữ liệu kho, bán hàng, công nợ vẫn thuộc riêng An Bùi.':''}
+  if($('masterNppSourceNoteV178')){const sourceId=rec.sourceTemplateId||((rec.externalKey==='an-bui'?'ANBUI':'NTRAI')+'-V'+MASTER_CHILD_TEMPLATE_VERSION+'-STABLE');$('masterNppSourceNoteV178').innerHTML='🧩 <b>Mẫu nguồn:</b> '+esc(sourceId)+' • Cấp lại sẽ giữ APP ID <b>'+esc(masterControlAppId(rec))+'</b>'}
   const rem=rec.remote||{},remoteText=rec.online?`☁ Online • lần kết nối: <b>${rem.last_seen_at?esc(new Date(rem.last_seen_at).toLocaleString('vi-VN')):'chưa có'}</b> • ${masterStorageHtml(rec)}`:`⚪ Cục bộ • ${masterStorageHtml(rec)}`;$('masterNppRemoteInfo').innerHTML=remoteText;
   if($('masterNppBackupInfo')){const b=rec.backupInfo||{},status=b.enabled?(b.status==='ok'?'🟢 Đang tự sao lưu':'🟡 Đã bật – '+esc(b.status||'đang chờ')):'⚪ Sao lưu theo thao tác người dùng';$('masterNppBackupInfo').innerHTML=`<b>💾 Sao lưu:</b> ${status}<br><span class="small">Lần gần nhất: ${esc(b.lastAt||'Chưa có')}${b.folder?' • Thư mục: '+esc(b.folder):''}</span>`}
   masterRenderLicenseBox(rec);
@@ -27400,6 +27403,57 @@ async function masterQuickRenew(months){const rec=masterCollectSelectedForm();if
 async function masterSetUnlimited(){const rec=masterCollectSelectedForm();if(!rec)return;rec.unlimited=true;rec.expiresAt='';rec.status='active';masterRegistryUpsert(rec);renderMasterNpp();await masterSaveSelectedApp();toast('Đã đặt '+rec.appId+' sử dụng không giới hạn')}
 function masterOpenSelectedApp(){const rec=masterRegistrySelected();const u=$('masterNppPublicUrl')?.value.trim()||rec?.publicUrl||'';if(!u)return alert('Chưa có link online của app NPP.');window.open(u,'_blank','noopener')}
 function masterUpgradeConfig(rec){return {appId:rec.appId,appName:rec.appName||rec.appId,unitName:rec.unitName||rec.appName||rec.appId,phone:rec.phone||'',address:rec.address||'',managerPin:rec.managerPin||'1234',appOpenPin:rec.appOpenPin||'2580',theme:rec.theme||'teal',logoDataUrl:rec.logoDataUrl||'',isMaster:false,syncEnabled:!!rec.online,initialSyncPin:rec.online?rec.syncPin:'',publicUrl:rec.publicUrl||'',modules:['dashboard',...(rec.modules||[]),'settings'],appVersion:MASTER_CHILD_TEMPLATE_VERSION,managedByMaster:!!rec.online}}
+const MASTER_REISSUE_ICON_192_B64='iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAFdElEQVR42u2dX0yVZRjAz3k5CMpwTByMPxPXaLlxUUYXhelkNvxTsJPS2hynoXDTHOjUlXZrw0ajrOa8AfFPjS46SlS6yM1RC91KnZua5li5xDQohhaC8aeLGnPnSB98eA7f87y/3x3vYYzneX7ned73nO87xz9vScgH4BZDCgCBAIEAgQCBABAIEAgQCBAIAIEAgQCBAIEAEAgQCBAIEAgAgQCBAIEAgQCBABAIEAgQCBAIAIEAgQCBAIEAEAhiQYAUjNN9snnyv5xTvIGM+Xw+v7UfMDUlXVAKgWIiDTJZIVDcvLHQJM0CzaA39pikUyBPqaNbI1UCedYbxSYpEUiQOso0MtjDf25vB1JQAOmtSKpAatSRrpHBHuKySyCt9giNTtII062O0HFmsId49Qtkmz2Cojbkkdg1C2SzPSIy4N1NNOqI2FYb7KEVWXEKA/ZAtB+FmTHkCIf0CIQ94rJkyAsOaRAIe4RmjFMYyBeI9iM3b4Ys4JBggbBHeg7ZA4FYgWg/CjJJBwKZAtF+dOTTYA8OMcLAphFG+9GUWzoQIBDYIxDzS1mG6UAgRyDaj74804EAgcAGgZhfKqcYHQgQCNQLxPzSOsXoQIBAgECAQGyAbNwG0YFgWsj+0t2GA63vHPx0okfnJCedaqmfnzb3///I2UtdpZvefOBDtRWlr1etHf8xWFP33YWrMY2o42Bd/oIsRpgnGBgcev/w5zQJBHLPobaT12/9TpkRyCV/Dw83HGilzIIFmvEjWLi98+q1GxzE6EAuGRkdrW86QqtAIPcc++bM+Ss/U2yO8e55q/GTlre3T/OPtH7whuPvFL609WZv3wMfatpVs+rZJ+lAIvn6+4ud536gYSCQe3Y3hqk3Arnn7KWuL789R8kRaFLkZqZHL9Y3hUfHxqg6AjmzOVSWYCKju/xT99ETp6k6AjmTvyCrfGVR9HpD89Hh4REKj0DObKsMzkqMfJ3i2q89H33RQeERyJmcjPRXyoqj1/ccars7dI/aI5AzNRUvpMxOilj87Y/+/UdOUHsEcmZ+2tzq8pLo9b0tx27/OUD5EciZV19enZaaErHYf+evfR8fp/wCBJrx7xpOTZm9af2a6PXG8Fc9fbfVFzjW+bfileiNLz6XmZ4WsTgwOPTe4TZaCAI5k5w0a0uoLHr9w886frnZiwQI5Mz655flZWdELHLBKwJNlkAgYfuGYPR6uL3zR4sveEWgKRBc8fSiR3IjFkfHxt6d+M4y8IRAM34Q+y9Uv//+uwTHUXzfTxwyb9etzSVFiwsL8mkbCOSendXrqDoCueeZJxYte6qAwgsTyCPboH/ZUV1uQ2njk3MbP97l8ccWrllaSPNAIPe8VrU2+oJX8LRAnppij+ZlryspYn7RgdyzrTKYGAj4AIHckZuZHipbjgGSBPLUFPP5fLUVpXOSk5hf08E/b0konrHxia3KBDKKY8Me9kDAHggQiCnG/KIDgSKBaEJqsmqsihZ7GGHACKMJKcokHQgkC0QTkp5DY3n82KNhhOGQ3LyxBwIVAtGEhGbMkBHs0TPCcEhclgzZwR5tm2gcEpQZTmGgUSCakJScxPuujKnCXRwefzoZckcGlO+BbHbI+7Eb8kjUVpzCbHNISrxe30RbuK2W9VQx5Jfo7BJIsUMS45I3wlSOM7lPCdkCKdBIejc1PH35z23vQBJbkZptnCqBvG+Svu2/ToE8qJHWk6NmgbxgkvoX0K0QKP4m2fPGi10CxVQmO9/xtVegaSrFhUoIBA8BLqoHBAIEAgQCBAJAIEAgQCBAIAAEAgQCBAIEAkAgQCBAIEAgAAQCBAIEAgQCBAJAIEAgQCBAIAAEAgQCBAIEApiIfwCMqp5vfVDYAwAAAABJRU5ErkJggg==';
+const MASTER_REISSUE_ICON_512_B64='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';
+function masterZipU16(n){const a=new Uint8Array(2);new DataView(a.buffer).setUint16(0,n,true);return a}
+function masterZipU32(n){const a=new Uint8Array(4);new DataView(a.buffer).setUint32(0,n>>>0,true);return a}
+function masterZipJoin(parts){const size=parts.reduce((s,p)=>s+p.length,0),out=new Uint8Array(size);let off=0;for(const p of parts){out.set(p,off);off+=p.length}return out}
+function masterZipCrc32(bytes){let c=0xffffffff;for(const b of bytes){c^=b;for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0)}return (c^0xffffffff)>>>0}
+function masterZipB64Bytes(b64){const raw=atob(b64),out=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);return out}
+function masterMakeZipV178(entries){
+  const enc=new TextEncoder(),locals=[],centrals=[];let offset=0;
+  for(const entry of entries){
+    const name=enc.encode(entry.name),data=entry.bytes instanceof Uint8Array?entry.bytes:enc.encode(String(entry.bytes??'')),crc=masterZipCrc32(data);
+    const local=masterZipJoin([masterZipU32(0x04034b50),masterZipU16(20),masterZipU16(0x0800),masterZipU16(0),masterZipU16(0),masterZipU16(0),masterZipU32(crc),masterZipU32(data.length),masterZipU32(data.length),masterZipU16(name.length),masterZipU16(0),name,data]);
+    const central=masterZipJoin([masterZipU32(0x02014b50),masterZipU16(20),masterZipU16(20),masterZipU16(0x0800),masterZipU16(0),masterZipU16(0),masterZipU16(0),masterZipU32(crc),masterZipU32(data.length),masterZipU32(data.length),masterZipU16(name.length),masterZipU16(0),masterZipU16(0),masterZipU16(0),masterZipU16(0),masterZipU32(0),masterZipU32(offset),name]);
+    locals.push(local);centrals.push(central);offset+=local.length;
+  }
+  const centralBytes=masterZipJoin(centrals),end=masterZipJoin([masterZipU32(0x06054b50),masterZipU16(0),masterZipU16(0),masterZipU16(entries.length),masterZipU16(entries.length),masterZipU32(centralBytes.length),masterZipU32(offset),masterZipU16(0)]);
+  return new Blob([...locals,centralBytes,end],{type:'application/zip'});
+}
+function masterReissueConfigV178(rec){
+  const config=masterUpgradeConfig(rec);
+  if(rec.externalKey==='an-bui'){
+    config.appId=masterControlAppId(rec)||'AB123';
+    config.appName='AN BÙI';
+    config.unitName=rec.unitName||'NPP AN BÙI';
+    config.managerPin=rec.managerPin||'8579';
+    config.modules=['dashboard',...MASTER_STANDARD_MODULES.map(x=>x[0]),'settings'];
+  }
+  config.syncEnabled=!!rec.online;
+  config.initialSyncPin=rec.online?String(rec.syncPin||'').trim():'';
+  config.managedByMaster=!!rec.online;
+  config.appVersion=MASTER_CHILD_TEMPLATE_VERSION;
+  return config;
+}
+function masterReissueAppV178(){
+  if(!isManager)return requireManager(masterReissueAppV178,'Cấp lại app cần quyền Quản lý.');
+  const rec=masterCollectSelectedForm();if(!rec)return;
+  if(rec.online&&!/^\d{6,12}$/.test(String(rec.syncPin||'')))return alert('App online chưa có mã đồng bộ hợp lệ nên chưa thể cấp lại.');
+  const config=masterReissueConfigV178(rec);
+  const html=serializeFreshMasterHtmlForApp(config);
+  if(!html||!/^<!doctype html>/i.test(html.trim()))return alert('Không tạo được app cấp lại.');
+  const sourceId=(rec.externalKey==='an-bui'?'ANBUI':'NTRAI')+'-V'+MASTER_CHILD_TEMPLATE_VERSION+'-STABLE';
+  const manifest=JSON.stringify({name:config.appName,short_name:String(config.appName||config.appId).slice(0,12),start_url:'./',scope:'./',display:'standalone',background_color:'#eef2f5',theme_color:'#123b5d',description:'Cấp lại từ '+sourceId,icons:[{src:'./icon-192.png',sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:'./icon-512.png',sizes:'512x512',type:'image/png',purpose:'any maskable'}]},null,2);
+  const cache='app-'+String(config.appId).toLowerCase().replace(/[^a-z0-9_-]/g,'-')+'-v'+MASTER_CHILD_TEMPLATE_VERSION;
+  const sw="const CACHE="+JSON.stringify(cache)+";\\nself.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'])))});\\nself.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});\\nself.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))))});";
+  const zip=masterMakeZipV178([{name:'index.html',bytes:html},{name:'manifest.webmanifest',bytes:manifest},{name:'sw.js',bytes:sw},{name:'icon-192.png',bytes:masterZipB64Bytes(MASTER_REISSUE_ICON_192_B64)},{name:'icon-512.png',bytes:masterZipB64Bytes(MASTER_REISSUE_ICON_512_B64)}]);
+  const url=URL.createObjectURL(zip),a=document.createElement('a');
+  a.href=url;a.download=(String(config.appId)+'_V'+MASTER_CHILD_TEMPLATE_VERSION+'_CAP_LAI_GITHUB.zip').replace(/[^A-Z0-9_.-]/gi,'_');document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);
+  rec.sourceTemplateId=sourceId;rec.lastReissuedAt=masterIsoNow();rec.version=String(MASTER_CHILD_TEMPLATE_VERSION);rec.targetVersion=MASTER_CHILD_TEMPLATE_VERSION;masterRegistryUpsert(rec);
+  if(rec.online)masterControlRemoteSet(rec).catch(err=>console.warn('Chưa ghi lịch sử cấp lại online:',err));
+  renderMasterControl();renderMasterNpp();toast('Đã cấp lại '+(rec.unitName||rec.appId)+' • '+sourceId);
+}
 function masterDownloadUpgrade(){
   const rec=masterCollectSelectedForm();if(!rec)return;if(rec.externalManaged)return alert('An Bùi là app độc lập. Master không tạo file nâng cấp để tránh thay đổi app gốc.');masterRegistryUpsert(rec);
   const html=serializeFreshMasterHtmlForApp(masterUpgradeConfig(rec));if(!html)return alert('Không tạo được file nâng cấp.');
@@ -30332,7 +30386,7 @@ document.addEventListener('focusin',e=>{
 <script id="pwa-register">
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js?v=ntrai-master-v177-an-bui-v259').catch(function(err){ console.warn('Service worker:', err); });
+    navigator.serviceWorker.register('./sw.js?v=ntrai-master-v178-cap-lai-app').catch(function(err){ console.warn('Service worker:', err); });
   });
 }
 
