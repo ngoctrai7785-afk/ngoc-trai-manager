@@ -12,8 +12,8 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="176">
-<title>AN BÙI - Quản lý nội bộ</title>
+<meta name="app-version" content="177">
+<title>N-TRAI MANAGER V177</title>
 <style>
 :root{
   --nav:#0b4f5e;--nav2:#073b47;--bg:#eef2f5;--paper:#fff;--ink:#17324d;
@@ -12239,7 +12239,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":176,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":177,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=259; // App mẫu chuẩn AN BÙI V259.
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
 const KEY='manager_'+APP_ID.toLowerCase()+'_legacy_v1';
@@ -27128,6 +27128,7 @@ function masterEnsureAnBui(openAfter=false){
     if(!rec.licenseDeviceLimit){rec.licenseDeviceLimit=1;changed=true}
     if(!Number(rec.version)||Number(rec.version)<MASTER_CHILD_TEMPLATE_VERSION){rec.version=String(MASTER_CHILD_TEMPLATE_VERSION);changed=true}
     if(!Number(rec.targetVersion)||Number(rec.targetVersion)<MASTER_CHILD_TEMPLATE_VERSION){rec.targetVersion=MASTER_CHILD_TEMPLATE_VERSION;changed=true}
+    if(rec.remote&&Number(rec.remote.last_client_version||0)<MASTER_CHILD_TEMPLATE_VERSION){rec.remote={...rec.remote,last_client_version:String(MASTER_CHILD_TEMPLATE_VERSION)};changed=true}
     if(changed)masterRegistryUpsert(rec);
   }
   if(openAfter){masterSelectedAppId=rec.appId;renderMasterControl();renderMasterNpp();goMasterPage('masterNpp');setTimeout(()=>masterRefreshOne(rec.appId),50)}
@@ -27325,7 +27326,7 @@ function renderMasterControl(){
   const q=norm($('masterControlSearch')?.value||'');let rows=masterRegistryLoad().filter(r=>!q||norm((r.appId||'')+' '+(r.appName||'')+' '+(r.unitName||'')).includes(q));
   const all=masterRegistryLoad(),active=all.filter(r=>masterStatusView(r)[0]==='active').length,locked=all.filter(r=>['locked','expired'].includes(masterStatusView(r)[0])).length,pending=all.reduce((s,r)=>s+Number(r.license?.pending_count||0),0);
   if($('masterControlSummary'))$('masterControlSummary').textContent=`Tổng ${all.length} app • Hoạt động ${active} • Khóa/Hết hạn ${locked} • Thiết bị chờ duyệt ${pending}`;
-  host.innerHTML=`<table><thead><tr><th>NPP / APP</th><th>Trạng thái</th><th>Máy</th><th>Hạn</th><th>Phiên bản</th><th>Dung lượng</th><th>Thao tác</th></tr></thead><tbody>${rows.map(r=>{const st=masterStatusView(r),rem=r.remote||{},lic=r.license||{},exp=r.unlimited?'∞':(String(lic.expires_at||rem.expires_at||r.expiresAt||'').slice(0,10)||'—'),ver=rem.last_client_version||r.version||'—',versionText=(String(ver)==='—'||String(ver)==='')?'—':'V'+esc(ver),machine=lic.enabled?`${Number(lic.active_count||0)}/${Number(lic.device_limit||r.licenseDeviceLimit||1)}${Number(lic.pending_count||0)?` • <b style="color:#b43c3c">${Number(lic.pending_count)} chờ</b>`:''}`:'—';return `<tr><td><b>${esc(r.unitName||r.appName||'')}</b><div class="master-control-muted">${esc(r.appId)} • ${r.externalManaged?'An Bùi':'App con'}</div></td><td><span class="master-control-status ${st[0]}">${st[1]}</span></td><td>${machine}</td><td>${esc(exp)}</td><td>${versionText}</td><td>${masterStorageHtml(r)}</td><td><div class="master-control-actions"><button class="btn" onclick="masterSelectApp('${esc(r.appId)}')">Quản lý</button>${r.online?`<button class="btn" onclick="masterRefreshOne('${esc(r.appId)}')">↻</button>`:''}</div></td></tr>`}).join('')||'<tr><td colspan="7" style="text-align:center;padding:24px;color:#6f7f8c">Chưa có app con trong danh sách.</td></tr>'}</tbody></table>`;
+  host.innerHTML=`<table><thead><tr><th>NPP / APP</th><th>Trạng thái</th><th>Máy</th><th>Hạn</th><th>Phiên bản</th><th>Dung lượng</th><th>Thao tác</th></tr></thead><tbody>${rows.map(r=>{const st=masterStatusView(r),rem=r.remote||{},lic=r.license||{},exp=r.unlimited?'∞':(String(lic.expires_at||rem.expires_at||r.expiresAt||'').slice(0,10)||'—'),ver=r.externalKey==='an-bui'?masterAnBuiVersionV176(null,null,r):(rem.last_client_version||r.version||'—'),versionText=(String(ver)==='—'||String(ver)==='')?'—':'V'+esc(ver),machine=lic.enabled?`${Number(lic.active_count||0)}/${Number(lic.device_limit||r.licenseDeviceLimit||1)}${Number(lic.pending_count||0)?` • <b style="color:#b43c3c">${Number(lic.pending_count)} chờ</b>`:''}`:'—';return `<tr><td><b>${esc(r.unitName||r.appName||'')}</b><div class="master-control-muted">${esc(r.appId)} • ${r.externalManaged?'An Bùi':'App con'}</div></td><td><span class="master-control-status ${st[0]}">${st[1]}</span></td><td>${machine}</td><td>${esc(exp)}</td><td>${versionText}</td><td>${masterStorageHtml(r)}</td><td><div class="master-control-actions"><button class="btn" onclick="masterSelectApp('${esc(r.appId)}')">Quản lý</button>${r.online?`<button class="btn" onclick="masterRefreshOne('${esc(r.appId)}')">↻</button>`:''}</div></td></tr>`}).join('')||'<tr><td colspan="7" style="text-align:center;padding:24px;color:#6f7f8c">Chưa có app con trong danh sách.</td></tr>'}</tbody></table>`;
 }
 async function masterSelectApp(id){masterSelectedAppId=id;goMasterPage('masterNpp');const rec=masterRegistrySelected();if(rec?.online){try{await masterRefreshOne(id)}catch(_){}}}
 async function masterRefreshOne(id){
@@ -30331,7 +30332,7 @@ document.addEventListener('focusin',e=>{
 <script id="pwa-register">
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js?v=ab123-v164-stockin-no-jump').catch(function(err){ console.warn('Service worker:', err); });
+    navigator.serviceWorker.register('./sw.js?v=ntrai-master-v177-an-bui-v259').catch(function(err){ console.warn('Service worker:', err); });
   });
 }
 
