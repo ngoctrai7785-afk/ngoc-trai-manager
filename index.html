@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="170">
+<meta name="app-version" content="171">
 <title>AN BÙI - Quản lý nội bộ</title>
 <style>
 :root{
@@ -10718,7 +10718,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 </style>
 
 <!-- N-TRAI MASTER V168 • HẠN KHÔNG GIỚI HẠN + MENU ACTIVE -->
-<!-- N-TRAI MASTER V170 • NHÚNG AN BÙI V69 LÀM TEMPLATE CHUẨN -->
+<!-- N-TRAI MASTER V171 • GIAO DIỆN MẪU + TEMPLATE ĐỀU AN BÙI V69 -->
 </head>
 <body>
 <div id="startupSafetyGate" class="startup-safety-gate show" aria-modal="true" role="dialog">
@@ -12170,7 +12170,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":170,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":171,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=249; // App mẫu chuẩn AN BÙI V249.
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
 const KEY='manager_'+APP_ID.toLowerCase()+'_legacy_v1';
@@ -32771,3 +32771,148 @@ async function saveCustomerDebtEditUnifiedV193(id){
 </style>
 
 <!-- MASTER V170: Embedded child template = AN BUI V69 / client appVersion 259 / APP ID AB123 -->
+
+<!-- ===== MASTER V171 VISIBLE AN BUI V69 START ===== -->
+<!-- ===== V69 FINAL GITHUB CLEAN ===== -->
+<style id="v69-final-clean-css">
+/* ================= PAYMENT HISTORY ================= */
+#paymentCustomerPanel .payment-history-toolbar{display:none!important}
+#paymentCustomerPanel #customerPaymentHistory,
+#v69SupplierHistory{
+  display:block!important;margin-top:10px!important;border:1px solid #dbe5ea!important;
+  border-radius:10px!important;background:#fff!important;overflow:hidden!important
+}
+.v69-history-head{padding:9px 11px;background:#f4f8fa;border-bottom:1px solid #dce7eb}
+.v69-history-head b{display:block;font-size:14px;color:#17324d}
+.v69-history-head small{display:block;margin-top:2px;font-size:10.5px;color:#70818b}
+.v69-history-more{padding:8px;text-align:center;border-top:1px solid #e1e8eb;background:#fbfcfd}
+#customerPaymentHistory .table-wrap,#v69SupplierHistory .table-wrap{border:0!important;border-radius:0!important;max-height:360px!important;overflow:auto!important}
+#customerPaymentHistory table,#v69SupplierHistory table{min-width:900px!important;margin:0!important}
+#customerPaymentHistory th,#v69SupplierHistory th{position:sticky!important;top:0!important;z-index:2!important;background:#f5f7f8!important}
+#customerPaymentHistory th,#customerPaymentHistory td,#v69SupplierHistory th,#v69SupplierHistory td{padding:7px 8px!important;font-size:12px!important;vertical-align:middle!important}
+.v69-before{font-weight:900;color:#8b5a00;white-space:nowrap}.v69-pay{font-weight:900;color:#17324d;white-space:nowrap}.v69-after{font-weight:900;color:#b43c3c;white-space:nowrap}.v69-edit{font-weight:800!important;white-space:nowrap!important}.v69-empty{padding:18px;text-align:center;color:#71818b}
+#paymentSupplierPanel .v34-supplier-history-edit{display:none!important}
+
+/* ================= STOCKIN STABLE COLUMNS ================= */
+#stockin .invoice-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}
+#stockin .invoice-table th,#stockin .invoice-table td{min-width:0!important;box-sizing:border-box!important}
+#stockin .invoice-table thead th:last-child,#stockin #siBody td:last-child{display:none!important;width:0!important;min-width:0!important;max-width:0!important;padding:0!important;border:0!important}
+#stockin.staff-stockin-private .invoice-table th:nth-child(1),#stockin.staff-stockin-private .invoice-table td:nth-child(1){width:5%!important}
+#stockin.staff-stockin-private .invoice-table th:nth-child(2),#stockin.staff-stockin-private .invoice-table td:nth-child(2){width:35%!important}
+#stockin.staff-stockin-private .invoice-table th:nth-child(3),#stockin.staff-stockin-private .invoice-table td:nth-child(3){width:6%!important}
+#stockin.staff-stockin-private .invoice-table th:nth-child(4),#stockin.staff-stockin-private .invoice-table td:nth-child(4){width:7%!important}
+#stockin.staff-stockin-private .invoice-table th:nth-child(5),#stockin.staff-stockin-private .invoice-table td:nth-child(5){width:8%!important}
+#stockin.staff-stockin-private .invoice-table th:nth-child(6),#stockin.staff-stockin-private .invoice-table td:nth-child(6){width:12%!important}
+#stockin.staff-stockin-private .invoice-table th:nth-child(7),#stockin.staff-stockin-private .invoice-table td:nth-child(7){width:7%!important}
+#stockin.staff-stockin-private .invoice-table th:nth-child(8),#stockin.staff-stockin-private .invoice-table td:nth-child(8){width:8%!important}
+#stockin.staff-stockin-private .invoice-table th:nth-child(9),#stockin.staff-stockin-private .invoice-table td:nth-child(9){width:12%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(1),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(1){width:4%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(2),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(2){width:27%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(3),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(3){width:5%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(4),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(4){width:5%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(5),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(5){width:7%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(6),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(6){width:8%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(7),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(7){width:9%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(8),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(8){width:5%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(9),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(9){width:5%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(10),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(10){width:8%!important}
+#stockin:not(.staff-stockin-private) .invoice-table th:nth-child(11),#stockin:not(.staff-stockin-private) .invoice-table td:nth-child(11){width:17%!important}
+#stockin .invoice-table input,#stockin .invoice-table select{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+#stockin .invoice-table td{overflow:hidden!important}
+#stockin .product-cell{position:relative!important;overflow:visible!important}
+#stockin .product-cell .suggestions{position:absolute!important;left:0!important;top:100%!important;width:620px!important;max-width:min(620px,calc(100vw - 28px))!important;min-width:100%!important;z-index:10050!important}
+
+/* ================= WARRANTY CUSTOMER PICKER ================= */
+.v69-customer-picker{position:relative}.v69-customer-picker input{width:100%!important;box-sizing:border-box!important}
+#v69WarrantyCustomerList{position:absolute;left:0;right:0;top:100%;z-index:10020;display:none;max-height:240px;overflow:auto;background:#fff;border:1px solid #cfdde3;border-radius:7px;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+#v69WarrantyCustomerList.show{display:block}.v69-customer-item{padding:8px 10px;border-top:1px solid #edf1f3;cursor:pointer}.v69-customer-item:first-child{border-top:0}.v69-customer-item:hover,.v69-customer-item.active{background:#eef6f7}.v69-customer-item b{display:block}.v69-customer-item small{display:block;color:#73838d;margin-top:2px}
+
+/* ================= HIDE UNUSED STOCKOUT/STOCKIN UI ================= */
+#stockout #soWarrantyDebtSummary,#soWarrantyDebtSummary{display:none!important}
+#stockin #siInvoiceRefRow,#siInvoiceRefRow{display:none!important}
+#stockin #stockinVatPanel .vat-summary,#stockinVatPanel .vat-summary{display:none!important}
+#stockin #stockinVatPanel .vat-compact-row,#stockinVatPanel .vat-compact-row{grid-template-columns:1fr!important}
+
+/* ================= WAREHOUSE TOOLBAR ================= */
+#warehouseCompactBar{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:7px!important;width:100%!important;min-width:0!important;max-width:none!important;overflow:visible!important}
+#warehouseCompactBar .v69-filter-row,#warehouseCompactBar .v69-action-row{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important;width:100%!important;min-width:0!important}
+#warehouseCompactBar .v69-action-row{border-top:1px solid #dce6ea!important;padding-top:7px!important}
+#warehouseCompactBar .v69-filter-row .warehouse-product-picker{flex:1 1 240px!important;min-width:220px!important;max-width:420px!important}
+#warehouseCompactBar .v69-stock-filter select{min-width:112px!important}
+#warehouseTopNav #warehouseCompactBar{width:min(100%,1100px)!important;max-width:1100px!important}
+</style>
+
+<script id="v69-final-clean-js">
+(function(){
+  if(window.__v69FinalClean)return; window.__v69FinalClean=true;
+  const q=id=>document.getElementById(id);
+  const esc69=v=>typeof esc==='function'?esc(String(v??'')):String(v??'');
+  const norm69=v=>typeof norm==='function'?norm(String(v||'')):String(v||'').toLowerCase();
+  const money69=v=>typeof money==='function'?money(Number(v)||0):(Number(v)||0).toLocaleString('vi-VN')+' đ';
+
+  /* ================= PAYMENTS ================= */
+  let customerLimit69=10,supplierLimit69=10,lastCustomer69='',lastSupplier69='';
+  function currentCustomer69(){return (db.customers||[]).find(c=>String(c.id||'')===String(selectedPayCustomerId||''))||null}
+  function currentSupplierId69(){try{return String(typeof selectedPaySupplierId!=='undefined'?(selectedPaySupplierId||''):'')}catch(_){return ''}}
+  function currentSupplier69(){const id=currentSupplierId69();return (db.suppliers||[]).find(s=>String(s.id||'')===id)||null}
+  function customerBefore69(p){try{if(typeof customerPaymentBeforeAmountV10==='function')return Math.max(0,Number(customerPaymentBeforeAmountV10(p))||0)}catch(_){} const a=Math.max(0,Number(p?.amount)||0);return Math.max(0,Number(customerDebt(p?.customerId))||0)+a}
+
+  window.renderCustomerPaymentHistoryOnly=function(){
+    const box=q('customerPaymentHistory');if(!box)return;const c=currentCustomer69();const cid=String(c?.id||'');if(cid!==lastCustomer69){customerLimit69=10;lastCustomer69=cid}
+    if(!c){box.innerHTML='<div class="v69-history-head"><b>Lịch sử thanh toán khách hàng</b><small>Chọn khách hàng phía trên để xem lịch sử.</small></div><div class="v69-empty">Chưa chọn khách hàng.</div>';return}
+    const all=(db.customerPayments||[]).filter(p=>String(p.customerId||'')===cid&&p?.transactionType!=='warranty_return').sort((a,b)=>(Number(b.ts)||0)-(Number(a.ts)||0));
+    const rows=all.slice(0,customerLimit69).map(p=>{const before=customerBefore69(p),amt=Math.max(0,Number(p.amount)||0),after=Math.max(0,before-amt),can=typeof canEditCustomerPayment==='function'?canEditCustomerPayment(p):!!isManager;return `<tr><td>${esc69(p.dateText||'')}</td><td class="right"><span class="v69-before">${money69(before)}</span></td><td class="right"><span class="v69-pay">${money69(amt)}</span></td><td class="right"><span class="v69-after">${money69(after)}</span></td><td class="center">${can?`<button class="btn v69-edit" onclick="editCustomerPaymentAmountV69('${esc69(p.id)}')">Sửa</button>`:'<span class="small">Khóa</span>'}</td></tr>`});
+    box.innerHTML=`<div class="v69-history-head"><b>Lịch sử thanh toán • ${esc69(c.name||'Khách hàng')}</b><small>10 giao dịch gần nhất • Công nợ hiện tại: <b style="display:inline;font-size:inherit">${money69(customerDebt(c.id))}</b></small></div>`+(rows.length?table(['Ngày thanh toán','Nợ trước','Số tiền thanh toán','Nợ còn lại','Sửa'],rows):'<div class="v69-empty">Khách hàng này chưa có lần thanh toán nào.</div>')+(all.length>customerLimit69?`<div class="v69-history-more"><button class="btn" onclick="customerLimit69MoreV69()">Xem thêm 10 giao dịch (${all.length-customerLimit69} còn lại)</button></div>`:'')
+  };
+  window.customerLimit69MoreV69=function(){customerLimit69+=10;renderCustomerPaymentHistoryOnly()};
+  window.editCustomerPaymentAmountV69=function(id){const p=(db.customerPayments||[]).find(x=>String(x.id||'')===String(id||''));if(!p)return alert('Không tìm thấy giao dịch thanh toán.');if(typeof canEditCustomerPayment==='function'&&!canEditCustomerPayment(p))return alert(typeof customerPaymentEditDeniedMessage==='function'?customerPaymentEditDeniedMessage(p):'Bạn không có quyền sửa giao dịch này.');const c=(db.customers||[]).find(x=>String(x.id||'')===String(p.customerId||''))||{},before=customerBefore69(p),amt=Math.max(0,Number(p.amount)||0);showModal(`<h3>Sửa số tiền thanh toán</h3><div class="small">${esc69(c.name||'Khách hàng')} • Ngày ${esc69(p.dateText||'')}</div><div class="payment-edit-summary-v10"><div><span>Nợ trước</span><b>${money69(before)}</b></div><div><span>Đã thanh toán</span><b id="v69CustPreview">${money69(amt)}</b></div><div><span>Nợ còn lại</span><b id="v69CustAfter">${money69(Math.max(0,before-amt))}</b></div></div><div><label>Số tiền thanh toán</label><input id="v69CustAmount" type="number" min="1" value="${amt}" oninput="updateCustAmountV69('${esc69(p.id)}')" style="width:100%"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Hủy</button><button class="btn primary" onclick="saveCustAmountV69('${esc69(p.id)}')">Lưu sửa</button></div>`)};
+  window.updateCustAmountV69=function(id){const p=(db.customerPayments||[]).find(x=>String(x.id||'')===String(id||''));if(!p)return;const before=customerBefore69(p),amt=Math.max(0,Number(q('v69CustAmount')?.value)||0);if(q('v69CustPreview'))q('v69CustPreview').textContent=money69(amt);if(q('v69CustAfter'))q('v69CustAfter').textContent=money69(Math.max(0,before-amt))};
+  window.saveCustAmountV69=async function(id){const p=(db.customerPayments||[]).find(x=>String(x.id||'')===String(id||''));if(!p)return alert('Không tìm thấy giao dịch.');const amt=Math.max(0,Number(q('v69CustAmount')?.value)||0);if(amt<=0)return alert('Số tiền phải lớn hơn 0.');const old=p.amount,cid=p.customerId;p.amount=amt;p.editedAt=typeof paymentNowText==='function'?paymentNowText():new Date().toLocaleString('vi-VN');p.editedBy=isManager?'Quản lý':'Nhân viên';try{const ok=await saveDB();if(ok===false)throw new Error('Không lưu được dữ liệu.');closeModal();selectedPayCustomerId=cid;try{renderDebts()}catch(_){}try{renderDashboard()}catch(_){}try{syncSelectedPaymentCustomerV14()}catch(_){}renderCustomerPaymentHistoryOnly();if(typeof toast==='function')toast('Đã sửa số tiền thanh toán.')}catch(e){p.amount=old;alert('Không lưu được: '+(e?.message||e))}};
+
+  function supplierState69(sid){const d=typeof supplierDebtBreakdownV258==='function'?supplierDebtBreakdownV258(sid):null,map=new Map();if(!d?.supplier)return map;let running=Math.max(0,Number(d.oldDebt)||0);const ev=[];(d.invoices||[]).forEach((o,i)=>{const total=Math.max(0,Number(typeof reportStockinInvoiceValueV245==='function'?reportStockinInvoiceValueV245(o):0)||0),paid=Math.max(0,Number(typeof supplierInvoicePaidForDebtV259==='function'?supplierInvoicePaidForDebtV259(o,d.supplier):0)||0);let t=0;try{t=Number(stockoutDateTimeValue(o.dateText||''))||0}catch(_){}ev.push({t,ord:i,k:'i',delta:Math.max(0,total-paid)})});(d.payments||[]).forEach((p,i)=>{let t=Number(p.ts||0);if(!t){try{t=Number(stockoutDateTimeValue(p.dateText||''))||0}catch(_){}}ev.push({t,ord:1000000+i,k:'p',id:String(p.id||''),amount:Math.max(0,Number(p.amount)||0)})});ev.sort((a,b)=>a.t-b.t||a.ord-b.ord);ev.forEach(e=>{if(e.k==='i'){running=Math.max(0,running+e.delta)}else{const before=Math.max(0,running),after=Math.max(0,before-e.amount);map.set(e.id,{before,after});running=after}});return map}
+  function mountSupplier69(){const panel=q('paymentSupplierPanel');if(!panel)return;let host=q('v69SupplierHistory');if(!host){host=document.createElement('div');host.id='v69SupplierHistory';panel.appendChild(host)}renderSupplierHistoryV69()}
+  window.renderSupplierHistoryV69=function(){const host=q('v69SupplierHistory');if(!host)return;const s=currentSupplier69(),sid=String(s?.id||'');if(sid!==lastSupplier69){supplierLimit69=10;lastSupplier69=sid}if(!s){host.innerHTML='<div class="v69-history-head"><b>Lịch sử thanh toán NCC</b><small>Chọn Nhà cung cấp phía trên để xem lịch sử.</small></div><div class="v69-empty">Chưa chọn Nhà cung cấp.</div>';return}const all=(db.supplierPayments||[]).filter(p=>{try{return typeof supplierPaymentBelongsV257==='function'?supplierPaymentBelongsV257(p,s):String(p.supplierId||'')===sid}catch(_){return String(p.supplierId||'')===sid}}).sort((a,b)=>(Number(b.ts)||0)-(Number(a.ts)||0)),state=supplierState69(sid),rows=all.slice(0,supplierLimit69).map(p=>{const st=state.get(String(p.id||''))||{before:Math.max(0,Number(supplierDebt(sid))||0)+Math.max(0,Number(p.amount)||0),after:Math.max(0,Number(supplierDebt(sid))||0)},can=typeof canEditSupplierPaymentV8==='function'?canEditSupplierPaymentV8(p):!!isManager;return `<tr><td>${esc69(p.dateText||'')}</td><td class="right"><span class="v69-before">${money69(st.before)}</span></td><td class="right"><span class="v69-pay">${money69(p.amount)}</span></td><td class="right"><span class="v69-after">${money69(st.after)}</span></td><td class="center">${can?`<button class="btn v69-edit" onclick="editSupplierAmountV69('${esc69(p.id)}')">Sửa</button>`:'<span class="small">Khóa</span>'}</td></tr>`});host.innerHTML=`<div class="v69-history-head"><b>Lịch sử thanh toán NCC • ${esc69(s.name||'Nhà cung cấp')}</b><small>10 giao dịch gần nhất • Công nợ hiện tại: <b style="display:inline;font-size:inherit">${money69(supplierDebt(sid))}</b></small></div>`+(rows.length?table(['Ngày thanh toán','Nợ trước','Số tiền đã trả','Nợ còn lại','Sửa'],rows):'<div class="v69-empty">Nhà cung cấp này chưa có lần thanh toán nào.</div>')+(all.length>supplierLimit69?`<div class="v69-history-more"><button class="btn" onclick="supplierMoreV69()">Xem thêm 10 giao dịch (${all.length-supplierLimit69} còn lại)</button></div>`:'')};
+  window.supplierMoreV69=function(){supplierLimit69+=10;renderSupplierHistoryV69()};
+  window.editSupplierAmountV69=function(id){const p=(db.supplierPayments||[]).find(x=>String(x.id||'')===String(id||''));if(!p)return alert('Không tìm thấy giao dịch NCC.');if(typeof canEditSupplierPaymentV8==='function'&&!canEditSupplierPaymentV8(p))return alert(typeof supplierPaymentEditDeniedMessageV8==='function'?supplierPaymentEditDeniedMessageV8(p):'Bạn không có quyền sửa.');const s=(db.suppliers||[]).find(x=>String(x.id||'')===String(p.supplierId||''))||currentSupplier69()||{},st=supplierState69(s.id).get(String(p.id||''))||{before:Math.max(0,Number(supplierDebt(s.id))||0)+Math.max(0,Number(p.amount)||0)},amt=Math.max(0,Number(p.amount)||0);showModal(`<h3>Sửa số tiền thanh toán NCC</h3><div class="small">${esc69(s.name||'Nhà cung cấp')} • Ngày ${esc69(p.dateText||'')}</div><div class="payment-edit-summary-v10"><div><span>Nợ trước</span><b>${money69(st.before)}</b></div><div><span>Đã trả</span><b id="v69SuppPreview">${money69(amt)}</b></div><div><span>Nợ còn lại</span><b id="v69SuppAfter">${money69(Math.max(0,st.before-amt))}</b></div></div><div><label>Số tiền đã trả NCC</label><input id="v69SuppAmount" type="number" min="1" value="${amt}" oninput="updateSuppV69('${esc69(p.id)}')" style="width:100%"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Hủy</button><button class="btn primary" onclick="saveSuppV69('${esc69(p.id)}')">Lưu sửa</button></div>`)};
+  window.updateSuppV69=function(id){const p=(db.supplierPayments||[]).find(x=>String(x.id||'')===String(id||''));if(!p)return;const s=(db.suppliers||[]).find(x=>String(x.id||'')===String(p.supplierId||''))||{},st=supplierState69(s.id).get(String(p.id||''))||{before:0},amt=Math.max(0,Number(q('v69SuppAmount')?.value)||0);if(q('v69SuppPreview'))q('v69SuppPreview').textContent=money69(amt);if(q('v69SuppAfter'))q('v69SuppAfter').textContent=money69(Math.max(0,st.before-amt))};
+  window.saveSuppV69=async function(id){const p=(db.supplierPayments||[]).find(x=>String(x.id||'')===String(id||''));if(!p)return alert('Không tìm thấy giao dịch.');const amt=Math.max(0,Number(q('v69SuppAmount')?.value)||0);if(amt<=0)return alert('Số tiền phải lớn hơn 0.');const old=p.amount;p.amount=amt;p.editedAt=typeof paymentNowText==='function'?paymentNowText():new Date().toLocaleString('vi-VN');p.editedBy=isManager?'Quản lý':'Nhân viên';try{const ok=await saveDB();if(ok===false)throw new Error('Không lưu được dữ liệu.');closeModal();try{renderSupplierDebtsV258?.()}catch(_){}try{syncSelectedPaymentSupplierV17?.()}catch(_){}try{renderDashboard?.()}catch(_){}setTimeout(mountSupplier69,80);if(typeof toast==='function')toast('Đã sửa số tiền trả NCC.')}catch(e){p.amount=old;alert('Không lưu được: '+(e?.message||e))}};
+
+  /* one wrapper layer for payment lifecycle */
+  const baseRenderPayments69=window.renderPayments;if(typeof baseRenderPayments69==='function')window.renderPayments=function(){const r=baseRenderPayments69.apply(this,arguments);setTimeout(()=>{try{renderCustomerPaymentHistoryOnly()}catch(_){};mountSupplier69()},100);return r};
+  const baseTab69=window.setPaymentTab;if(typeof baseTab69==='function')window.setPaymentTab=function(){const r=baseTab69.apply(this,arguments);setTimeout(()=>{try{renderCustomerPaymentHistoryOnly()}catch(_){};mountSupplier69()},100);return r};
+  const baseSelectCustomer69=window.selectPaymentCustomerV14;if(typeof baseSelectCustomer69==='function')window.selectPaymentCustomerV14=function(){const r=baseSelectCustomer69.apply(this,arguments);setTimeout(renderCustomerPaymentHistoryOnly,0);return r};
+  const baseClearCustomer69=window.clearPaymentCustomerV14;if(typeof baseClearCustomer69==='function')window.clearPaymentCustomerV14=function(){const r=baseClearCustomer69.apply(this,arguments);setTimeout(renderCustomerPaymentHistoryOnly,0);return r};
+  const baseSelectSupplier69=window.selectPaymentSupplierV17;if(typeof baseSelectSupplier69==='function')window.selectPaymentSupplierV17=function(){const r=baseSelectSupplier69.apply(this,arguments);setTimeout(mountSupplier69,0);return r};
+  const baseClearSupplier69=window.clearPaymentSupplierV17;if(typeof baseClearSupplier69==='function')window.clearPaymentSupplierV17=function(){const r=baseClearSupplier69.apply(this,arguments);setTimeout(mountSupplier69,0);return r};
+  const baseSaveCustomer69=window.saveCustomerPayment;if(typeof baseSaveCustomer69==='function')window.saveCustomerPayment=async function(){const cid=selectedPayCustomerId,r=await baseSaveCustomer69.apply(this,arguments);if(cid)selectedPayCustomerId=cid;setTimeout(()=>{try{syncSelectedPaymentCustomerV14()}catch(_){};renderCustomerPaymentHistoryOnly()},80);return r};
+  const baseSaveSupplier69=window.saveSupplierPayment;if(typeof baseSaveSupplier69==='function')window.saveSupplierPayment=async function(){const sid=currentSupplierId69(),r=await baseSaveSupplier69.apply(this,arguments);if(sid){try{selectedPaySupplierId=sid}catch(_){}try{syncSelectedPaymentSupplierV17?.()}catch(_){}}setTimeout(mountSupplier69,80);return r};
+
+  /* ================= STOCKIN ================= */
+  const baseOpenSuggestions69=window.openSuggestions;
+  function stockinSuggestions69(i,el,showAll){const box=q('sisg'+i);if(!box)return;const typed=String(el?.value||'').trim();let arr=[];if(showAll)arr=[...(db.products||[])].slice(0,30);else{if(!typed){box.classList.remove('show');box.innerHTML='';box.dataset.index='-1';return}const key=norm69(typed);arr=(db.products||[]).filter(p=>norm69((p.name||'')+' '+(p.id||'')).includes(key)).slice(0,20)}let html=arr.map((p,idx)=>`<div class="suggestion ${idx===0?'active':''}" data-product-id="${esc69(p.id)}" onmousedown="event.preventDefault();chooseProduct('si',${i},'${esc69(p.id)}')"><b>${esc69(p.name)}</b>${p.saleActive===false?'<span class="badge danger" style="margin-left:6px">Ngừng bán</span>':''}<small>${esc69(p.id)} • ${esc69(p.unit||'')} • Tồn ${Number(p.stock)||0}</small></div>`).join('');if(isManager&&typed&&!showAll){const exact=(db.products||[]).some(p=>norm69(p.name||'')===norm69(typed));if(!exact)html+=`<div class="suggestion create-new" onmousedown="event.preventDefault();openQuickProductFromStockin(${i},decodeURIComponent('${encodeURIComponent(typed)}'))">＋ Tạo hàng mới: <b>${esc69(typed)}</b><small>Tạo ngay, không cần qua menu Hàng hóa</small></div>`}box.innerHTML=html;box.classList.toggle('show',!!html);box.dataset.index='-1'}
+  window.openSuggestions=function(mode,i,el,showAll=false){if(mode==='si')return stockinSuggestions69(i,el,!!showAll);return typeof baseOpenSuggestions69==='function'?baseOpenSuggestions69.apply(this,arguments):undefined};
+  function syncStockin69(){const page=q('stockin');if(!page)return;let staff=false;try{staff=!isManager&&staffModuleEnabled('stockin')}catch(_){}page.classList.toggle('staff-stockin-private',!!staff);const head=q('siHeadRow');if(head)[...head.children].forEach(th=>{th.style.removeProperty('width');th.style.removeProperty('min-width');th.style.removeProperty('max-width')});document.querySelectorAll('#stockin input[data-mode="si"][data-role="product"]').forEach(el=>{el.onfocus=function(){try{this.select()}catch(_){}const i=Number(this.dataset.row||0),box=q('sisg'+i);if(box){box.classList.remove('show');box.innerHTML='';box.dataset.index='-1'}};el.onclick=function(ev){ev?.stopPropagation?.();try{this.select()}catch(_){}stockinSuggestions69(Number(this.dataset.row||0),this,true)};el.oninput=function(){const i=Number(this.dataset.row||0);if(Array.isArray(window.siRows)&&siRows[i]){siRows[i].productText=this.value;siRows[i].productId=''}stockinSuggestions69(i,this,false)}})}
+  const baseRenderSI69=window.renderSIRows;if(typeof baseRenderSI69==='function')window.renderSIRows=function(){syncStockin69();const r=baseRenderSI69.apply(this,arguments);syncStockin69();return r};
+
+  /* ================= WARRANTY CUSTOMER ================= */
+  function warrantyMatches69(v){const s=norm69(v),arr=db.customers||[];return (!s?arr:arr.filter(c=>norm69([c.name,c.phone,c.address,c.id].join(' ')).includes(s))).slice(0,50)}
+  window.renderWarrantyCustomersV69=function(force=false){const input=q('v69WarrantyCustomerSearch'),box=q('v69WarrantyCustomerList');if(!input||!box)return;const arr=force?(db.customers||[]).slice(0,50):warrantyMatches69(input.value);box.innerHTML=arr.length?arr.map(c=>`<div class="v69-customer-item" onmousedown="event.preventDefault();chooseWarrantyCustomerV69('${esc69(c.id)}')"><b>${esc69(c.name||'')}</b><small>${esc69(c.phone||'')}${c.address?' • '+esc69(c.address):''}</small></div>`).join(''):'<div class="v69-customer-item">Không tìm thấy khách hàng</div>';box.classList.add('show')};
+  window.chooseWarrantyCustomerV69=function(id){const c=(db.customers||[]).find(x=>String(x.id||'')===String(id||''));if(!c)return;const input=q('v69WarrantyCustomerSearch'),sel=q('mwcustomer');if(input)input.value=c.name||'';if(sel)sel.value=c.id;q('v69WarrantyCustomerList')?.classList.remove('show')};
+  function installWarranty69(){const sel=q('mwcustomer');if(!sel||q('v69WarrantyCustomerSearch'))return;sel.style.display='none';const wrap=document.createElement('div');wrap.className='v69-customer-picker';wrap.innerHTML='<input id="v69WarrantyCustomerSearch" autocomplete="off" placeholder="Gõ tên / SĐT khách hàng..."><div id="v69WarrantyCustomerList"></div>';sel.parentNode.insertBefore(wrap,sel);const input=q('v69WarrantyCustomerSearch');input.oninput=function(){sel.value='';renderWarrantyCustomersV69(false)};input.onclick=function(){renderWarrantyCustomersV69(true)};let initial=null;try{if(typeof selectedCustomerId!=='undefined'&&selectedCustomerId)initial=(db.customers||[]).find(c=>String(c.id||'')===String(selectedCustomerId||''))||null}catch(_){}if(!initial){const w=String(q('warSearch')?.value||'').trim(),m=warrantyMatches69(w);if(w)initial=m.length===1?m[0]:(m.find(c=>norm69(c.name)===norm69(w))||null)}if(initial)chooseWarrantyCustomerV69(initial.id)}
+  const baseOpenWarranty69=window.openWarranty;if(typeof baseOpenWarranty69==='function')window.openWarranty=function(){const r=baseOpenWarranty69.apply(this,arguments);setTimeout(installWarranty69,0);return r};
+
+  /* ================= HIDE UNUSED UI ================= */
+  window.renderWarrantyDebtSummary=function(){const el=q('soWarrantyDebtSummary');if(el){el.innerHTML='';el.style.display='none'}};
+  function cleanStockinVat69(){const r=q('siInvoiceRefRow');if(r)r.style.setProperty('display','none','important');const s=document.querySelector('#stockinVatPanel .vat-summary');if(s)s.style.setProperty('display','none','important')}
+
+  /* ================= WAREHOUSE ================= */
+  function installWarehouse69(){const bar=q('warehouseCompactBar');if(!bar)return;let fr=q('v69WarehouseFilterRow'),ar=q('v69WarehouseActionRow');if(!fr){fr=document.createElement('div');fr.id='v69WarehouseFilterRow';fr.className='v69-filter-row';bar.insertBefore(fr,bar.firstChild)}if(!ar){ar=document.createElement('div');ar.id='v69WarehouseActionRow';ar.className='v69-action-row';bar.appendChild(ar)}const picker=q('warehouseProductPicker'),group=q('warehouseGroup')?.closest('.warehouse-view-control'),source=q('warehouseVatFilter')?.closest('.warehouse-view-control');if(picker&&picker.parentNode!==fr)fr.appendChild(picker);if(group&&group.parentNode!==fr)fr.appendChild(group);if(source&&source.parentNode!==fr)fr.appendChild(source);let sc=q('v69WarehouseStockFilter');if(!sc){sc=document.createElement('div');sc.id='v69WarehouseStockFilter';sc.className='warehouse-view-control v69-stock-filter';sc.innerHTML='<span class="warehouse-view-label">Tồn kho</span><select id="warehouseStockFilterV69"><option value="">Tất cả</option><option value="low">Sắp hết</option><option value="out">Đã hết</option></select>';fr.appendChild(sc);q('warehouseStockFilterV69').onchange=()=>renderWarehouse()}['warehouseManageGroupBtn','warehouseAddProductBtn','warehouseInlineEditBtn','warehouseDeleteProductBtn','warehouseInlineSaveBtn','warehouseInlineCancelBtn'].forEach(id=>{const el=q(id);if(el&&el.parentNode!==ar)ar.appendChild(el)});const pb=bar.querySelector('.warehouse-print-btn');if(pb&&pb.parentNode!==ar)ar.appendChild(pb)}
+  const baseRenderWarehouse69=window.renderWarehouse;if(typeof baseRenderWarehouse69==='function')window.renderWarehouse=function(){installWarehouse69();const r=baseRenderWarehouse69.apply(this,arguments),filter=q('warehouseStockFilterV69')?.value||'';if(!filter)return r;const rows=[...document.querySelectorAll('#warehouseTable tbody tr[data-product-id]')];rows.forEach(tr=>{const p=(db.products||[]).find(x=>String(x.id||'')===String(tr.dataset.productId||''));if(!p)return;const st=warehouseStatusOf(p);tr.style.display=(filter==='low'?st==='low':filter==='out'?st==='out':true)?'':'none'});const visible=rows.filter(tr=>tr.style.display!=='none'),qty=visible.reduce((s,tr)=>{const p=(db.products||[]).find(x=>String(x.id||'')===String(tr.dataset.productId||''));return s+Number(p?.stock||0)},0);if(q('warehouseCount'))q('warehouseCount').textContent=visible.length+' mặt hàng • '+new Intl.NumberFormat('vi-VN').format(qty)+' đơn vị';return r};
+
+  /* initial sync */
+  setTimeout(()=>{try{renderCustomerPaymentHistoryOnly()}catch(_){};try{mountSupplier69()}catch(_){};try{syncStockin69()}catch(_){};try{cleanStockinVat69()}catch(_){};try{installWarehouse69()}catch(_){};try{renderWarrantyDebtSummary()}catch(_){}},350);
+  window.addEventListener('load',()=>setTimeout(()=>{try{renderCustomerPaymentHistoryOnly()}catch(_){};try{mountSupplier69()}catch(_){};try{syncStockin69()}catch(_){};try{cleanStockinVat69()}catch(_){};try{installWarehouse69()}catch(_){}},1000));
+})();
+</script>
+<!-- ===== /V69 FINAL GITHUB CLEAN ===== -->
+<!-- ===== MASTER V171 VISIBLE AN BUI V69 END ===== -->
