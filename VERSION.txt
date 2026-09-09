@@ -1,0 +1,4 @@
+N-TRAI MASTER V170
+Embedded template: AN BUI V69
+Child client appVersion: 259
+An Bui APP ID: AB123
