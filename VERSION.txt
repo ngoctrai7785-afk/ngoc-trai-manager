@@ -1,5 +1,9 @@
-N-TRAI MASTER V171
-Visible An Bui UI: V69
-Embedded child template: V69
+N-TRAI MASTER V183 FINAL
+Base nghiệp vụ: AN BÙI V82
+Master mode: isMaster=true
+Child template release: V82
 Child core appVersion: 259
-An Bui APP ID: AB123
+PWA icon: NT 192/512
+Service worker query: ntrai-master-v183-an-bui-v82
+Service worker cache: n-trai-manager-v183-an-bui-v82-final
+JS syntax errors: 0
