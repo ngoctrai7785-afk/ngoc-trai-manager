@@ -1,8 +1,8 @@
-N-TRAI MASTER V184 FINAL CLEAN ROOT
-Start page: Master Control
-Root package only: index.html + icons + manifest + sw + VERSION
-NO apps/ folder in GitHub package
-Child template embedded inside Master: AN BUI V82 exact
-Child core appVersion: 259
-Embedded child exact V82: True
+N-TRAI MASTER V185
+Child template: AN BUI V83 exact
+Feature: Enter -> next editable field globally
+Shift+Enter: previous field (textarea keeps newline)
+Last field: preserves existing submit/save handler
+Core child appVersion: 259
+Embedded exact V83: True
 JS syntax errors: 0
