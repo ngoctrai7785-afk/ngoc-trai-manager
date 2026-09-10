@@ -1,9 +1,8 @@
-N-TRAI MASTER V183 FINAL
-Base nghiệp vụ: AN BÙI V82
-Master mode: isMaster=true
-Child template release: V82
+N-TRAI MASTER V184 FINAL CLEAN ROOT
+Start page: Master Control
+Root package only: index.html + icons + manifest + sw + VERSION
+NO apps/ folder in GitHub package
+Child template embedded inside Master: AN BUI V82 exact
 Child core appVersion: 259
-PWA icon: NT 192/512
-Service worker query: ntrai-master-v183-an-bui-v82
-Service worker cache: n-trai-manager-v183-an-bui-v82-final
+Embedded child exact V82: True
 JS syntax errors: 0
