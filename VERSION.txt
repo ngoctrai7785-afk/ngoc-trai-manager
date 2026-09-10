@@ -1,5 +1,7 @@
-N-TRAI MASTER V186
-Fix: Master on https/GitHub Pages shows ☁ Onl
-Onl button refreshes/checks Master Control instead of app-child sync setup
-Child template remains An Bùi V83 / core 259
+N-TRAI MASTER V187
+Feature: click device name to assign a friendly name
+Device ID is unchanged
+Friendly name stored in Master registry/local data
+Blank name restores original browser/device label
+Child template unchanged: An Bùi V83 / core 259
 JS syntax errors: 0

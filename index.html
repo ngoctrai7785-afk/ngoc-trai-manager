@@ -12,9 +12,9 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="186">
+<meta name="app-version" content="187">
 <meta name="app-build" content="an-bui-v259-v16-payment-enter-flow">
-<title>N-TRAI MANAGER V186</title>
+<title>N-TRAI MANAGER V187</title>
 <style>
 :root{
   --nav:#0b4f5e;--nav2:#073b47;--bg:#eef2f5;--paper:#fff;--ink:#17324d;
@@ -12397,7 +12397,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":186,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":187,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=259;
 const MASTER_CHILD_TEMPLATE_RELEASE='V83';
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
@@ -27649,7 +27649,7 @@ function masterRenderLicenseBox(rec){
   const active=Number(lic?.active_count||0),pending=Number(lic?.pending_count||0);
   if($('masterLicenseDeviceSummary'))$('masterLicenseDeviceSummary').innerHTML=`<span class="master-device-chip">💻 Đang dùng ${active}/${limit}</span><span class="master-device-chip">${pending?'🔴':'⚪'} Chờ duyệt ${pending}</span><span class="master-device-chip">${enabled?'🔐 Master quản lý':'🔓 Chưa bật'}</span>`;
   const devices=Array.isArray(lic?.devices)?lic.devices:[];
-  if($('masterLicenseDevices'))$('masterLicenseDevices').innerHTML=devices.length?`<table><thead><tr><th>Thiết bị</th><th>Trạng thái</th><th>Lần dùng cuối</th><th>Thao tác</th></tr></thead><tbody>${devices.map(d=>`<tr><td><b>${esc(d.device_label||'Thiết bị')}</b><div class="master-device-id" title="${esc(d.device_id||'')}">${esc(d.device_id||'')}</div></td><td>${masterLicenseStatusText(d.status)}</td><td>${d.last_seen_at?esc(new Date(d.last_seen_at).toLocaleString('vi-VN')):'—'}</td><td><div class="master-device-actions">${d.status!=='active'?`<button class="btn ok" type="button" onclick="masterLicenseDeviceAction('${esc(d.device_id)}','active')">Duyệt</button>`:''}${d.status!=='blocked'?`<button class="btn" type="button" onclick="masterLicenseDeviceAction('${esc(d.device_id)}','blocked')">Khóa</button>`:''}<button class="btn master-danger" type="button" onclick="masterLicenseDeleteDevice('${esc(d.device_id)}')">Xóa</button></div></td></tr>`).join('')}</tbody></table>`:'<div class="small" style="padding:10px">Chưa có thiết bị nào gửi yêu cầu.</div>';
+  if($('masterLicenseDevices'))$('masterLicenseDevices').innerHTML=devices.length?`<table><thead><tr><th>Thiết bị</th><th>Trạng thái</th><th>Lần dùng cuối</th><th>Thao tác</th></tr></thead><tbody>${devices.map(d=>`<tr><td><b class="master-device-name-editable" title="Bấm để đặt tên dễ nhớ" onclick="masterRenameDeviceV187('${esc(d.device_id||'')}')">${esc(masterDeviceDisplayNameV187(rec,d))}</b><div class="master-device-id" title="${esc(d.device_id||'')}">${esc(d.device_id||'')}</div></td><td>${masterLicenseStatusText(d.status)}</td><td>${d.last_seen_at?esc(new Date(d.last_seen_at).toLocaleString('vi-VN')):'—'}</td><td><div class="master-device-actions">${d.status!=='active'?`<button class="btn ok" type="button" onclick="masterLicenseDeviceAction('${esc(d.device_id)}','active')">Duyệt</button>`:''}${d.status!=='blocked'?`<button class="btn" type="button" onclick="masterLicenseDeviceAction('${esc(d.device_id)}','blocked')">Khóa</button>`:''}<button class="btn master-danger" type="button" onclick="masterLicenseDeleteDevice('${esc(d.device_id)}')">Xóa</button></div></td></tr>`).join('')}</tbody></table>`:'<div class="small" style="padding:10px">Chưa có thiết bị nào gửi yêu cầu.</div>';
 }
 async function masterRefreshSelectedLicense(){const rec=masterRegistrySelected();if(!rec)return;if(!rec.online)return toast('App này chưa bật online.');try{await masterLicenseRemoteGet(rec);masterRenderLicenseBox(rec);renderMasterControl();toast('Đã cập nhật thiết bị')}catch(err){alert('Chưa đọc được cấp phép thiết bị:\\n'+(err?.message||err))}}
 async function masterLicenseDeviceAction(deviceId,status){
@@ -31257,7 +31257,7 @@ window.addEventListener('load',()=>{
 <script id="pwa-register">
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js?v=ntrai-master-v186-online-fix').then(function(reg){
+    navigator.serviceWorker.register('./sw.js?v=ntrai-master-v187-device-alias').then(function(reg){
       return reg.update();
     }).catch(function(err){ console.warn('Service worker:', err); });
   });
@@ -40564,3 +40564,54 @@ body.warehouse-page-active .main>.topbar>.actions{
 </script>
 
 <!-- N-TRAI MASTER V186 • FIX MASTER ONLINE STATUS ON GITHUB PAGES • CHILD V83 -->
+
+
+<style id="master-v187-device-alias-css">
+.master-device-name-editable{
+  cursor:pointer;
+  text-decoration:underline dotted;
+  text-underline-offset:3px;
+}
+.master-device-name-editable:hover{
+  color:#0b6674;
+}
+</style>
+
+<script id="master-v187-device-alias-js">
+(function(){
+  window.masterDeviceDisplayNameV187=function(rec,d){
+    const id=String(d?.device_id||'');
+    const aliases=rec?.deviceAliases&&typeof rec.deviceAliases==='object'?rec.deviceAliases:{};
+    return String(aliases[id]||d?.device_label||'Thiết bị');
+  };
+
+  window.masterRenameDeviceV187=function(deviceId){
+    const rec=typeof masterRegistrySelected==='function'?masterRegistrySelected():null;
+    if(!rec)return;
+    const id=String(deviceId||'');
+    const devices=Array.isArray(rec?.license?.devices)?rec.license.devices:[];
+    const dev=devices.find(x=>String(x.device_id||'')===id);
+    const original=String(dev?.device_label||'Thiết bị');
+    const aliases=rec.deviceAliases&&typeof rec.deviceAliases==='object'?{...rec.deviceAliases}:{};
+    const current=String(aliases[id]||'');
+
+    const value=prompt(
+      'Đặt tên dễ nhớ cho thiết bị này:\\n\\nTên gốc: '+original+'\\nMã: '+id+'\\n\\nĐể trống rồi OK để trở về tên gốc.',
+      current
+    );
+    if(value===null)return;
+
+    const name=String(value||'').trim().slice(0,80);
+    if(name)aliases[id]=name;
+    else delete aliases[id];
+
+    rec.deviceAliases=aliases;
+    try{masterRegistryUpsert(rec)}catch(_){}
+    try{masterRenderLicenseBox(rec)}catch(_){}
+    try{renderMasterControl()}catch(_){}
+    try{toast(name?'Đã đổi tên thiết bị thành “'+name+'”':'Đã trả về tên thiết bị gốc')}catch(_){}
+  };
+})();
+</script>
+
+<!-- N-TRAI MASTER V187 • CLICK DEVICE NAME TO RENAME LOCALLY • CHILD V83 -->
