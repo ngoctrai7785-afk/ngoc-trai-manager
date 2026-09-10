@@ -12,9 +12,9 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="185">
+<meta name="app-version" content="186">
 <meta name="app-build" content="an-bui-v259-v16-payment-enter-flow">
-<title>N-TRAI MANAGER V185</title>
+<title>N-TRAI MANAGER V186</title>
 <style>
 :root{
   --nav:#0b4f5e;--nav2:#073b47;--bg:#eef2f5;--paper:#fff;--ink:#17324d;
@@ -12397,7 +12397,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":185,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":186,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=259;
 const MASTER_CHILD_TEMPLATE_RELEASE='V83';
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
@@ -31257,7 +31257,7 @@ window.addEventListener('load',()=>{
 <script id="pwa-register">
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js?v=ntrai-master-v185-an-bui-v83').then(function(reg){
+    navigator.serviceWorker.register('./sw.js?v=ntrai-master-v186-online-fix').then(function(reg){
       return reg.update();
     }).catch(function(err){ console.warn('Service worker:', err); });
   });
@@ -40502,3 +40502,65 @@ body.warehouse-page-active .main>.topbar>.actions{
 <!-- MASTER V83: Enter moves to next editable field globally -->
 
 <!-- N-TRAI MASTER V185 • CHILD TEMPLATE AN BUI V83 • ENTER NEXT GLOBAL -->
+
+
+<script id="master-v186-online-status-fix">
+(function(){
+  function masterHostedOnlineV186(){
+    return APP_CONFIG?.isMaster === true &&
+      (location.protocol === 'https:' || location.protocol === 'http:');
+  }
+
+  async function masterCheckOnlineV186(){
+    if(!masterHostedOnlineV186()){
+      alert('Master đang mở bằng file cục bộ. Hãy mở link GitHub Pages để dùng Online.');
+      return;
+    }
+    try{
+      syncStatus('↻ Đang kiểm tra','syncing');
+      if(typeof masterRefreshAll==='function'){
+        await masterRefreshAll();
+      }
+      syncStatus('☁ Onl','online');
+      if(typeof toast==='function')toast('Master đang Online trên GitHub Pages.');
+    }catch(err){
+      console.warn('Master online check:',err);
+      syncStatus('⚠ Mất kết nối','offline');
+      alert('Master đang mở Online nhưng chưa kiểm tra được kết nối.\n\n'+String(err?.message||err||''));
+    }
+  }
+
+  /* Nút Onl của Master không dùng luồng syncEnabled của app con */
+  const oldOpenSyncSetupV186 = window.openSyncSetup;
+  window.openSyncSetup = function(){
+    if(APP_CONFIG?.isMaster){
+      return masterCheckOnlineV186();
+    }
+    return typeof oldOpenSyncSetupV186==='function'
+      ? oldOpenSyncSetupV186.apply(this,arguments)
+      : undefined;
+  };
+
+  function setMasterStatusV186(){
+    if(!APP_CONFIG?.isMaster)return;
+    if(masterHostedOnlineV186()){
+      syncStatus('☁ Onl','online');
+    }else{
+      syncStatus('☁ Chạy cục bộ','local');
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>setTimeout(setMasterStatusV186,0),{once:true});
+  }else{
+    setTimeout(setMasterStatusV186,0);
+  }
+  window.addEventListener('load',()=>setTimeout(setMasterStatusV186,250));
+  window.addEventListener('online',setMasterStatusV186);
+  window.addEventListener('offline',()=>{
+    if(APP_CONFIG?.isMaster)syncStatus('⚠ Mất kết nối','offline');
+  });
+})();
+</script>
+
+<!-- N-TRAI MASTER V186 • FIX MASTER ONLINE STATUS ON GITHUB PAGES • CHILD V83 -->

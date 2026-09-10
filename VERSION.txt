@@ -1,8 +1,5 @@
-N-TRAI MASTER V185
-Child template: AN BUI V83 exact
-Feature: Enter -> next editable field globally
-Shift+Enter: previous field (textarea keeps newline)
-Last field: preserves existing submit/save handler
-Core child appVersion: 259
-Embedded exact V83: True
+N-TRAI MASTER V186
+Fix: Master on https/GitHub Pages shows ☁ Onl
+Onl button refreshes/checks Master Control instead of app-child sync setup
+Child template remains An Bùi V83 / core 259
 JS syntax errors: 0
