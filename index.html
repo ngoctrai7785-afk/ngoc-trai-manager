@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="191">
+<meta name="app-version" content="192">
 <meta name="app-build" content="an-bui-v259-v16-payment-enter-flow">
 <title>N-TRAI MANAGER V187</title>
 <style>
@@ -12399,7 +12399,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":191,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":192,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=259;
 const MASTER_CHILD_TEMPLATE_RELEASE='V83';
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
@@ -27642,43 +27642,93 @@ function masterOrderChildUrl(rec,admin=false){
   u.searchParams.set('view',admin?'admin':'customer');
   return u.href;
 }
+let masterOrderChildLogoDataUrl='';
+function masterOrderEscapeText(v){return String(v??'').replace(/[<>&]/g,'')}
+function masterOrderReadLogoFile(ev){
+  const f=ev?.target?.files?.[0],preview=document.getElementById('orderChildLogoPreview'),status=document.getElementById('orderChildLogoStatus');
+  if(!f){masterOrderChildLogoDataUrl='';if(preview){preview.removeAttribute('src');preview.style.display='none'}if(status)status.textContent='Chưa chọn logo • hệ thống sẽ tạo icon chữ viết tắt.';return}
+  if(!/^image\/(png|jpeg|webp)$/i.test(f.type||'')){ev.target.value='';return alert('Logo phải là ảnh PNG, JPG hoặc WEBP.')}
+  if(f.size>5*1024*1024){ev.target.value='';return alert('Logo tối đa 5 MB để xuất app ổn định.')}
+  const rd=new FileReader();
+  rd.onload=()=>{masterOrderChildLogoDataUrl=String(rd.result||'');if(preview){preview.src=masterOrderChildLogoDataUrl;preview.style.display='block'}if(status)status.textContent='Đã chọn '+f.name+' • '+(f.size/1024).toFixed(0)+' KB';};
+  rd.onerror=()=>alert('Không đọc được file logo.');rd.readAsDataURL(f);
+}
 function masterOrderLauncherHtml(rec){
   const data={appId:rec.appId,appName:rec.appName,unitName:rec.unitName,coreUrl:MASTER_ORDER_URL,version:MASTER_ORDER_VERSION,nppId:rec.nppId||'npp1'};
-  const title=String(rec.appName||rec.unitName||'Smart Order').replace(/[<>&]/g,'');
-  return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b4f5e"><title>'+title+'</title><style>body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#eef4f7;color:#17324d;display:grid;place-items:center;min-height:100vh}.box{max-width:480px;margin:20px;padding:28px;border-radius:18px;background:#fff;box-shadow:0 18px 50px #163b6b26;text-align:center}a{display:inline-block;margin:6px;padding:12px 18px;border-radius:10px;background:#0b6674;color:#fff;text-decoration:none;font-weight:700}</style></head><body><div class="box"><h2>'+title+'</h2><p>Smart Order V'+MASTER_ORDER_VERSION+'</p><p><a id="customer">Đặt hàng</a><a id="admin">Quản lý</a></p></div><script>const C='+JSON.stringify(data)+';function link(admin){const u=new URL(C.coreUrl);u.searchParams.set("tenant",String(C.appId).toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9_-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,48)||"order");u.searchParams.set("unit",C.unitName||C.appName);u.searchParams.set("npp",C.nppId||"npp1");u.searchParams.set("mode",admin?"admin":"order");u.searchParams.set("view",admin?"admin":"customer");return u.href}document.getElementById("customer").href=link(false);document.getElementById("admin").href=link(true);const q=new URLSearchParams(location.search);if(q.get("autostart")!=="0")location.replace(link(q.get("mode")==="admin"||q.get("view")==="admin"));<\/script></body></html>';
+  const title=masterOrderEscapeText(rec.appName||rec.unitName||'Smart Order'),unit=masterOrderEscapeText(rec.unitName||'');
+  return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b6674"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="'+title+'"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon-192.png"><link rel="apple-touch-icon" href="./icon-192.png"><title>'+title+'</title><style>body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#eef4f7;color:#17324d;display:grid;place-items:center;min-height:100vh}.box{width:min(480px,calc(100% - 32px));box-sizing:border-box;margin:20px;padding:28px;border-radius:22px;background:#fff;box-shadow:0 18px 50px #163b6b26;text-align:center}.logo{width:112px;height:112px;object-fit:contain;border-radius:24px;border:1px solid #d8e5e9;background:#fff;padding:8px;box-sizing:border-box}.sub{color:#607786;margin:4px 0 18px}.btn{display:block;margin:10px 0;padding:14px 18px;border-radius:12px;background:#0b6674;color:#fff;text-decoration:none;font-weight:800}.btn.alt{background:#eaf5f6;color:#0b6674;border:1px solid #9ccbd0}.hint{font-size:12px;color:#718590;margin-top:18px;line-height:1.45}</style></head><body><div class="box"><img class="logo" src="./icon-512.png" alt="Logo"><h2>'+title+'</h2><div class="sub">'+unit+' • Smart Order V'+MASTER_ORDER_VERSION+'</div><a class="btn" id="customer">🛒 Đặt hàng</a><a class="btn alt" id="admin">⚙️ Quản lý</a><div class="hint">Có thể cài app này ra màn hình chính. Icon sẽ dùng logo riêng của đơn vị.</div></div><script>const C='+JSON.stringify(data)+';function link(admin){const u=new URL(C.coreUrl);u.searchParams.set("tenant",String(C.appId).toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9_-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,48)||"order");u.searchParams.set("unit",C.unitName||C.appName);u.searchParams.set("npp",C.nppId||"npp1");u.searchParams.set("mode",admin?"admin":"order");u.searchParams.set("view",admin?"admin":"customer");return u.href}document.getElementById("customer").href=link(false);document.getElementById("admin").href=link(true);if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}const q=new URLSearchParams(location.search);if(q.get("autostart")==="1")location.replace(link(q.get("mode")==="admin"||q.get("view")==="admin"));<\/script></body></html>';
+}
+function masterOrderInitials(name){
+  const a=String(name||'APP').trim().split(/\s+/).filter(Boolean);return (a.length>1?(a[0][0]+a[a.length-1][0]):a[0]?.slice(0,2)||'AP').toUpperCase();
+}
+async function masterOrderIconBlob(size,logoDataUrl,label){
+  const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');
+  x.fillStyle='#ffffff';x.fillRect(0,0,size,size);
+  const pad=Math.round(size*.10),radius=Math.round(size*.18);
+  x.save();x.beginPath();x.roundRect?x.roundRect(pad,pad,size-pad*2,size-pad*2,radius):(x.rect(pad,pad,size-pad*2,size-pad*2));x.clip();
+  if(logoDataUrl){
+    const img=new Image();img.src=logoDataUrl;await new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail});
+    const max=size-pad*2,scale=Math.min(max/img.width,max/img.height),w=img.width*scale,h=img.height*scale;x.drawImage(img,(size-w)/2,(size-h)/2,w,h);
+  }else{
+    x.fillStyle='#0b6674';x.fillRect(pad,pad,size-pad*2,size-pad*2);x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='800 '+Math.round(size*.28)+'px Segoe UI,Arial';x.fillText(masterOrderInitials(label),size/2,size/2);
+  }
+  x.restore();
+  return await new Promise((ok,fail)=>c.toBlob(b=>b?ok(b):fail(new Error('Không tạo được icon')),'image/png'));
+}
+function masterOrderManifest(rec){
+  return JSON.stringify({name:rec.appName||rec.unitName||'Smart Order',short_name:String(rec.unitName||rec.appName||'Order').slice(0,22),start_url:'./index.html',scope:'./',display:'standalone',background_color:'#eef4f7',theme_color:'#0b6674',description:'Smart Order V'+MASTER_ORDER_VERSION+' • '+(rec.unitName||''),icons:[{src:'./icon-192.png',sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:'./icon-512.png',sizes:'512x512',type:'image/png',purpose:'any maskable'}]},null,2);
+}
+function masterOrderServiceWorker(rec){
+  const cache='smart-order-child-'+String(rec.appId||'app').toLowerCase().replace(/[^a-z0-9_-]/g,'-')+'-v'+MASTER_ORDER_VERSION;
+  return `const CACHE=${JSON.stringify(cache)};self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png']))) });self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))));self.clients.claim()});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))))});`;
+}
+function masterZipCrc32(bytes){
+  if(!masterZipCrc32.table){masterZipCrc32.table=Array.from({length:256},(_,n)=>{let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);return c>>>0})}
+  let c=0xffffffff;for(const b of bytes)c=masterZipCrc32.table[(c^b)&255]^(c>>>8);return (c^0xffffffff)>>>0;
+}
+function masterZipU16(v){return new Uint8Array([v&255,(v>>>8)&255])}
+function masterZipU32(v){return new Uint8Array([v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255])}
+function masterZipConcat(parts){let n=parts.reduce((s,p)=>s+p.length,0),o=new Uint8Array(n),at=0;for(const p of parts){o.set(p,at);at+=p.length}return o}
+async function masterZipBytes(v){if(v instanceof Blob)return new Uint8Array(await v.arrayBuffer());if(v instanceof Uint8Array)return v;return new TextEncoder().encode(String(v))}
+async function masterOrderBuildZip(files){
+  const enc=new TextEncoder(),locals=[],centrals=[];let offset=0;const now=new Date(),dt=((now.getHours()&31)<<11)|((now.getMinutes()&63)<<5)|((Math.floor(now.getSeconds()/2))&31),dd=(((now.getFullYear()-1980)&127)<<9)|(((now.getMonth()+1)&15)<<5)|(now.getDate()&31);
+  for(const [name,val] of files){const nm=enc.encode(name),data=await masterZipBytes(val),crc=masterZipCrc32(data),lh=masterZipConcat([masterZipU32(0x04034b50),masterZipU16(20),masterZipU16(0),masterZipU16(0),masterZipU16(dt),masterZipU16(dd),masterZipU32(crc),masterZipU32(data.length),masterZipU32(data.length),masterZipU16(nm.length),masterZipU16(0),nm,data]);locals.push(lh);const ch=masterZipConcat([masterZipU32(0x02014b50),masterZipU16(20),masterZipU16(20),masterZipU16(0),masterZipU16(0),masterZipU16(dt),masterZipU16(dd),masterZipU32(crc),masterZipU32(data.length),masterZipU32(data.length),masterZipU16(nm.length),masterZipU16(0),masterZipU16(0),masterZipU16(0),masterZipU16(0),masterZipU32(0),masterZipU32(offset),nm]);centrals.push(ch);offset+=lh.length}
+  const central=masterZipConcat(centrals),local=masterZipConcat(locals),end=masterZipConcat([masterZipU32(0x06054b50),masterZipU16(0),masterZipU16(0),masterZipU16(files.length),masterZipU16(files.length),masterZipU32(central.length),masterZipU32(local.length),masterZipU16(0)]);return new Blob([local,central,end],{type:'application/zip'});
 }
 function masterOpenOrderChildBuilder(){
   const parent=masterRegistrySelected();
   if(!parent||parent.appType!=='order-shared')return alert('Hãy chọn SMART ORDER NGỌC TRAI trước.');
+  masterOrderChildLogoDataUrl='';
   showModal(`<h3>🛒 Tạo / Xuất App Order con</h3>
-    <div class="small">Mỗi NPP có APP ID và tenant riêng, dùng chung lõi Smart Order V${MASTER_ORDER_VERSION}. App con sau khi tạo sẽ tự xuất file HTML và được thêm vào danh sách Master.</div>
+    <div class="small">Mỗi NPP có APP ID và tenant riêng, dùng chung lõi Smart Order V${MASTER_ORDER_VERSION}. ZIP xuất ra đã sẵn sàng đưa lên GitHub Pages và có icon/logo riêng của khách.</div>
     <div class="form-grid" style="margin-top:12px">
       <div><label>APP ID *</label><input id="orderChildAppId" placeholder="VD: ORDER_ABC01"></div>
       <div><label>Tên App *</label><input id="orderChildAppName" value="SMART ORDER"></div>
       <div class="full"><label>Tên NPP / Đơn vị *</label><input id="orderChildUnitName" placeholder="VD: NPP An Phát"></div>
       <div><label>Mã NPP</label><input id="orderChildNppId" value="npp1" placeholder="npp1"></div>
       <div><label>Hạn mức dữ liệu (MB)</label><input id="orderChildQuota" type="number" min="1" value="500"></div>
+      <div class="full"><label>Logo khách / NPP</label><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px dashed #aac5cc;border-radius:12px;padding:12px;background:#f8fbfc"><img id="orderChildLogoPreview" alt="Logo" style="display:none;width:78px;height:78px;object-fit:contain;border:1px solid #d8e5e9;border-radius:16px;background:#fff;padding:5px"><div style="flex:1;min-width:240px"><input id="orderChildLogoFile" type="file" accept="image/png,image/jpeg,image/webp" onchange="masterOrderReadLogoFile(event)"><div id="orderChildLogoStatus" class="small" style="margin-top:5px">Chưa chọn logo • hệ thống sẽ tạo icon chữ viết tắt.</div><div class="small">Khuyên dùng PNG vuông 512×512, nền trong suốt hoặc trắng. Hệ thống tự tạo icon 192 và 512.</div></div></div></div>
     </div>
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">Hủy</button><button class="btn primary" onclick="masterCreateOrderChildFromModal()">⬇ Tạo & xuất app con</button></div>`);
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Hủy</button><button class="btn primary" id="orderChildCreateBtn" onclick="masterCreateOrderChildFromModal()">⬇ Tạo ZIP GitHub</button></div>`);
   setTimeout(()=>document.getElementById('orderChildAppId')?.focus(),50);
 }
-function masterCreateOrderChildFromModal(){
-  const appId=String(document.getElementById('orderChildAppId')?.value||'').trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'_');
-  const appName=String(document.getElementById('orderChildAppName')?.value||'SMART ORDER').trim();
-  const unitName=String(document.getElementById('orderChildUnitName')?.value||'').trim();
-  const nppId=String(document.getElementById('orderChildNppId')?.value||'npp1').trim()||'npp1';
-  const quota=Math.max(1,Number(document.getElementById('orderChildQuota')?.value||500))*1024*1024;
-  if(!appId)return alert('Nhập APP ID cho app Order con.');
-  if(!unitName)return alert('Nhập tên NPP / Đơn vị.');
-  if(masterRegistryLoad().some(x=>String(x.appId).toUpperCase()===appId))return alert('APP ID này đã có trong Master. Hãy dùng mã khác.');
-  const rec={appId,appName,unitName,nppId,appType:'order-child',parentAppId:'SMART_ORDER_NGOC_TRAI',online:true,status:'active',expiresAt:'',unlimited:true,publicUrl:'',managerUrl:'',modules:MASTER_ORDER_MODULES.map(x=>x[0]),createdAt:masterIsoNow(),targetVersion:MASTER_ORDER_VERSION,version:MASTER_ORDER_VERSION,remote:{last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:'active'},externalManaged:true,externalKey:'smart-order-child',fileBytes:0,dataBytes:0,databaseBytes:0,imageBytes:0,fileMeasured:true,databaseMeasured:false,imageMeasured:false,usageStatus:'partial',usageApiUrl:'',quotaBytes:quota,linkedNppCount:1,linkedNpps:[unitName],notes:'App Order con tạo từ Smart Order V'+MASTER_ORDER_VERSION+'.'};
-  rec.publicUrl=masterOrderChildUrl(rec,false);rec.managerUrl=masterOrderChildUrl(rec,true);
-  const html=masterOrderLauncherHtml(rec);rec.fileBytes=new Blob([html]).size;
-  masterRegistryUpsert(rec);
-  const parent=masterRegistryLoad().find(x=>x.appId==='SMART_ORDER_NGOC_TRAI');
-  if(parent){const arr=Array.from(new Set([...(parent.linkedNpps||[]),unitName]));parent.linkedNpps=arr;parent.linkedNppCount=arr.length;masterRegistryUpsert(parent)}
-  const blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(appId+'_SMART_ORDER_V'+MASTER_ORDER_VERSION+'.html').replace(/[^A-Z0-9_.-]/gi,'_');document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);
-  masterSelectedAppId=appId;closeModal();renderMasterControl();renderMasterNpp();goMasterPage('masterNpp');toast('Đã tạo & xuất App Order con cho '+unitName);
+async function masterCreateOrderChildFromModal(){
+  const btn=document.getElementById('orderChildCreateBtn');if(btn){btn.disabled=true;btn.textContent='Đang tạo ZIP...'}
+  try{
+    const appId=String(document.getElementById('orderChildAppId')?.value||'').trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'_');
+    const appName=String(document.getElementById('orderChildAppName')?.value||'SMART ORDER').trim();
+    const unitName=String(document.getElementById('orderChildUnitName')?.value||'').trim();
+    const nppId=String(document.getElementById('orderChildNppId')?.value||'npp1').trim()||'npp1';
+    const quota=Math.max(1,Number(document.getElementById('orderChildQuota')?.value||500))*1024*1024;
+    if(!appId)throw new Error('Nhập APP ID cho app Order con.');if(!unitName)throw new Error('Nhập tên NPP / Đơn vị.');if(masterRegistryLoad().some(x=>String(x.appId).toUpperCase()===appId))throw new Error('APP ID này đã có trong Master. Hãy dùng mã khác.');
+    const rec={appId,appName,unitName,nppId,appType:'order-child',parentAppId:'SMART_ORDER_NGOC_TRAI',online:true,status:'active',expiresAt:'',unlimited:true,publicUrl:'',managerUrl:'',modules:MASTER_ORDER_MODULES.map(x=>x[0]),createdAt:masterIsoNow(),targetVersion:MASTER_ORDER_VERSION,version:MASTER_ORDER_VERSION,remote:{last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:'active'},externalManaged:true,externalKey:'smart-order-child',fileBytes:0,dataBytes:0,databaseBytes:0,imageBytes:0,fileMeasured:true,databaseMeasured:false,imageMeasured:false,usageStatus:'partial',usageApiUrl:'',quotaBytes:quota,linkedNppCount:1,linkedNpps:[unitName],hasCustomLogo:!!masterOrderChildLogoDataUrl,notes:'App Order con tạo từ Smart Order V'+MASTER_ORDER_VERSION+' • icon riêng '+(masterOrderChildLogoDataUrl?'theo logo khách':'tự tạo chữ viết tắt')+'.'};
+    rec.publicUrl=masterOrderChildUrl(rec,false);rec.managerUrl=masterOrderChildUrl(rec,true);
+    const html=masterOrderLauncherHtml(rec),icon192=await masterOrderIconBlob(192,masterOrderChildLogoDataUrl,unitName),icon512=await masterOrderIconBlob(512,masterOrderChildLogoDataUrl,unitName),manifest=masterOrderManifest(rec),sw=masterOrderServiceWorker(rec),version='SMART ORDER '+unitName+'\nAPP ID: '+appId+'\nCORE V'+MASTER_ORDER_VERSION+'\nXuất bởi N-TRAI MASTER V192\n';
+    const zip=await masterOrderBuildZip([['index.html',html],['manifest.webmanifest',manifest],['sw.js',sw],['icon-192.png',icon192],['icon-512.png',icon512],['VERSION.txt',version]]);rec.fileBytes=zip.size;masterRegistryUpsert(rec);
+    const parent=masterRegistryLoad().find(x=>x.appId==='SMART_ORDER_NGOC_TRAI');if(parent){const arr=Array.from(new Set([...(parent.linkedNpps||[]),unitName]));parent.linkedNpps=arr;parent.linkedNppCount=arr.length;masterRegistryUpsert(parent)}
+    const url=URL.createObjectURL(zip),a=document.createElement('a');a.href=url;a.download=(appId+'_SMART_ORDER_V'+MASTER_ORDER_VERSION+'_GITHUB.zip').replace(/[^A-Z0-9_.-]/gi,'_');document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+    masterSelectedAppId=appId;closeModal();renderMasterControl();renderMasterNpp();goMasterPage('masterNpp');toast('Đã tạo ZIP App Order con cho '+unitName+' • có icon riêng');
+  }catch(err){alert(err?.message||String(err));if(btn){btn.disabled=false;btn.textContent='⬇ Tạo ZIP GitHub'}}
 }
 
 function masterEnsureOrder(openAfter=false){
@@ -40769,3 +40819,5 @@ body.warehouse-page-active .main>.topbar>.actions{
 <!-- N-TRAI MASTER V187 • CLICK DEVICE NAME TO RENAME LOCALLY • CHILD V83 -->
 
 <!-- N-TRAI MASTER V191 • SMART ORDER USAGE = VERIFIED ONLY • NO FAKE 0B -->
+
+<!-- N-TRAI MASTER V192 • ORDER CHILD CUSTOM LOGO + GITHUB ZIP -->
