@@ -1,6 +1,7 @@
-N-TRAI MASTER V194
-- Audit lại luồng Master: Enter đăng nhập, khóa/mở, hết hạn, online, Smart Order managed gateway, xuất app Order con, logo/icon và cache PWA.
-- Thêm % dung lượng rõ ràng cho từng app. App nhỏ không còn bị làm tròn thành 0%.
-- Nếu chưa đo đủ App + Database + Hình ảnh, hiển thị “≥ x% đã đo”, không giả là tổng dung lượng đã chính xác.
-- Smart Order khóa online qua Master Control. Để khóa có hiệu lực, khách phải mở Smart Order qua cổng /smart-order-managed/ hoặc app con do Master xuất.
-- Cache PWA V194.
+N-TRAI MASTER V195
+- Khóa/Mở app áp dụng online ngay khi đổi Trạng thái.
+- Server phải trả đúng locked/active mới báo thành công; nếu lệch sẽ báo lỗi.
+- Khi Lưu, Master đọc ngược server xác nhận trạng thái lần nữa.
+- App bị khóa hoặc hết hạn hiển thị: “Tài khoản đã bị khóa hoặc đã hết hạn sử dụng. Vui lòng liên hệ nhà cung cấp.”
+- Smart Order managed kiểm tra trạng thái mỗi 5 giây + khi quay lại tab.
+- Giữ xuất App Order con có logo riêng và % dung lượng từng app của V194.
