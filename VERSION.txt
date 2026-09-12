@@ -1,7 +1,6 @@
-N-TRAI MASTER V192
-- Smart Order V26: Tạo / Xuất App Order con thành ZIP GitHub đầy đủ.
-- Thêm tải logo khách/NPP khi tạo app con.
-- Tự tạo icon-192.png và icon-512.png từ logo; nếu không có logo sẽ tạo icon chữ viết tắt.
-- ZIP app con gồm index.html, manifest.webmanifest, sw.js, icon-192.png, icon-512.png, VERSION.txt.
-- App con có manifest/PWA riêng, icon riêng, trang mở thương hiệu riêng và liên kết tới lõi Smart Order V26.
-- Giữ cơ chế dung lượng xác minh của V191: chưa đo thì ghi Chưa kết nối, không báo 0 B giả.
+N-TRAI MASTER V194
+- Audit lại luồng Master: Enter đăng nhập, khóa/mở, hết hạn, online, Smart Order managed gateway, xuất app Order con, logo/icon và cache PWA.
+- Thêm % dung lượng rõ ràng cho từng app. App nhỏ không còn bị làm tròn thành 0%.
+- Nếu chưa đo đủ App + Database + Hình ảnh, hiển thị “≥ x% đã đo”, không giả là tổng dung lượng đã chính xác.
+- Smart Order khóa online qua Master Control. Để khóa có hiệu lực, khách phải mở Smart Order qua cổng /smart-order-managed/ hoặc app con do Master xuất.
+- Cache PWA V194.
