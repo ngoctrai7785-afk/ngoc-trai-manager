@@ -1,7 +1,7 @@
-N-TRAI MASTER V195
-- Khóa/Mở app áp dụng online ngay khi đổi Trạng thái.
-- Server phải trả đúng locked/active mới báo thành công; nếu lệch sẽ báo lỗi.
-- Khi Lưu, Master đọc ngược server xác nhận trạng thái lần nữa.
-- App bị khóa hoặc hết hạn hiển thị: “Tài khoản đã bị khóa hoặc đã hết hạn sử dụng. Vui lòng liên hệ nhà cung cấp.”
-- Smart Order managed kiểm tra trạng thái mỗi 5 giây + khi quay lại tab.
-- Giữ xuất App Order con có logo riêng và % dung lượng từng app của V194.
+N-TRAI MASTER V196
+- Bảo mật Khóa/Mở: Master ghi trạng thái bằng Admin Key riêng; app khách chỉ có quyền đọc.
+- Thu hồi quyền ghi công khai của manager_app_control_set trên Supabase.
+- Đổi Trạng thái vẫn áp dụng online ngay và đọc ngược server xác nhận locked/active.
+- Nếu Admin Key trên máy không khớp, Master báo rõ để khôi phục danh sách Master; không tự mở quyền yếu.
+- Smart Order managed kiểm tra khóa/hết hạn mỗi 5 giây và khi quay lại tab.
+- Giữ xuất App Order con có logo riêng và % dung lượng từng app.

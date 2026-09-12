@@ -27748,7 +27748,7 @@ async function masterCreateOrderChildFromModal(){
     if(!appId)throw new Error('Nhập APP ID cho app Order con.');if(!unitName)throw new Error('Nhập tên NPP / Đơn vị.');if(masterRegistryLoad().some(x=>String(x.appId).toUpperCase()===appId))throw new Error('APP ID này đã có trong Master. Hãy dùng mã khác.');
     const rec={appId,appName,unitName,nppId,appType:'order-child',parentAppId:'SMART_ORDER_NGOC_TRAI',online:true,status:'active',expiresAt:'',unlimited:true,publicUrl:'',managerUrl:'',modules:MASTER_ORDER_MODULES.map(x=>x[0]),createdAt:masterIsoNow(),targetVersion:MASTER_ORDER_VERSION,version:MASTER_ORDER_VERSION,remote:{last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:'active'},externalManaged:true,externalKey:'smart-order-child',fileBytes:0,dataBytes:0,databaseBytes:0,imageBytes:0,fileMeasured:true,databaseMeasured:false,imageMeasured:false,usageStatus:'partial',usageApiUrl:'',quotaBytes:quota,linkedNppCount:1,linkedNpps:[unitName],hasCustomLogo:!!masterOrderChildLogoDataUrl,notes:'App Order con tạo từ Smart Order V'+MASTER_ORDER_VERSION+' • icon riêng '+(masterOrderChildLogoDataUrl?'theo logo khách':'tự tạo chữ viết tắt')+'.'};
     rec.publicUrl=masterOrderChildUrl(rec,false);rec.managerUrl=masterOrderChildUrl(rec,true);
-    const html=masterOrderLauncherHtml(rec),icon192=await masterOrderIconBlob(192,masterOrderChildLogoDataUrl,unitName),icon512=await masterOrderIconBlob(512,masterOrderChildLogoDataUrl,unitName),manifest=masterOrderManifest(rec),sw=masterOrderServiceWorker(rec),version='SMART ORDER '+unitName+'\nAPP ID: '+appId+'\nCORE V'+MASTER_ORDER_VERSION+'\nXuất bởi N-TRAI MASTER V195\n';
+    const html=masterOrderLauncherHtml(rec),icon192=await masterOrderIconBlob(192,masterOrderChildLogoDataUrl,unitName),icon512=await masterOrderIconBlob(512,masterOrderChildLogoDataUrl,unitName),manifest=masterOrderManifest(rec),sw=masterOrderServiceWorker(rec),version='SMART ORDER '+unitName+'\nAPP ID: '+appId+'\nCORE V'+MASTER_ORDER_VERSION+'\nXuất bởi N-TRAI MASTER V196\n';
     const zip=await masterOrderBuildZip([['index.html',html],['manifest.webmanifest',manifest],['sw.js',sw],['icon-192.png',icon192],['icon-512.png',icon512],['VERSION.txt',version]]);rec.fileBytes=zip.size;masterRegistryUpsert(rec);
     const parent=masterRegistryLoad().find(x=>x.appId==='SMART_ORDER_NGOC_TRAI');if(parent){const arr=Array.from(new Set([...(parent.linkedNpps||[]),unitName]));parent.linkedNpps=arr;parent.linkedNppCount=arr.length;masterRegistryUpsert(parent)}
     const url=URL.createObjectURL(zip),a=document.createElement('a');a.href=url;a.download=(appId+'_SMART_ORDER_V'+MASTER_ORDER_VERSION+'_GITHUB.zip').replace(/[^A-Z0-9_.-]/gi,'_');document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
@@ -27832,13 +27832,22 @@ async function masterEnsureRemote(rec){
 }
 async function masterControlRemoteSet(rec){
   if(!rec?.online)return null;
-  await masterEnsureRemote(rec);
+  /* V196 SECURITY: quyền ghi trạng thái chỉ dùng Admin Key riêng của Master.
+     App khách/gateway chỉ được đọc trạng thái bằng sync PIN, không thể tự mở khóa. */
+  await masterLicenseEnsureAdmin(rec);
   const custom=String(rec.customModules||'').split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);
-  return await syncRpc('manager_app_control_set',{
-    p_app_id:masterControlAppId(rec),p_pin:rec.syncPin,p_status:rec.status||'active',p_expires_at:rec.expiresAt||null,
-    p_app_name:rec.appName||'',p_unit_name:rec.unitName||'',p_target_version:Number(rec.targetVersion||APP_VERSION_CURRENT),
-    p_modules:Array.isArray(rec.modules)?rec.modules:[],p_custom_modules:custom,p_public_url:rec.publicUrl||'',p_notes:rec.notes||''
-  });
+  try{
+    return await syncRpc('manager_app_control_admin_set_v2',{
+      p_app_id:masterControlAppId(rec),p_admin_key:rec.licenseAdminKey,p_status:rec.status||'active',p_expires_at:rec.unlimited?null:(rec.expiresAt||null),
+      p_app_name:rec.appName||'',p_unit_name:rec.unitName||'',p_target_version:Number(rec.targetVersion||APP_VERSION_CURRENT),
+      p_modules:Array.isArray(rec.modules)?rec.modules:[],p_custom_modules:custom,p_public_url:rec.publicUrl||'',p_notes:rec.notes||'',
+      p_origin_lock_enabled:false,p_allowed_url:''
+    });
+  }catch(err){
+    const m=String(err?.message||err);
+    if(m.includes('INVALID_ADMIN_KEY'))throw new Error('Mã quản trị Master Control không khớp trên máy này. Hãy dùng bản sao lưu danh sách Master từ máy đã cấp app trước đó.');
+    throw err;
+  }
 }
 async function masterControlRemoteGet(rec){
   if(!rec?.online)return null;
