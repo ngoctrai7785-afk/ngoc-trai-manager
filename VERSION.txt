@@ -1,7 +1,6 @@
-N-TRAI MASTER V187
-Feature: click device name to assign a friendly name
-Device ID is unchanged
-Friendly name stored in Master registry/local data
-Blank name restores original browser/device label
-Child template unchanged: An Bùi V83 / core 259
-JS syntax errors: 0
+N-TRAI MASTER V191
+- Smart Order V26 không còn hiển thị 0 B như thể đã đo thật.
+- Tách trạng thái dung lượng: App / Database / Hình ảnh; phần chưa nối hiển thị "chưa kết nối".
+- Nút "Kiểm tra dung lượng thật" thử đo file app online và đọc Usage API nếu có.
+- Chỉ tính Tổng/% khi cả 3 phần đã được xác minh.
+- Giữ chức năng Tạo / Xuất App Order con của V190.

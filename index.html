@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <meta charset="utf-8">
-<meta name="app-version" content="187">
+<meta name="app-version" content="191">
 <meta name="app-build" content="an-bui-v259-v16-payment-enter-flow">
 <title>N-TRAI MANAGER V187</title>
 <style>
@@ -11748,6 +11748,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
           <div><label>Dung lượng file app (MB)</label><input id="masterNppFileMb" type="number" min="0" step="0.01" placeholder="0"></div>
           <div><label>Dữ liệu đang dùng (MB)</label><input id="masterNppDataMb" type="number" min="0" step="0.01" placeholder="0"><div class="small">Nếu app có báo online, Master ưu tiên số online mới nhất.</div></div>
           <div><label>Giới hạn dung lượng (MB)</label><input id="masterNppQuotaMb" type="number" min="1" step="1" value="500"></div>
+          <div id="masterOrderUsageApiWrap" class="full" style="display:none"><label>API dung lượng Smart Order</label><div class="master-file-measure"><input id="masterOrderUsageApi" placeholder="https://.../usage" style="min-width:360px;flex:1"><button class="btn" type="button" onclick="masterRefreshOrderUsageSelected()">↻ Kiểm tra dung lượng thật</button></div><div id="masterOrderUsageStatus" class="small">Chưa kết nối nguồn dung lượng. Master sẽ không hiển thị 0 B như thể đã đo.</div></div>
           <div id="masterAnBuiSyncPinWrap" style="display:none"><label>Mã đồng bộ An Bùi</label><input id="masterAnBuiSyncPin" inputmode="numeric" maxlength="12" placeholder="6–12 số"><div class="small">Chỉ dùng để MASTER đọc dung lượng & trạng thái sao lưu.</div></div>
           <div><label>Đo trực tiếp file HTML</label><div class="master-file-measure"><input id="masterNppMeasureFile" type="file" accept="text/html,.html" onchange="masterMeasureAppFile(event)"><span id="masterNppMeasureResult" class="small"></span></div></div>
           <div class="full"><label>Link online của app NPP</label><input id="masterNppPublicUrl" placeholder="https://..."></div>
@@ -11774,6 +11775,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
         <div id="masterNppBackupInfo" class="master-template-note" style="margin-top:10px"></div>
         <div class="master-npp-actions">
           <button class="btn primary" type="button" onclick="masterSaveSelectedApp()">💾 Lưu / áp dụng online</button>
+          <button id="masterOrderChildBtn" class="btn primary" type="button" onclick="masterOpenOrderChildBuilder()" style="display:none">🛒 Tạo / Xuất App Order con</button>
           <button class="btn" type="button" onclick="masterQuickRenew(1)">+1 tháng</button>
           <button class="btn" type="button" onclick="masterQuickRenew(12)">+12 tháng</button>
           <button class="btn ok" type="button" onclick="masterSetUnlimited()">∞ Không giới hạn</button>
@@ -12397,7 +12399,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":187,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":191,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=259;
 const MASTER_CHILD_TEMPLATE_RELEASE='V83';
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
@@ -27405,7 +27407,18 @@ const MASTER_STANDARD_MODULES=[
   ['expenses','💸 Chi phí'],['warehouse','🏬 Kho/Hàng hóa'],['customers','👥 Khách hàng'],['debts','💳 Công nợ'],
   ['employees','🧑‍💼 Nhân viên'],['suppliers','🚚 Nhà cung cấp'],['reports','📊 Báo cáo']
 ];
-function managedControlEnabled(){return !!APP_CONFIG.managedByMaster && !!APP_CONFIG.syncEnabled}
+const MANAGED_CONTROL_CACHE_KEY='manager_control_cache_'+APP_ID.toLowerCase();
+const MANAGED_CONTROL_OK_AT_KEY='manager_control_ok_at_'+APP_ID.toLowerCase();
+const MANAGED_CONTROL_OFFLINE_GRACE_MS=24*60*60*1000;
+function managedControlEnabled(){return !!APP_CONFIG.managedByMaster}
+function managedControlCacheSave(c){try{localStorage.setItem(MANAGED_CONTROL_CACHE_KEY,JSON.stringify(c||{}));localStorage.setItem(MANAGED_CONTROL_OK_AT_KEY,String(Date.now()))}catch(_){}}
+function managedControlCacheLoad(){try{return JSON.parse(localStorage.getItem(MANAGED_CONTROL_CACHE_KEY)||'null')}catch(_){return null}}
+function managedControlLastOkAt(){try{return Number(localStorage.getItem(MANAGED_CONTROL_OK_AT_KEY)||0)||0}catch(_){return 0}}
+function managedControlOfflineBlock(){
+  const overlay=$('managedAppOverlay'),title=$('managedAppTitle'),msg=$('managedAppMessage'),aid=$('managedAppId');
+  if(aid)aid.textContent='APP ID: '+APP_ID;
+  if(overlay){overlay.classList.add('show');if(title)title.textContent='Cần kết nối Master';if(msg)msg.textContent='App này do Master quản lý. Thiết bị đã quá 24 giờ chưa xác nhận trạng thái hoặc chưa từng kết nối Master. Hãy kết nối Internet để kiểm tra quyền sử dụng.'}
+}
 function managedControlExpired(c){
   const d=String(c?.expires_at||'').slice(0,10); if(!d)return false;
   const now=new Date(); const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
@@ -27436,21 +27449,20 @@ function managedControlApply(c){
   if(typeof applyPermissions==='function')applyPermissions();
 }
 async function managedControlRefresh(silent=false){
-  if(location.protocol==='file:')return null;
-  if(!managedControlEnabled() || !syncPin)return null;
+  if(!managedControlEnabled())return null;
+  if(!syncPin){managedControlOfflineBlock();return null}
   try{
     const c=await syncRpc('manager_app_control_get',{p_app_id:APP_ID,p_pin:syncPin,p_client_version:APP_VERSION_CURRENT,p_public_url:(location.protocol==='http:'||location.protocol==='https:')?location.href.split('#')[0]:''});
-    managedControlApply(c);
-    return c;
+    managedControlCacheSave(c);managedControlApply(c);return c;
   }catch(err){
     if(!silent)console.warn('Không kiểm tra được trạng thái Master Control:',err);
-    /* Mất mạng không tự khóa app; giữ trạng thái lần cuối. */
-    return null;
+    const cached=managedControlCacheLoad(),age=Date.now()-managedControlLastOkAt();
+    if(cached && age>=0 && age<=MANAGED_CONTROL_OFFLINE_GRACE_MS){managedControlApply(cached);return cached}
+    managedControlOfflineBlock();return null;
   }
 }
 function startManagedControlWatch(){
   if(managedControlTimer)clearInterval(managedControlTimer);
-  if(location.protocol==='file:')return;
   if(!managedControlEnabled())return;
   managedControlTimer=setInterval(()=>managedControlRefresh(true),60000);
 }
@@ -27546,22 +27558,156 @@ function masterRegistrySelected(){return masterRegistryLoad().find(x=>x.appId===
 function masterBytesText(n){n=Number(n)||0;if(n<1024)return n+' B';if(n<1024*1024)return (n/1024).toFixed(1)+' KB';return (n/1024/1024).toFixed(2)+' MB'}
 function masterMbBytes(v){return Math.max(0,Number(v)||0)*1024*1024}
 function masterStorageInfo(r){
+  const isOrder=masterIsOrder(r);
   const remoteBytes=Number(r?.remote?.last_data_bytes||0);
-  const dataBytes=remoteBytes>0?remoteBytes:Number(r?.dataBytes||0);
+  const databaseBytes=Number(r?.databaseBytes||0) || (remoteBytes>0?remoteBytes:Number(r?.dataBytes||0));
+  const imageBytes=Number(r?.imageBytes||r?.storageBytes||0);
   const fileBytes=Number(r?.fileBytes||0);
+  const fileKnown=!isOrder || !!r?.fileMeasured || fileBytes>0 || r?.usageStatus==='ok';
+  const databaseKnown=!isOrder || !!r?.databaseMeasured || r?.usageStatus==='ok';
+  const imageKnown=!isOrder || !!r?.imageMeasured || r?.usageStatus==='ok';
+  const dataBytes=databaseBytes+imageBytes;
   const total=fileBytes+dataBytes;
   const quota=Number(r?.quotaBytes||0)||500*1024*1024;
-  const pct=quota>0?Math.min(999,Math.round(total/quota*100)):0;
-  return {fileBytes,dataBytes,total,quota,pct,remoteBytes};
+  const allKnown=fileKnown&&databaseKnown&&imageKnown;
+  const pct=allKnown&&quota>0?Math.min(999,Math.round(total/quota*100)):null;
+  return {fileBytes,databaseBytes,imageBytes,dataBytes,total,quota,pct,remoteBytes,fileKnown,databaseKnown,imageKnown,allKnown};
 }
 function masterStorageHtml(r){
-  const x=masterStorageInfo(r), cls=x.pct>=90?'danger':(x.pct>=70?'warn':'');
-  return `<div class="master-storage"><div class="master-storage-main">${masterBytesText(x.total)} / ${masterBytesText(x.quota)} (${x.pct}%)</div><div class="master-storage-bar"><div class="master-storage-fill ${cls}" style="width:${Math.min(100,x.pct)}%"></div></div><div class="master-storage-detail">File ${masterBytesText(x.fileBytes)} • Dữ liệu ${masterBytesText(x.dataBytes)}</div></div>`;
+  const x=masterStorageInfo(r);
+  if(masterIsOrder(r)&&!x.allKnown){
+    const parts=[`App ${x.fileKnown?masterBytesText(x.fileBytes):'chưa đo'}`,`Database ${x.databaseKnown?masterBytesText(x.databaseBytes):'chưa kết nối'}`,`Hình ảnh ${x.imageKnown?masterBytesText(x.imageBytes):'chưa kết nối'}`];
+    return `<div class="master-storage"><div class="master-storage-main">Chưa kết nối dung lượng thật</div><div class="master-storage-bar"><div class="master-storage-fill" style="width:0%"></div></div><div class="master-storage-detail">${parts.join(' • ')}</div></div>`;
+  }
+  const cls=x.pct>=90?'danger':(x.pct>=70?'warn':'');
+  return `<div class="master-storage"><div class="master-storage-main">${masterBytesText(x.total)} / ${masterBytesText(x.quota)} (${x.pct??0}%)</div><div class="master-storage-bar"><div class="master-storage-fill ${cls}" style="width:${Math.min(100,x.pct??0)}%"></div></div><div class="master-storage-detail">App ${masterBytesText(x.fileBytes)} • Database ${masterBytesText(x.databaseBytes)} • Hình ảnh ${masterBytesText(x.imageBytes)}</div></div>`;
+}
+async function masterOrderTryMeasureFile(rec){
+  const url=String(rec?.publicUrl||MASTER_ORDER_URL||'').trim(); if(!url)return false;
+  try{
+    const u=new URL(url,location.href);u.searchParams.set('_sizecheck',Date.now());
+    const res=await fetch(u.href,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);
+    const buf=await res.arrayBuffer();rec.fileBytes=buf.byteLength;rec.fileMeasured=true;return true;
+  }catch(e){console.warn('Không đo được file Smart Order do CORS/hosting:',e);return false}
+}
+async function masterOrderUsageFetch(rec){
+  if(!masterIsOrder(rec))return rec;
+  rec.usageCheckedAt=new Date().toISOString();
+  const api=String(rec.usageApiUrl||'').trim();
+  let apiOk=false;
+  if(api){
+    try{
+      const res=await fetch(api,{cache:'no-store',headers:{'Accept':'application/json'}});if(!res.ok)throw new Error('HTTP '+res.status);
+      const j=await res.json();
+      const pick=(...ks)=>{for(const k of ks)if(j[k]!==undefined&&j[k]!==null&&Number.isFinite(Number(j[k])))return Number(j[k]);return null};
+      const a=pick('appBytes','fileBytes','app_bytes'),d=pick('databaseBytes','dataBytes','database_bytes'),im=pick('imageBytes','storageBytes','image_bytes','storage_bytes'),q=pick('quotaBytes','quota_bytes');
+      if(a!==null){rec.fileBytes=a;rec.fileMeasured=true} if(d!==null){rec.databaseBytes=d;rec.dataBytes=d;rec.databaseMeasured=true} if(im!==null){rec.imageBytes=im;rec.imageMeasured=true} if(q!==null&&q>0)rec.quotaBytes=q;
+      apiOk=!!(rec.databaseMeasured&&rec.imageMeasured);
+    }catch(e){rec.usageError=String(e?.message||e);console.warn('API dung lượng Smart Order:',e)}
+  }
+  if(!rec.fileMeasured)await masterOrderTryMeasureFile(rec);
+  rec.usageStatus=(rec.fileMeasured&&rec.databaseMeasured&&rec.imageMeasured)?'ok':((rec.fileMeasured||apiOk)?'partial':'unconnected');
+  return rec;
+}
+async function masterRefreshOrderUsageSelected(){
+  const rec=masterRegistrySelected();if(!rec||!masterIsOrder(rec))return alert('Hãy chọn Smart Order trước.');
+  const inp=document.getElementById('masterOrderUsageApi');if(inp)rec.usageApiUrl=String(inp.value||'').trim();
+  const st=document.getElementById('masterOrderUsageStatus');if(st)st.textContent='Đang kiểm tra dung lượng thật...';
+  await masterOrderUsageFetch(rec);masterRegistryUpsert(rec);renderMasterControl();renderMasterNpp();
+  const x=masterStorageInfo(rec);
+  if(st)st.textContent=x.allKnown?'Đã đọc dung lượng thật lúc '+new Date().toLocaleString('vi-VN'):'Chưa đọc đủ Database/Hình ảnh. Cần API dung lượng của đúng Smart Order đang sử dụng.';
+  toast(x.allKnown?'Đã cập nhật dung lượng Smart Order':'Đã kiểm tra; chưa nối đủ nguồn dung lượng');
 }
 function masterLicenseMakeKey(){
   try{const a=new Uint8Array(18);crypto.getRandomValues(a);return 'MK_'+Array.from(a,x=>x.toString(16).padStart(2,'0')).join('')}catch(_){return 'MK_'+Math.random().toString(36).slice(2)+Date.now().toString(36)+Math.random().toString(36).slice(2)}
 }
 function masterControlAppId(rec){return String(rec?.remoteAppId||rec?.appId||'').trim().toUpperCase()}
+
+const MASTER_ORDER_VERSION='26';
+const MASTER_ORDER_URL='https://smart-order-ngoc-trai.ngoctrai7785.chatgpt.site/smart-order-v26';
+const MASTER_ORDER_MODULES=[
+  ['orders','🛒 Đơn hàng'],['products','📦 Sản phẩm'],['categories','🏷️ Nhóm hàng'],
+  ['promotions','🎁 Khuyến mãi'],['customers','👥 Khách hàng'],['reports','📊 Báo cáo'],['qr','▦ QR / Link đặt hàng']
+];
+function masterIsOrder(rec){return rec?.externalKey==='smart-order'||rec?.externalKey==='smart-order-child'||rec?.appType==='order-shared'||rec?.appType==='order-child'||rec?.appId==='SMART_ORDER_NGOC_TRAI'}
+function masterOrderTenantId(value){
+  return String(value||'order').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/[^a-z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'order';
+}
+function masterOrderChildUrl(rec,admin=false){
+  const u=new URL(MASTER_ORDER_URL,location.href);
+  u.searchParams.set('tenant',masterOrderTenantId(rec.appId));
+  u.searchParams.set('unit',rec.unitName||rec.appName||rec.appId);
+  u.searchParams.set('npp',rec.nppId||'npp1');
+  u.searchParams.set('mode',admin?'admin':'order');
+  u.searchParams.set('view',admin?'admin':'customer');
+  return u.href;
+}
+function masterOrderLauncherHtml(rec){
+  const data={appId:rec.appId,appName:rec.appName,unitName:rec.unitName,coreUrl:MASTER_ORDER_URL,version:MASTER_ORDER_VERSION,nppId:rec.nppId||'npp1'};
+  const title=String(rec.appName||rec.unitName||'Smart Order').replace(/[<>&]/g,'');
+  return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b4f5e"><title>'+title+'</title><style>body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#eef4f7;color:#17324d;display:grid;place-items:center;min-height:100vh}.box{max-width:480px;margin:20px;padding:28px;border-radius:18px;background:#fff;box-shadow:0 18px 50px #163b6b26;text-align:center}a{display:inline-block;margin:6px;padding:12px 18px;border-radius:10px;background:#0b6674;color:#fff;text-decoration:none;font-weight:700}</style></head><body><div class="box"><h2>'+title+'</h2><p>Smart Order V'+MASTER_ORDER_VERSION+'</p><p><a id="customer">Đặt hàng</a><a id="admin">Quản lý</a></p></div><script>const C='+JSON.stringify(data)+';function link(admin){const u=new URL(C.coreUrl);u.searchParams.set("tenant",String(C.appId).toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9_-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,48)||"order");u.searchParams.set("unit",C.unitName||C.appName);u.searchParams.set("npp",C.nppId||"npp1");u.searchParams.set("mode",admin?"admin":"order");u.searchParams.set("view",admin?"admin":"customer");return u.href}document.getElementById("customer").href=link(false);document.getElementById("admin").href=link(true);const q=new URLSearchParams(location.search);if(q.get("autostart")!=="0")location.replace(link(q.get("mode")==="admin"||q.get("view")==="admin"));<\/script></body></html>';
+}
+function masterOpenOrderChildBuilder(){
+  const parent=masterRegistrySelected();
+  if(!parent||parent.appType!=='order-shared')return alert('Hãy chọn SMART ORDER NGỌC TRAI trước.');
+  showModal(`<h3>🛒 Tạo / Xuất App Order con</h3>
+    <div class="small">Mỗi NPP có APP ID và tenant riêng, dùng chung lõi Smart Order V${MASTER_ORDER_VERSION}. App con sau khi tạo sẽ tự xuất file HTML và được thêm vào danh sách Master.</div>
+    <div class="form-grid" style="margin-top:12px">
+      <div><label>APP ID *</label><input id="orderChildAppId" placeholder="VD: ORDER_ABC01"></div>
+      <div><label>Tên App *</label><input id="orderChildAppName" value="SMART ORDER"></div>
+      <div class="full"><label>Tên NPP / Đơn vị *</label><input id="orderChildUnitName" placeholder="VD: NPP An Phát"></div>
+      <div><label>Mã NPP</label><input id="orderChildNppId" value="npp1" placeholder="npp1"></div>
+      <div><label>Hạn mức dữ liệu (MB)</label><input id="orderChildQuota" type="number" min="1" value="500"></div>
+    </div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Hủy</button><button class="btn primary" onclick="masterCreateOrderChildFromModal()">⬇ Tạo & xuất app con</button></div>`);
+  setTimeout(()=>document.getElementById('orderChildAppId')?.focus(),50);
+}
+function masterCreateOrderChildFromModal(){
+  const appId=String(document.getElementById('orderChildAppId')?.value||'').trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'_');
+  const appName=String(document.getElementById('orderChildAppName')?.value||'SMART ORDER').trim();
+  const unitName=String(document.getElementById('orderChildUnitName')?.value||'').trim();
+  const nppId=String(document.getElementById('orderChildNppId')?.value||'npp1').trim()||'npp1';
+  const quota=Math.max(1,Number(document.getElementById('orderChildQuota')?.value||500))*1024*1024;
+  if(!appId)return alert('Nhập APP ID cho app Order con.');
+  if(!unitName)return alert('Nhập tên NPP / Đơn vị.');
+  if(masterRegistryLoad().some(x=>String(x.appId).toUpperCase()===appId))return alert('APP ID này đã có trong Master. Hãy dùng mã khác.');
+  const rec={appId,appName,unitName,nppId,appType:'order-child',parentAppId:'SMART_ORDER_NGOC_TRAI',online:true,status:'active',expiresAt:'',unlimited:true,publicUrl:'',managerUrl:'',modules:MASTER_ORDER_MODULES.map(x=>x[0]),createdAt:masterIsoNow(),targetVersion:MASTER_ORDER_VERSION,version:MASTER_ORDER_VERSION,remote:{last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:'active'},externalManaged:true,externalKey:'smart-order-child',fileBytes:0,dataBytes:0,databaseBytes:0,imageBytes:0,fileMeasured:true,databaseMeasured:false,imageMeasured:false,usageStatus:'partial',usageApiUrl:'',quotaBytes:quota,linkedNppCount:1,linkedNpps:[unitName],notes:'App Order con tạo từ Smart Order V'+MASTER_ORDER_VERSION+'.'};
+  rec.publicUrl=masterOrderChildUrl(rec,false);rec.managerUrl=masterOrderChildUrl(rec,true);
+  const html=masterOrderLauncherHtml(rec);rec.fileBytes=new Blob([html]).size;
+  masterRegistryUpsert(rec);
+  const parent=masterRegistryLoad().find(x=>x.appId==='SMART_ORDER_NGOC_TRAI');
+  if(parent){const arr=Array.from(new Set([...(parent.linkedNpps||[]),unitName]));parent.linkedNpps=arr;parent.linkedNppCount=arr.length;masterRegistryUpsert(parent)}
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(appId+'_SMART_ORDER_V'+MASTER_ORDER_VERSION+'.html').replace(/[^A-Z0-9_.-]/gi,'_');document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);
+  masterSelectedAppId=appId;closeModal();renderMasterControl();renderMasterNpp();goMasterPage('masterNpp');toast('Đã tạo & xuất App Order con cho '+unitName);
+}
+
+function masterEnsureOrder(openAfter=false){
+  if(!APP_CONFIG.isMaster)return null;
+  let list=masterRegistryLoad();
+  let rec=list.find(x=>masterIsOrder(x));
+  if(!rec){
+    rec={appId:'SMART_ORDER_NGOC_TRAI',appName:'SMART ORDER NGỌC TRAI',unitName:'NPP Gia Dụng Ngọc Trai',appType:'order-shared',online:true,syncPin:'',remoteAppId:'',managerPin:'',modules:MASTER_ORDER_MODULES.map(x=>x[0]),status:'active',expiresAt:'',unlimited:true,publicUrl:MASTER_ORDER_URL,customModules:'Một app Order chung cho nhiều NPP',notes:'Smart Order V26 • App đặt hàng B2B. Master theo dõi phiên bản, trạng thái, dung lượng file/dữ liệu, hạn mức và số NPP liên kết.',createdAt:masterIsoNow(),targetVersion:MASTER_ORDER_VERSION,version:MASTER_ORDER_VERSION,remote:{last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:'active'},externalManaged:true,externalKey:'smart-order',linkedNppCount:1,linkedNpps:['NPP Gia Dụng Ngọc Trai'],fileBytes:0,dataBytes:0,databaseBytes:0,imageBytes:0,fileMeasured:false,databaseMeasured:false,imageMeasured:false,usageStatus:'unconnected',usageApiUrl:'',quotaBytes:500*1024*1024,backupInfo:null,licenseAdminKey:'',licenseEnabled:false,licenseDeviceLimit:0,license:null};
+    masterRegistryUpsert(rec);if(typeof toast==='function')toast('Đã đưa Smart Order V26 vào Master');
+  }else{
+    let changed=false;
+    if(rec.appName!=='SMART ORDER NGỌC TRAI'){rec.appName='SMART ORDER NGỌC TRAI';changed=true}
+    if(rec.version!==MASTER_ORDER_VERSION){rec.version=MASTER_ORDER_VERSION;changed=true}
+    if(rec.targetVersion!==MASTER_ORDER_VERSION){rec.targetVersion=MASTER_ORDER_VERSION;changed=true}
+    if(!rec.publicUrl){rec.publicUrl=MASTER_ORDER_URL;changed=true}
+    if(rec.externalKey!=='smart-order'){rec.externalKey='smart-order';changed=true}
+    if(rec.appType!=='order-shared'){rec.appType='order-shared';changed=true}
+    if(!Array.isArray(rec.modules)||!rec.modules.length){rec.modules=MASTER_ORDER_MODULES.map(x=>x[0]);changed=true}
+    if(!Number(rec.quotaBytes)){rec.quotaBytes=500*1024*1024;changed=true}
+    if(typeof rec.unlimited==='undefined'){rec.unlimited=true;changed=true}
+    if(!rec.linkedNppCount){rec.linkedNppCount=1;changed=true}
+    if(!Array.isArray(rec.linkedNpps)||!rec.linkedNpps.length){rec.linkedNpps=['NPP Gia Dụng Ngọc Trai'];changed=true}
+    rec.online=true;
+    rec.remote={...(rec.remote||{}),last_seen_at:rec.remote?.last_seen_at||new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:rec.status||'active'};
+    if(changed)masterRegistryUpsert(rec);
+  }
+  if(openAfter){masterSelectedAppId=rec.appId;renderMasterControl();renderMasterNpp();goMasterPage('masterNpp')}
+  return rec;
+}
 function masterEnsureAnBui(openAfter=false){
   if(!APP_CONFIG.isMaster)return null;
   let list=masterRegistryLoad();
@@ -27680,21 +27826,22 @@ function renderMasterControl(){
   const q=norm($('masterControlSearch')?.value||'');let rows=masterRegistryLoad().filter(r=>!q||norm((r.appId||'')+' '+(r.appName||'')+' '+(r.unitName||'')).includes(q));
   const all=masterRegistryLoad(),active=all.filter(r=>masterStatusView(r)[0]==='active').length,locked=all.filter(r=>['locked','expired'].includes(masterStatusView(r)[0])).length,pending=all.reduce((s,r)=>s+Number(r.license?.pending_count||0),0);
   if($('masterControlSummary'))$('masterControlSummary').textContent=`Tổng ${all.length} app • Hoạt động ${active} • Khóa/Hết hạn ${locked} • Thiết bị chờ duyệt ${pending}`;
-  host.innerHTML=`<table><thead><tr><th>NPP / APP</th><th>Trạng thái</th><th>Máy</th><th>Hạn</th><th>Phiên bản</th><th>Dung lượng</th><th>Thao tác</th></tr></thead><tbody>${rows.map(r=>{const st=masterStatusView(r),rem=r.remote||{},lic=r.license||{},exp=r.unlimited?'∞':(String(lic.expires_at||rem.expires_at||r.expiresAt||'').slice(0,10)||'—'),ver=rem.last_client_version||r.version||'—',versionText=(String(ver)==='—'||String(ver)==='')?'—':'V'+esc(ver),machine=lic.enabled?`${Number(lic.active_count||0)}/${Number(lic.device_limit||r.licenseDeviceLimit||1)}${Number(lic.pending_count||0)?` • <b style="color:#b43c3c">${Number(lic.pending_count)} chờ</b>`:''}`:'—';return `<tr><td><b>${esc(r.unitName||r.appName||'')}</b><div class="master-control-muted">${esc(r.appId)} • ${r.externalManaged?'An Bùi':'App con'}</div></td><td><span class="master-control-status ${st[0]}">${st[1]}</span></td><td>${machine}</td><td>${esc(exp)}</td><td>${versionText}</td><td>${masterStorageHtml(r)}</td><td><div class="master-control-actions"><button class="btn" onclick="masterSelectApp('${esc(r.appId)}')">Quản lý</button>${r.online?`<button class="btn" onclick="masterRefreshOne('${esc(r.appId)}')">↻</button>`:''}</div></td></tr>`}).join('')||'<tr><td colspan="7" style="text-align:center;padding:24px;color:#6f7f8c">Chưa có app con trong danh sách.</td></tr>'}</tbody></table>`;
+  host.innerHTML=`<table><thead><tr><th>NPP / APP</th><th>Trạng thái</th><th>Máy</th><th>Hạn</th><th>Phiên bản</th><th>Dung lượng</th><th>Thao tác</th></tr></thead><tbody>${rows.map(r=>{const st=masterStatusView(r),rem=r.remote||{},lic=r.license||{},exp=r.unlimited?'∞':(String(lic.expires_at||rem.expires_at||r.expiresAt||'').slice(0,10)||'—'),ver=rem.last_client_version||r.version||'—',versionText=(String(ver)==='—'||String(ver)==='')?'—':'V'+esc(ver),machine=lic.enabled?`${Number(lic.active_count||0)}/${Number(lic.device_limit||r.licenseDeviceLimit||1)}${Number(lic.pending_count||0)?` • <b style="color:#b43c3c">${Number(lic.pending_count)} chờ</b>`:''}`:'—';return `<tr><td><b>${esc(r.unitName||r.appName||'')}</b><div class="master-control-muted">${esc(r.appId)} • ${masterIsOrder(r)?'Smart Order V26':(r.externalManaged?'An Bùi':'App con')}</div></td><td><span class="master-control-status ${st[0]}">${st[1]}</span></td><td>${machine}</td><td>${esc(exp)}</td><td>${versionText}</td><td>${masterStorageHtml(r)}</td><td><div class="master-control-actions"><button class="btn" onclick="masterSelectApp('${esc(r.appId)}')">Quản lý</button>${r.online?`<button class="btn" onclick="masterRefreshOne('${esc(r.appId)}')">↻</button>`:''}</div></td></tr>`}).join('')||'<tr><td colspan="7" style="text-align:center;padding:24px;color:#6f7f8c">Chưa có app con trong danh sách.</td></tr>'}</tbody></table>`;
 }
 async function masterSelectApp(id){masterSelectedAppId=id;goMasterPage('masterNpp');const rec=masterRegistrySelected();if(rec?.online){try{await masterRefreshOne(id)}catch(_){}}}
 async function masterRefreshOne(id){
   const list=masterRegistryLoad(),rec=list.find(x=>x.appId===id);if(!rec)return;if(!rec.online)return toast('App này đang để chế độ cục bộ.');
   try{
-    if(rec.externalKey==='an-bui'){const state=await syncRpc('manager_app_get_state',{p_app_id:masterControlAppId(rec),p_pin:rec.syncPin||'12345678'}),data=state?.data||{},settings=data?.settings||{},bytes=new Blob([JSON.stringify(data)]).size;rec.dataBytes=bytes;rec.version='136';rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:rec.version,last_data_bytes:bytes,status:rec.status||'active'};rec.backupInfo={enabled:!!settings.autoBackupEnabled,lastAt:settings.autoBackupLastAt||settings.lastBackupAt||'',lastIso:settings.autoBackupLastIso||'',lastBytes:Number(settings.autoBackupLastBytes)||0,count:Number(settings.autoBackupCount)||0,status:settings.autoBackupStatus||'off',folder:settings.autoBackupDirName||''}}
+    if(masterIsOrder(rec)){rec.version=MASTER_ORDER_VERSION;rec.targetVersion=MASTER_ORDER_VERSION;await masterOrderUsageFetch(rec);rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:rec.status||'active'}}
+    else if(rec.externalKey==='an-bui'){const state=await syncRpc('manager_app_get_state',{p_app_id:masterControlAppId(rec),p_pin:rec.syncPin||'12345678'}),data=state?.data||{},settings=data?.settings||{},bytes=new Blob([JSON.stringify(data)]).size;rec.dataBytes=bytes;rec.version='136';rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:rec.version,last_data_bytes:bytes,status:rec.status||'active'};rec.backupInfo={enabled:!!settings.autoBackupEnabled,lastAt:settings.autoBackupLastAt||settings.lastBackupAt||'',lastIso:settings.autoBackupLastIso||'',lastBytes:Number(settings.autoBackupLastBytes)||0,count:Number(settings.autoBackupCount)||0,status:settings.autoBackupStatus||'off',folder:settings.autoBackupDirName||''}}
     else{rec.remote=await masterControlRemoteGet(rec);if(rec.remote?.public_url&&!rec.publicUrl)rec.publicUrl=rec.remote.public_url}
-    try{await masterLicenseRemoteGet(rec)}catch(e){console.warn('Chưa đọc được cấp phép '+rec.appId,e)}
+    if(!masterIsOrder(rec)){try{await masterLicenseRemoteGet(rec)}catch(e){console.warn('Chưa đọc được cấp phép '+rec.appId,e)}}
     masterRegistryUpsert(rec);renderMasterControl();if(masterSelectedAppId===id)renderMasterNpp();toast('Đã cập nhật '+(rec.unitName||rec.appId));
   }catch(err){console.warn('Không đọc được app:',err);alert('Chưa nhận được trạng thái app. Kiểm tra Internet/mã đồng bộ.\n\n'+(err?.message||err))}
 }
 async function masterRefreshAll(){
   const all=masterRegistryLoad();
-  for(const rec of all){if(!rec.online)continue;try{if(rec.externalKey==='an-bui'){const state=await syncRpc('manager_app_get_state',{p_app_id:masterControlAppId(rec),p_pin:rec.syncPin||'12345678'}),data=state?.data||{};rec.dataBytes=new Blob([JSON.stringify(data)]).size;rec.version='136';rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:rec.version,last_data_bytes:rec.dataBytes,status:rec.status||'active'}}else{rec.remote=await masterControlRemoteGet(rec);if(rec.remote?.public_url&&!rec.publicUrl)rec.publicUrl=rec.remote.public_url}try{await masterLicenseRemoteGet(rec)}catch(e){console.warn('Cấp phép:',e)}masterRegistryUpsert(rec)}catch(e){console.warn('Không kiểm tra được '+rec.appId,e)}}
+  for(const rec of all){if(!rec.online)continue;try{if(masterIsOrder(rec)){rec.version=MASTER_ORDER_VERSION;rec.targetVersion=MASTER_ORDER_VERSION;await masterOrderUsageFetch(rec);rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:rec.status||'active'}}else if(rec.externalKey==='an-bui'){const state=await syncRpc('manager_app_get_state',{p_app_id:masterControlAppId(rec),p_pin:rec.syncPin||'12345678'}),data=state?.data||{};rec.dataBytes=new Blob([JSON.stringify(data)]).size;rec.version='136';rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:rec.version,last_data_bytes:rec.dataBytes,status:rec.status||'active'}}else{rec.remote=await masterControlRemoteGet(rec);if(rec.remote?.public_url&&!rec.publicUrl)rec.publicUrl=rec.remote.public_url}if(!masterIsOrder(rec)){try{await masterLicenseRemoteGet(rec)}catch(e){console.warn('Cấp phép:',e)}}masterRegistryUpsert(rec)}catch(e){console.warn('Không kiểm tra được '+rec.appId,e)}}
   renderMasterControl();if(masterSelectedAppId)renderMasterNpp();toast('Đã kiểm tra danh sách app');
 }
 function renderMasterNpp(){
@@ -27703,23 +27850,24 @@ function renderMasterNpp(){
   $('masterNppId').value=rec.appId;$('masterNppVersion').value='V'+(rec.remote?.last_client_version||rec.version||APP_VERSION_CURRENT);$('masterNppAppName').value=rec.appName||'';$('masterNppUnitName').value=rec.unitName||'';$('masterNppStatus').value=rec.license?.status||rec.remote?.status||rec.status||'active';
   $('masterNppExpires').value=rec.unlimited?'':String(rec.license?.expires_at||rec.remote?.expires_at||rec.expiresAt||'').slice(0,10);$('masterNppPublicUrl').value=rec.publicUrl||rec.remote?.public_url||'';if($('masterNppExpiryNote'))$('masterNppExpiryNote').innerHTML=rec.unlimited?'∞ <b>Không giới hạn thời gian sử dụng</b>':'Chọn ngày hết hạn hoặc bấm “∞ Không giới hạn”.';
   const sx=masterStorageInfo(rec);$('masterNppFileMb').value=(sx.fileBytes/1024/1024).toFixed(3).replace(/\.?0+$/,'');$('masterNppDataMb').value=(sx.dataBytes/1024/1024).toFixed(3).replace(/\.?0+$/,'');$('masterNppQuotaMb').value=Math.round(sx.quota/1024/1024)||500;
-  if($('masterAnBuiSyncPinWrap'))$('masterAnBuiSyncPinWrap').style.display=ext?'':'none';if($('masterAnBuiSyncPin'))$('masterAnBuiSyncPin').value=ext?(rec.syncPin||'12345678'):'';if($('masterNppMeasureResult'))$('masterNppMeasureResult').textContent='';
+  if($('masterOrderUsageApiWrap'))$('masterOrderUsageApiWrap').style.display=masterIsOrder(rec)?'':'none';if($('masterOrderUsageApi'))$('masterOrderUsageApi').value=rec.usageApiUrl||'';if($('masterOrderUsageStatus')&&masterIsOrder(rec)){const ux=masterStorageInfo(rec);$('masterOrderUsageStatus').textContent=ux.allKnown?('Đã kết nối • cập nhật '+(rec.usageCheckedAt?new Date(rec.usageCheckedAt).toLocaleString('vi-VN'):'gần đây')):'Chưa kết nối đủ nguồn dung lượng. Không dùng số 0 B làm dung lượng thật.';}
+  if($('masterAnBuiSyncPinWrap'))$('masterAnBuiSyncPinWrap').style.display=(ext&&!masterIsOrder(rec))?'':'none';if($('masterAnBuiSyncPin'))$('masterAnBuiSyncPin').value=(ext&&!masterIsOrder(rec))?(rec.syncPin||'12345678'):'';if($('masterNppMeasureResult'))$('masterNppMeasureResult').textContent='';
   $('masterNppCustom').value=rec.customModules||((rec.remote?.custom_modules||[]).join('\n'));$('masterNppNotes').value=rec.notes||rec.remote?.notes||'';
-  const selected=new Set(Array.isArray(rec.modules)?rec.modules:[]),moduleSet=ext?new Set(MASTER_STANDARD_MODULES.map(x=>x[0])):selected;$('masterNppModules').innerHTML=MASTER_STANDARD_MODULES.map(([id,label])=>`<label><input type="checkbox" data-master-npp-module="${id}" ${moduleSet.has(id)?'checked':''} ${ext?'disabled':''}>${label}</label>`).join('');
-  if($('masterNppModuleBlock')){const h=$('masterNppModuleBlock').querySelector('h4');if(h)h.textContent=ext?'Module nghiệp vụ An Bùi (chỉ xem)':'Module chuẩn được bật cho NPP'}if($('masterNppUpgradeBtn')){$('masterNppUpgradeBtn').disabled=ext;$('masterNppUpgradeBtn').title=ext?'An Bùi nâng cấp bằng file An Bùi riêng; Master chỉ quản lý quyền sử dụng.':''}
-  if($('masterNppExternalNote')){$('masterNppExternalNote').style.display=ext?'block':'none';$('masterNppExternalNote').innerHTML=ext?'🔐 <b>An Bùi đã nằm trong Master:</b> Master có quyền cấp mật khẩu, số thiết bị, duyệt/khóa máy, hạn dùng và khóa/mở app. Dữ liệu kho, bán hàng, công nợ vẫn thuộc riêng An Bùi.':''}
+  const selected=new Set(Array.isArray(rec.modules)?rec.modules:[]),orderMode=masterIsOrder(rec),defs=orderMode?MASTER_ORDER_MODULES:MASTER_STANDARD_MODULES,moduleSet=ext?new Set(defs.map(x=>x[0])):selected;$('masterNppModules').innerHTML=defs.map(([id,label])=>`<label><input type="checkbox" data-master-npp-module="${id}" ${moduleSet.has(id)?'checked':''} ${ext?'disabled':''}>${label}</label>`).join('');if($('masterOrderChildBtn'))$('masterOrderChildBtn').style.display=(rec.appType==='order-shared')?'':'none';
+  if($('masterNppModuleBlock')){const h=$('masterNppModuleBlock').querySelector('h4');if(h)h.textContent=masterIsOrder(rec)?'Module Smart Order V26 (chỉ xem)':(ext?'Module nghiệp vụ An Bùi (chỉ xem)':'Module chuẩn được bật cho NPP')}if($('masterNppUpgradeBtn')){$('masterNppUpgradeBtn').disabled=ext;$('masterNppUpgradeBtn').title=ext?(masterIsOrder(rec)?'Smart Order V26 nâng cấp bằng mã nguồn Order riêng; Master theo dõi và quản lý hồ sơ.':'An Bùi nâng cấp bằng file An Bùi riêng; Master chỉ quản lý quyền sử dụng.') :''}
+  if($('masterNppExternalNote')){$('masterNppExternalNote').style.display=ext?'block':'none';$('masterNppExternalNote').innerHTML=ext?(masterIsOrder(rec)?(rec.appType==='order-child'?'🛒 <b>App Order con:</b> '+esc(rec.unitName||rec.appName||rec.appId)+' • tenant riêng • dùng chung lõi Smart Order V26.':'🛒 <b>Smart Order V26 đã nằm trong Master:</b> theo dõi trạng thái, phiên bản, link online, dung lượng App / Database / Hình ảnh, hạn mức và NPP liên kết. Bấm <b>Tạo / Xuất App Order con</b> để cấp app cho NPP mới.'):'🔐 <b>An Bùi đã nằm trong Master:</b> Master có quyền cấp mật khẩu, số thiết bị, duyệt/khóa máy, hạn dùng và khóa/mở app. Dữ liệu kho, bán hàng, công nợ vẫn thuộc riêng An Bùi.') :''}
   const rem=rec.remote||{},remoteText=rec.online?`☁ Online • lần kết nối: <b>${rem.last_seen_at?esc(new Date(rem.last_seen_at).toLocaleString('vi-VN')):'chưa có'}</b> • ${masterStorageHtml(rec)}`:`⚪ Cục bộ • ${masterStorageHtml(rec)}`;$('masterNppRemoteInfo').innerHTML=remoteText;
   if($('masterNppBackupInfo')){const b=rec.backupInfo||{},status=b.enabled?(b.status==='ok'?'🟢 Đang tự sao lưu':'🟡 Đã bật – '+esc(b.status||'đang chờ')):'⚪ Sao lưu theo thao tác người dùng';$('masterNppBackupInfo').innerHTML=`<b>💾 Sao lưu:</b> ${status}<br><span class="small">Lần gần nhất: ${esc(b.lastAt||'Chưa có')}${b.folder?' • Thư mục: '+esc(b.folder):''}</span>`}
   masterRenderLicenseBox(rec);
 }
 function masterCollectSelectedForm(){
-  const rec=masterRegistrySelected();if(!rec)return null;rec.appName=$('masterNppAppName')?.value.trim()||rec.appName;rec.unitName=$('masterNppUnitName')?.value.trim()||rec.unitName;rec.status=$('masterNppStatus')?.value||'active';rec.expiresAt=$('masterNppExpires')?.value||'';if(rec.expiresAt)rec.unlimited=false;rec.publicUrl=$('masterNppPublicUrl')?.value.trim()||'';rec.customModules=$('masterNppCustom')?.value.trim()||'';rec.notes=$('masterNppNotes')?.value.trim()||'';rec.fileBytes=masterMbBytes($('masterNppFileMb')?.value||0);
-  if(rec.externalKey==='an-bui'&&$('masterAnBuiSyncPin')){const p=String($('masterAnBuiSyncPin').value||'').trim();if(/^\d{6,12}$/.test(p))rec.syncPin=p}if(!(rec.remote&&Number(rec.remote.last_data_bytes||0)>0))rec.dataBytes=masterMbBytes($('masterNppDataMb')?.value||0);rec.quotaBytes=masterMbBytes($('masterNppQuotaMb')?.value||500)||500*1024*1024;if(!rec.externalManaged){rec.modules=Array.from(document.querySelectorAll('[data-master-npp-module]:checked')).map(x=>x.dataset.masterNppModule);rec.targetVersion=APP_VERSION_CURRENT}
+  const rec=masterRegistrySelected();if(!rec)return null;rec.appName=$('masterNppAppName')?.value.trim()||rec.appName;rec.unitName=$('masterNppUnitName')?.value.trim()||rec.unitName;rec.status=$('masterNppStatus')?.value||'active';rec.expiresAt=$('masterNppExpires')?.value||'';if(rec.expiresAt)rec.unlimited=false;rec.publicUrl=$('masterNppPublicUrl')?.value.trim()||'';rec.customModules=$('masterNppCustom')?.value.trim()||'';rec.notes=$('masterNppNotes')?.value.trim()||'';if(masterIsOrder(rec)){rec.usageApiUrl=String($('masterOrderUsageApi')?.value||rec.usageApiUrl||'').trim();}else{rec.fileBytes=masterMbBytes($('masterNppFileMb')?.value||0);}
+  if(rec.externalKey==='an-bui'&&$('masterAnBuiSyncPin')){const p=String($('masterAnBuiSyncPin').value||'').trim();if(/^\d{6,12}$/.test(p))rec.syncPin=p}if(!masterIsOrder(rec)&&!(rec.remote&&Number(rec.remote.last_data_bytes||0)>0)){rec.databaseBytes=masterMbBytes($('masterNppDataMb')?.value||0);rec.dataBytes=rec.databaseBytes;}rec.quotaBytes=masterMbBytes($('masterNppQuotaMb')?.value||500)||500*1024*1024;if(!rec.externalManaged){rec.modules=Array.from(document.querySelectorAll('[data-master-npp-module]:checked')).map(x=>x.dataset.masterNppModule);rec.targetVersion=APP_VERSION_CURRENT}
   rec.licenseEnabled=!!$('masterLicenseEnabled')?.checked;rec.licenseDeviceLimit=Math.max(1,Math.min(50,Number($('masterLicenseDeviceLimit')?.value)||1));if(!rec.licenseAdminKey)rec.licenseAdminKey=masterLicenseMakeKey();return rec;
 }
 async function masterSaveSelectedApp(){
   const rec=masterCollectSelectedForm();if(!rec)return;const pass=String($('masterLicensePassword')?.value||'').trim();if(pass&&!/^\d{4,8}$/.test(pass))return alert('Mật khẩu mở app phải gồm 4–8 chữ số.');if(rec.licenseEnabled&&!pass&&!(rec.license?.password_set))return alert('Chưa có mật khẩu. Nhập mật khẩu 4–8 số trước khi bật quản lý từ Master.');masterRegistryUpsert(rec);
-  if(rec.online){try{await masterControlRemoteSet(rec);rec.remote=await masterControlRemoteGet(rec);await masterLicenseRemoteSet(rec,pass);masterRegistryUpsert(rec);toast('Đã áp dụng quyền sử dụng cho '+(rec.unitName||rec.appId))}catch(err){return alert('Đã lưu trên Master nhưng chưa áp dụng online:\n'+(err?.message||err))}}else toast('Đã lưu hồ sơ app cục bộ');renderMasterControl();renderMasterNpp();
+  if(rec.online&&!masterIsOrder(rec)){try{await masterControlRemoteSet(rec);rec.remote=await masterControlRemoteGet(rec);await masterLicenseRemoteSet(rec,pass);masterRegistryUpsert(rec);toast('Đã áp dụng quyền sử dụng cho '+(rec.unitName||rec.appId))}catch(err){return alert('Đã lưu trên Master nhưng chưa áp dụng online:\n'+(err?.message||err))}}else if(masterIsOrder(rec)){rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:rec.status||'active'};masterRegistryUpsert(rec);toast('Đã lưu hồ sơ Smart Order V26 trong Master')}else toast('Đã lưu hồ sơ app cục bộ');renderMasterControl();renderMasterNpp();
 }
 function masterAddMonthsISO(base,months){const d=base?new Date(base+'T00:00:00'):new Date();if(isNaN(d))return '';d.setMonth(d.getMonth()+months);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function masterExpiryDateChanged(){const rec=masterRegistrySelected();if(!rec)return;const v=$('masterNppExpires')?.value||'';if(v){rec.unlimited=false;if($('masterNppExpiryNote'))$('masterNppExpiryNote').textContent='Có thời hạn đến '+v}}
@@ -27739,7 +27887,7 @@ function masterImportRegistry(){$('masterRegistryImportFile')?.click()}
 async function masterHandleRegistryImport(event){const f=event.target.files?.[0];event.target.value='';if(!f)return;try{const j=JSON.parse(await f.text());const apps=Array.isArray(j)?j:j.apps;if(!Array.isArray(apps))throw new Error('File không đúng định dạng');masterRegistrySave(apps);renderMasterControl();renderMasterNpp();toast('Đã khôi phục '+apps.length+' app')}catch(e){alert('Không đọc được file danh sách: '+e.message)}}
 
 /* V136: An Bùi nằm trong Master và có lớp cấp phép thương mại riêng. */
-setTimeout(async()=>{try{if(APP_CONFIG.isMaster){await masterRegistryInit();masterEnsureAnBui(false);renderMasterControl();renderMasterNpp();}}catch(e){console.warn('Không khởi tạo được danh sách app con:',e)}},0);
+setTimeout(async()=>{try{if(APP_CONFIG.isMaster){await masterRegistryInit();masterEnsureAnBui(false);masterEnsureOrder(false);renderMasterControl();renderMasterNpp();}}catch(e){console.warn('Không khởi tạo được danh sách app con:',e)}},0);
 
 function normalizeNewAppIdValue(v){
   return String(v||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/Đ/g,'D').replace(/[^A-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,24);
@@ -27851,9 +27999,13 @@ function createNewManagerApp(){
   if(!appId || appId==='MASTER')return alert('Nhập Mã APP riêng, không dùng MASTER.');
   if(!unitName)return alert('Nhập Tên đơn vị / cửa hàng.');
   if(!/^\d{4,8}$/.test(pin))return alert('PIN Quản lý phải gồm 4–8 chữ số.');
-  const syncEnabled=!!$('newAppOnline')?.checked;
-  const initialSyncPin=String($('newAppSyncPin')?.value||'').replace(/\D/g,'');
-  if(syncEnabled && !/^\d{6,12}$/.test(initialSyncPin))return alert('Nhập Mã đồng bộ ban đầu gồm 6–12 chữ số.');
+  const syncEnabled=true; // V189: app tạo từ Master luôn được quản lý online để khóa/hết hạn có hiệu lực
+  let initialSyncPin=String($('newAppSyncPin')?.value||'').replace(/\D/g,'');
+  if(!/^\d{6,12}$/.test(initialSyncPin)){
+    initialSyncPin=String(Math.floor(10000000+Math.random()*90000000));
+    if($('newAppSyncPin'))$('newAppSyncPin').value=initialSyncPin;
+    if($('newAppOnline'))$('newAppOnline').checked=true;
+  }
   const modules=['dashboard',...Array.from(document.querySelectorAll('[data-new-module]:checked')).map(x=>x.dataset.newModule),'settings'];
   const unique=[...new Set(modules)];
   const config={
@@ -40615,3 +40767,5 @@ body.warehouse-page-active .main>.topbar>.actions{
 </script>
 
 <!-- N-TRAI MASTER V187 • CLICK DEVICE NAME TO RENAME LOCALLY • CHILD V83 -->
+
+<!-- N-TRAI MASTER V191 • SMART ORDER USAGE = VERIFIED ONLY • NO FAKE 0B -->
