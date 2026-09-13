@@ -27655,17 +27655,17 @@ function masterIsOrder(rec){return rec?.externalKey==='smart-order'||rec?.extern
 function masterOrderTenantId(value){
   return String(value||'order').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/[^a-z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'order';
 }
+function masterOrderManagedGatewayUrl(){
+  try{return new URL('./smart-order-managed/index.html',location.href).href}catch(_){return './smart-order-managed/index.html'}
+}
 function masterOrderChildUrl(rec,admin=false){
-  const u=new URL(MASTER_ORDER_URL,location.href);
+  const u=new URL(masterOrderManagedGatewayUrl(),location.href);
   u.searchParams.set('tenant',masterOrderTenantId(rec.appId));
   u.searchParams.set('unit',rec.unitName||rec.appName||rec.appId);
   u.searchParams.set('npp',rec.nppId||'npp1');
   u.searchParams.set('mode',admin?'admin':'order');
   u.searchParams.set('view',admin?'admin':'customer');
   return u.href;
-}
-function masterOrderManagedGatewayUrl(){
-  try{return new URL('./smart-order-managed/index.html',location.href).href}catch(_){return './smart-order-managed/index.html'}
 }
 let masterOrderChildLogoDataUrl='';
 function masterOrderEscapeText(v){return String(v??'').replace(/[<>&]/g,'')}
@@ -27679,7 +27679,7 @@ function masterOrderReadLogoFile(ev){
   rd.onerror=()=>alert('Không đọc được file logo.');rd.readAsDataURL(f);
 }
 function masterOrderLauncherHtml(rec){
-  const data={appId:rec.appId,appName:rec.appName,unitName:rec.unitName,coreUrl:MASTER_ORDER_URL,version:MASTER_ORDER_VERSION,nppId:rec.nppId||'npp1'};
+  const data={appId:rec.appId,appName:rec.appName,unitName:rec.unitName,coreUrl:masterOrderManagedGatewayUrl(),version:MASTER_ORDER_VERSION,nppId:rec.nppId||'npp1'};
   const title=masterOrderEscapeText(rec.appName||rec.unitName||'Smart Order'),unit=masterOrderEscapeText(rec.unitName||'');
   return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b6674"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="'+title+'"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon-192.png"><link rel="apple-touch-icon" href="./icon-192.png"><title>'+title+'</title><style>body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#eef4f7;color:#17324d;display:grid;place-items:center;min-height:100vh}.box{width:min(480px,calc(100% - 32px));box-sizing:border-box;margin:20px;padding:28px;border-radius:22px;background:#fff;box-shadow:0 18px 50px #163b6b26;text-align:center}.logo{width:112px;height:112px;object-fit:contain;border-radius:24px;border:1px solid #d8e5e9;background:#fff;padding:8px;box-sizing:border-box}.sub{color:#607786;margin:4px 0 18px}.btn{display:block;margin:10px 0;padding:14px 18px;border-radius:12px;background:#0b6674;color:#fff;text-decoration:none;font-weight:800}.btn.alt{background:#eaf5f6;color:#0b6674;border:1px solid #9ccbd0}.hint{font-size:12px;color:#718590;margin-top:18px;line-height:1.45}</style></head><body><div class="box"><img class="logo" src="./icon-512.png" alt="Logo"><h2>'+title+'</h2><div class="sub">'+unit+' • Smart Order V'+MASTER_ORDER_VERSION+'</div><a class="btn" id="customer">🛒 Đặt hàng</a><a class="btn alt" id="admin">⚙️ Quản lý</a><div class="hint">Có thể cài app này ra màn hình chính. Icon sẽ dùng logo riêng của đơn vị.</div></div><script>const C='+JSON.stringify(data)+';function link(admin){const u=new URL(C.coreUrl);u.searchParams.set("tenant",String(C.appId).toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9_-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,48)||"order");u.searchParams.set("unit",C.unitName||C.appName);u.searchParams.set("npp",C.nppId||"npp1");u.searchParams.set("mode",admin?"admin":"order");u.searchParams.set("view",admin?"admin":"customer");return u.href}document.getElementById("customer").href=link(false);document.getElementById("admin").href=link(true);if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}const q=new URLSearchParams(location.search);if(q.get("autostart")==="1")location.replace(link(q.get("mode")==="admin"||q.get("view")==="admin"));<\/script></body></html>';
 }
@@ -27761,14 +27761,14 @@ function masterEnsureOrder(openAfter=false){
   let list=masterRegistryLoad();
   let rec=list.find(x=>x.externalKey==='smart-order'||x.appType==='order-shared'||x.appId==='SMART_ORDER_NGOC_TRAI');
   if(!rec){
-    rec={appId:'SMART_ORDER_NGOC_TRAI',appName:'SMART ORDER NGỌC TRAI',unitName:'NPP Gia Dụng Ngọc Trai',appType:'order-shared',online:true,syncPin:'26882688',remoteAppId:'SMART_ORDER_NGOC_TRAI',managerPin:'',modules:MASTER_ORDER_MODULES.map(x=>x[0]),status:'active',expiresAt:'',unlimited:true,publicUrl:MASTER_ORDER_URL,customModules:'Một app Order chung cho nhiều NPP',notes:'Smart Order V26 • App đặt hàng B2B. Master theo dõi phiên bản, trạng thái, dung lượng file/dữ liệu, hạn mức và số NPP liên kết.',createdAt:masterIsoNow(),targetVersion:MASTER_ORDER_VERSION,version:MASTER_ORDER_VERSION,remote:{last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:'active'},externalManaged:true,externalKey:'smart-order',linkedNppCount:1,linkedNpps:['NPP Gia Dụng Ngọc Trai'],fileBytes:0,dataBytes:0,databaseBytes:0,imageBytes:0,fileMeasured:false,databaseMeasured:false,imageMeasured:false,usageStatus:'unconnected',usageApiUrl:'',quotaBytes:500*1024*1024,backupInfo:null,licenseAdminKey:'',licenseEnabled:false,licenseDeviceLimit:0,license:null};
+    rec={appId:'SMART_ORDER_NGOC_TRAI',appName:'SMART ORDER NGỌC TRAI',unitName:'NPP Gia Dụng Ngọc Trai',appType:'order-shared',online:true,syncPin:'26882688',remoteAppId:'SMART_ORDER_NGOC_TRAI',managerPin:'',modules:MASTER_ORDER_MODULES.map(x=>x[0]),status:'active',expiresAt:'',unlimited:true,publicUrl:masterOrderManagedGatewayUrl(),customModules:'Một app Order chung cho nhiều NPP',notes:'Smart Order V26 • App đặt hàng B2B. Master theo dõi phiên bản, trạng thái, dung lượng file/dữ liệu, hạn mức và số NPP liên kết.',createdAt:masterIsoNow(),targetVersion:MASTER_ORDER_VERSION,version:MASTER_ORDER_VERSION,remote:{last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:'active'},externalManaged:true,externalKey:'smart-order',linkedNppCount:1,linkedNpps:['NPP Gia Dụng Ngọc Trai'],fileBytes:0,dataBytes:0,databaseBytes:0,imageBytes:0,fileMeasured:false,databaseMeasured:false,imageMeasured:false,usageStatus:'unconnected',usageApiUrl:'',quotaBytes:500*1024*1024,backupInfo:null,licenseAdminKey:'',licenseEnabled:false,licenseDeviceLimit:0,license:null};
     masterRegistryUpsert(rec);if(typeof toast==='function')toast('Đã đưa Smart Order V26 vào Master');
   }else{
     let changed=false;
     if(rec.appName!=='SMART ORDER NGỌC TRAI'){rec.appName='SMART ORDER NGỌC TRAI';changed=true}
     if(rec.version!==MASTER_ORDER_VERSION){rec.version=MASTER_ORDER_VERSION;changed=true}
     if(rec.targetVersion!==MASTER_ORDER_VERSION){rec.targetVersion=MASTER_ORDER_VERSION;changed=true}
-    if(!rec.publicUrl){rec.publicUrl=MASTER_ORDER_URL;changed=true}
+    if(rec.publicUrl!==masterOrderManagedGatewayUrl()){rec.publicUrl=masterOrderManagedGatewayUrl();changed=true}
     if(rec.externalKey!=='smart-order'){rec.externalKey='smart-order';changed=true}
     if(rec.appType!=='order-shared'){rec.appType='order-shared';changed=true}
     if(!rec.syncPin){rec.syncPin='26882688';changed=true}
@@ -40916,3 +40916,4 @@ body.warehouse-page-active .main>.topbar>.actions{
 <!-- N-TRAI MASTER V191 • SMART ORDER USAGE = VERIFIED ONLY • NO FAKE 0B -->
 
 <!-- N-TRAI MASTER V192 • ORDER CHILD CUSTOM LOGO + GITHUB ZIP -->
+<!-- N-TRAI MASTER V197 • ORDER LOCK GATEWAY MANDATORY -->
