@@ -1,7 +1,7 @@
-N-TRAI MASTER V196
-- Bảo mật Khóa/Mở: Master ghi trạng thái bằng Admin Key riêng; app khách chỉ có quyền đọc.
-- Thu hồi quyền ghi công khai của manager_app_control_set trên Supabase.
-- Đổi Trạng thái vẫn áp dụng online ngay và đọc ngược server xác nhận locked/active.
-- Nếu Admin Key trên máy không khớp, Master báo rõ để khôi phục danh sách Master; không tự mở quyền yếu.
-- Smart Order managed kiểm tra khóa/hết hạn mỗi 5 giây và khi quay lại tab.
-- Giữ xuất App Order con có logo riêng và % dung lượng từng app.
+N-TRAI MASTER • AN BÙI + SMART ORDER V26 • MASTER PIN 8579
+- Giữ đúng nhánh Master đã quản lý An Bùi.
+- Master mặc định PIN quản lý 8579 (không còn quay về 1234 trên cài mới).
+- Smart Order V26 được quản lý riêng trong Master.
+- Khóa/Mở Order online có xác nhận server và cổng Smart Order managed kiểm tra trạng thái.
+- Giữ xuất App Order con, logo riêng, theo dõi dung lượng và trạng thái.
+- Không thay đổi dữ liệu nghiệp vụ An Bùi.

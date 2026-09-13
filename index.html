@@ -12399,7 +12399,7 @@ body:has(#payments.page.active) .topbar #paymentTopbarFilterHost{
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"1234","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":194,"managedByMaster":false,"appOpenPin":"2580"});
+const APP_CONFIG=Object.freeze({"appId":"MASTER","appName":"N-TRAI MANAGER","unitName":"ĐƠN VỊ MẪU","phone":"","address":"","managerPin":"8579","theme":"teal","logoDataUrl":"","isMaster":true,"syncEnabled":false,"initialSyncPin":"","publicUrl":"","modules":["dashboard","stockout","stockin","payments","warranty","expenses","warehouse","customers","debts","employees","suppliers","reports","sale","qr","settings"],"appVersion":194,"managedByMaster":false,"appOpenPin":"2580"});
 const MASTER_CHILD_TEMPLATE_VERSION=259;
 const MASTER_CHILD_TEMPLATE_RELEASE='V83';
 const APP_ID=String(APP_CONFIG.appId||'APP').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24)||'APP';
@@ -15049,7 +15049,7 @@ function ensureInvoiceProductSnapshots(){
 }
 function ensureSecuritySettings(){
   if(!db.settings)db.settings={};
-  if(!db.settings.managerPin)db.settings.managerPin='1234';
+  if(!db.settings.managerPin)db.settings.managerPin=String(APP_CONFIG.managerPin||'1234');
   if(!/^\d{4,8}$/.test(String(db.settings.appOpenPin||'')))db.settings.appOpenPin='2580';
   ensureProductGroups();
   ensureInvoiceProductSnapshots();
@@ -17294,7 +17294,7 @@ function normalizeDB(){
   db.settings.address=db.settings.address||'';
 
   if(!/^\d{4,8}$/.test(String(db.settings.managerPin||''))){
-    db.settings.managerPin='1234';
+    db.settings.managerPin=String(APP_CONFIG.managerPin||'1234');
   }
 
   [
@@ -27759,7 +27759,7 @@ async function masterCreateOrderChildFromModal(){
 function masterEnsureOrder(openAfter=false){
   if(!APP_CONFIG.isMaster)return null;
   let list=masterRegistryLoad();
-  let rec=list.find(x=>masterIsOrder(x));
+  let rec=list.find(x=>x.externalKey==='smart-order'||x.appType==='order-shared'||x.appId==='SMART_ORDER_NGOC_TRAI');
   if(!rec){
     rec={appId:'SMART_ORDER_NGOC_TRAI',appName:'SMART ORDER NGỌC TRAI',unitName:'NPP Gia Dụng Ngọc Trai',appType:'order-shared',online:true,syncPin:'26882688',remoteAppId:'SMART_ORDER_NGOC_TRAI',managerPin:'',modules:MASTER_ORDER_MODULES.map(x=>x[0]),status:'active',expiresAt:'',unlimited:true,publicUrl:MASTER_ORDER_URL,customModules:'Một app Order chung cho nhiều NPP',notes:'Smart Order V26 • App đặt hàng B2B. Master theo dõi phiên bản, trạng thái, dung lượng file/dữ liệu, hạn mức và số NPP liên kết.',createdAt:masterIsoNow(),targetVersion:MASTER_ORDER_VERSION,version:MASTER_ORDER_VERSION,remote:{last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:'active'},externalManaged:true,externalKey:'smart-order',linkedNppCount:1,linkedNpps:['NPP Gia Dụng Ngọc Trai'],fileBytes:0,dataBytes:0,databaseBytes:0,imageBytes:0,fileMeasured:false,databaseMeasured:false,imageMeasured:false,usageStatus:'unconnected',usageApiUrl:'',quotaBytes:500*1024*1024,backupInfo:null,licenseAdminKey:'',licenseEnabled:false,licenseDeviceLimit:0,license:null};
     masterRegistryUpsert(rec);if(typeof toast==='function')toast('Đã đưa Smart Order V26 vào Master');
@@ -27790,7 +27790,7 @@ function masterEnsureAnBui(openAfter=false){
   let list=masterRegistryLoad();
   let rec=list.find(x=>x.externalKey==='an-bui'||norm((x.appName||'')+' '+(x.unitName||'')).includes('an bui'));
   if(!rec){
-    rec={appId:'AN_BUI_MANAGER',appName:'AN BÙI MANAGER',unitName:'An Bùi',online:true,syncPin:'12345678',remoteAppId:'AB123',managerPin:'',modules:MASTER_STANDARD_MODULES.map(x=>x[0]),status:'active',expiresAt:'',unlimited:true,publicUrl:'',customModules:'',notes:'Master quản lý quyền sử dụng, mật khẩu, số thiết bị, hạn dùng và trạng thái. Không sửa dữ liệu kho/bán hàng An Bùi.',createdAt:masterIsoNow(),targetVersion:'',version:'136',remote:null,externalManaged:true,externalKey:'an-bui',fileBytes:0,dataBytes:0,quotaBytes:500*1024*1024,backupInfo:null,licenseAdminKey:masterLicenseMakeKey(),licenseEnabled:false,licenseDeviceLimit:1,license:null};
+    rec={appId:'AN_BUI_MANAGER',appName:'AN BÙI MANAGER',unitName:'An Bùi',online:true,syncPin:'12345678',remoteAppId:'AB123',managerPin:'',modules:MASTER_STANDARD_MODULES.map(x=>x[0]),status:'active',expiresAt:'',unlimited:true,publicUrl:'',customModules:'',notes:'Master quản lý quyền sử dụng, mật khẩu, số thiết bị, hạn dùng và trạng thái. Không sửa dữ liệu kho/bán hàng An Bùi.',createdAt:masterIsoNow(),targetVersion:String(MASTER_CHILD_TEMPLATE_VERSION),version:String(MASTER_CHILD_TEMPLATE_VERSION),remote:null,externalManaged:true,externalKey:'an-bui',fileBytes:0,dataBytes:0,quotaBytes:500*1024*1024,backupInfo:null,licenseAdminKey:masterLicenseMakeKey(),licenseEnabled:false,licenseDeviceLimit:1,license:null};
     masterRegistryUpsert(rec);if(typeof toast==='function')toast('Đã thêm An Bùi Manager vào Master');
   }
   if(rec){
@@ -27803,7 +27803,7 @@ function masterEnsureAnBui(openAfter=false){
     if(!rec.licenseAdminKey){rec.licenseAdminKey=masterLicenseMakeKey();changed=true}
     if(typeof rec.licenseEnabled==='undefined'){rec.licenseEnabled=false;changed=true}
     if(!rec.licenseDeviceLimit){rec.licenseDeviceLimit=1;changed=true}
-    if(String(rec.version||'')==='126'||!rec.version){rec.version='136';changed=true}
+    if(!rec.version||['126','136'].includes(String(rec.version))){rec.version=String(MASTER_CHILD_TEMPLATE_VERSION);changed=true}
     if(changed)masterRegistryUpsert(rec);
   }
   if(openAfter){masterSelectedAppId=rec.appId;renderMasterControl();renderMasterNpp();goMasterPage('masterNpp');setTimeout(()=>masterRefreshOne(rec.appId),50)}
@@ -27919,7 +27919,7 @@ async function masterRefreshOne(id){
   const list=masterRegistryLoad(),rec=list.find(x=>x.appId===id);if(!rec)return;if(!rec.online)return toast('App này đang để chế độ cục bộ.');
   try{
     if(masterIsOrder(rec)){rec.version=MASTER_ORDER_VERSION;rec.targetVersion=MASTER_ORDER_VERSION;await masterOrderUsageFetch(rec);rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:rec.status||'active'}}
-    else if(rec.externalKey==='an-bui'){const state=await syncRpc('manager_app_get_state',{p_app_id:masterControlAppId(rec),p_pin:rec.syncPin||'12345678'}),data=state?.data||{},settings=data?.settings||{},bytes=new Blob([JSON.stringify(data)]).size;rec.dataBytes=bytes;rec.version='136';rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:rec.version,last_data_bytes:bytes,status:rec.status||'active'};rec.backupInfo={enabled:!!settings.autoBackupEnabled,lastAt:settings.autoBackupLastAt||settings.lastBackupAt||'',lastIso:settings.autoBackupLastIso||'',lastBytes:Number(settings.autoBackupLastBytes)||0,count:Number(settings.autoBackupCount)||0,status:settings.autoBackupStatus||'off',folder:settings.autoBackupDirName||''}}
+    else if(rec.externalKey==='an-bui'){const state=await syncRpc('manager_app_get_state',{p_app_id:masterControlAppId(rec),p_pin:rec.syncPin||'12345678'}),data=state?.data||{},settings=data?.settings||{},bytes=new Blob([JSON.stringify(data)]).size;rec.dataBytes=bytes;rec.version=String(MASTER_CHILD_TEMPLATE_VERSION);rec.remote={...(rec.remote||{}),last_seen_at:new Date().toISOString(),last_client_version:rec.version,last_data_bytes:bytes,status:rec.status||'active'};rec.backupInfo={enabled:!!settings.autoBackupEnabled,lastAt:settings.autoBackupLastAt||settings.lastBackupAt||'',lastIso:settings.autoBackupLastIso||'',lastBytes:Number(settings.autoBackupLastBytes)||0,count:Number(settings.autoBackupCount)||0,status:settings.autoBackupStatus||'off',folder:settings.autoBackupDirName||''}}
     else{rec.remote=await masterControlRemoteGet(rec);if(rec.remote?.public_url&&!rec.publicUrl)rec.publicUrl=rec.remote.public_url}
     if(!masterIsOrder(rec)){try{await masterLicenseRemoteGet(rec)}catch(e){console.warn('Chưa đọc được cấp phép '+rec.appId,e)}}
     masterRegistryUpsert(rec);renderMasterControl();if(masterSelectedAppId===id)renderMasterNpp();toast('Đã cập nhật '+(rec.unitName||rec.appId));
