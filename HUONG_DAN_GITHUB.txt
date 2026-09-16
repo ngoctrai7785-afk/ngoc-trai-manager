@@ -1,9 +1,11 @@
-NT MASTER V216 - GITHUB READY
+N-TRAI MASTER V217
 
+Cach dua len GitHub Pages:
 1. Giai nen file ZIP.
-2. Dua tat ca 4 file trong thu muc nay len thu muc goc cua repo GitHub.
-3. Dam bao index.html nam o thu muc goc.
-4. Bat GitHub Pages neu muon Master chay online.
+2. Tai 4 file trong thu muc len repo Master: index.html, .nojekyll, VERSION.txt, HUONG_DAN_GITHUB.txt.
+3. GitHub > Settings > Pages > Deploy from a branch > main / root.
+4. Cho 1-3 phut roi mo duong dan GitHub Pages.
 
-File chinh: index.html
-Phien ban: V216
+Luu y:
+- Khong dua bo file nay vao repo NT Smart F&B hoac App Order.
+- Day la bo Master V217.

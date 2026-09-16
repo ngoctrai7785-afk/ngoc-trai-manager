@@ -11916,6 +11916,18 @@ body.nt-manager-demo #pageTitle:after{content:'  •  Demo App Manager';font-siz
         <div id="masterNppModules" class="master-module-checks"></div></div>
         <div id="masterNppRemoteInfo" class="master-template-note" style="margin-top:12px"></div>
         <div id="masterNppBackupInfo" class="master-template-note" style="margin-top:10px"></div>
+        <div id="masterChildSourceCard" class="master-template-note" style="margin-top:10px;border:1px solid #cddfe7;background:#f8fcfd">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
+            <div><b>🧩 Mã nguồn HTML riêng của app</b><div id="masterChildSourceStatus" class="small" style="margin-top:4px">Đang kiểm tra mã nguồn...</div></div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap">
+              <button class="btn" type="button" onclick="masterChildSourceRebuildSelected()">♻ Tạo lại từ mẫu chuẩn</button>
+              <button class="btn" type="button" onclick="masterChildSourceDownloadSelected()">⬇ Tải HTML nguồn</button>
+              <button class="btn" type="button" onclick="document.getElementById('masterChildSourceFile').click()">📎 Gắn HTML đã sửa</button>
+              <input id="masterChildSourceFile" type="file" accept="text/html,.html" hidden onchange="masterChildSourceAttachSelected(event)">
+            </div>
+          </div>
+          <div class="small" style="margin-top:7px">App cũ như Quốc Thanh chưa có mã nguồn: bấm <b>Tạo lại từ mẫu chuẩn</b>. Master giữ nguyên APP ID, PIN và mã đồng bộ; sau đó mỗi lần sửa riêng chỉ dùng đúng HTML của app này.</div>
+        </div>
         <div class="master-npp-actions">
           <button class="btn primary" type="button" onclick="masterSaveSelectedApp()">💾 Lưu / áp dụng online</button>
           <button id="masterOrderChildBtn" class="btn primary" type="button" onclick="masterOpenOrderChildBuilder()" style="display:none">🛒 Tạo / Xuất App Order con</button>
@@ -28415,6 +28427,7 @@ function createNewManagerApp(){
   const blob=new Blob([html],{type:'text/html'});
   const url=URL.createObjectURL(blob);
   const filename=(appId+'_MANAGER.html').replace(/[^A-Z0-9_.-]/gi,'_');
+  try{masterChildSourceWrite(appId,html,{fileName:filename,origin:'created',version:String(MASTER_CHILD_TEMPLATE_VERSION)}).catch(e=>console.warn('Chưa lưu được mã nguồn app con:',e))}catch(e){console.warn(e)}
 
   const a=document.createElement('a');
   a.href=url;
@@ -41416,3 +41429,201 @@ window.ntSuiteOpenCurrentDemo=function(kind){if(kind==='order'){const f=document
 <!-- N-TRAI MASTER V216 • HIEN RO MA VAO APP + MA QUAN LY TRONG MASTER -->
 
 <!-- N-TRAI MASTER V216 • DEFAULT MANAGER ICON = QUAN TRI NT -->
+
+
+<!-- N-TRAI MASTER V217 • MỖI APP MANAGER LƯU HTML RIÊNG -->
+<style id="nt-master-v217-source-css">
+#masterChildSourceCard .btn{white-space:nowrap}
+#masterChildSourceStatus .ok{color:#15803d;font-weight:800}
+#masterChildSourceStatus .warn{color:#b45309;font-weight:800}
+</style>
+<script id="nt-master-v217-source-js">
+(function(){
+  const SOURCE_KEY_PREFIX='master_child_html_source_v217::';
+  function sourceKey(appId){return SOURCE_KEY_PREFIX+String(appId||'').trim().toUpperCase()}
+  async function idbGet(key){
+    const idb=await openAppDB();
+    return await new Promise((resolve,reject)=>{
+      const tx=idb.transaction(IDB_STORE,'readonly');
+      const req=tx.objectStore(IDB_STORE).get(key);
+      req.onsuccess=()=>resolve(req.result||null);
+      req.onerror=()=>reject(req.error||new Error('Không đọc được mã nguồn'));
+      tx.oncomplete=()=>{try{idb.close()}catch(_){}};
+      tx.onabort=()=>{try{idb.close()}catch(_){}};
+    });
+  }
+  async function idbPut(key,value){
+    const idb=await openAppDB();
+    return await new Promise((resolve,reject)=>{
+      const tx=idb.transaction(IDB_STORE,'readwrite');
+      tx.objectStore(IDB_STORE).put(value,key);
+      tx.oncomplete=()=>{try{idb.close()}catch(_){} resolve(true)};
+      tx.onerror=()=>{const e=tx.error||new Error('Không lưu được mã nguồn');try{idb.close()}catch(_){} reject(e)};
+      tx.onabort=()=>{const e=tx.error||new Error('Lưu mã nguồn bị hủy');try{idb.close()}catch(_){} reject(e)};
+    });
+  }
+  function sourceMetaUpdate(appId,obj){
+    try{
+      const rec=masterRegistryLoad().find(x=>x.appId===appId);
+      if(!rec)return;
+      rec.sourceSaved=true;
+      rec.sourceSavedAt=obj.savedAt||new Date().toISOString();
+      rec.sourceFileName=obj.fileName||((appId||'APP')+'_MANAGER.html');
+      rec.sourceBytes=Number(obj.bytes||new Blob([obj.html||'']).size)||0;
+      rec.sourceOrigin=obj.origin||rec.sourceOrigin||'saved';
+      masterRegistryUpsert(rec);
+    }catch(e){console.warn('Không ghi metadata mã nguồn:',e)}
+  }
+  window.masterChildSourceRead=async function(appId){
+    return await idbGet(sourceKey(appId));
+  };
+  window.masterChildSourceWrite=async function(appId,html,meta={}){
+    appId=String(appId||'').trim();
+    html=String(html||'');
+    if(!appId)throw new Error('Thiếu APP ID');
+    if(!/^\s*<!doctype html>/i.test(html)||!html.includes('const APP_CONFIG=Object.freeze('))throw new Error('HTML không đúng mẫu App Manager');
+    const obj={
+      appId,html,
+      fileName:meta.fileName||((appId+'_MANAGER.html').replace(/[^A-Z0-9_.-]/gi,'_')),
+      savedAt:new Date().toISOString(),
+      version:String(meta.version||window.MASTER_CHILD_TEMPLATE_VERSION||''),
+      origin:meta.origin||'saved',
+      bytes:new Blob([html]).size
+    };
+    await idbPut(sourceKey(appId),obj);
+    sourceMetaUpdate(appId,obj);
+    setTimeout(()=>sourceMetaUpdate(appId,obj),450);
+    try{masterChildSourceRefreshUI()}catch(_){}
+    return obj;
+  };
+  function selectedManagerRec(){
+    const rec=typeof masterRegistrySelected==='function'?masterRegistrySelected():null;
+    if(!rec)return null;
+    if(typeof masterIsOrder==='function'&&masterIsOrder(rec))return null;
+    if(rec.appType==='fnb'||rec.appType==='order-shared')return null;
+    return rec;
+  }
+  function applyCurrentConfigToSource(html,cfg){
+    html=String(html||'');
+    const configCode='const APP_CONFIG=Object.freeze('+JSON.stringify(cfg)+');';
+    if(/const APP_CONFIG=Object\.freeze\([^\n]*\);/.test(html))html=html.replace(/const APP_CONFIG=Object\.freeze\([^\n]*\);/,configCode);
+    html=html.replace(/<title>[\s\S]*?<\/title>/i,'<title>'+String(cfg.appName||cfg.unitName||cfg.appId||'Manager').replace(/[<>&]/g,'')+' - Quản lý nội bộ</title>');
+    try{
+      if(window.NT_MANAGER_DEFAULT_ICON_DATA_URL){
+        const tag='<link rel="icon" type="image/png" href="'+NT_MANAGER_DEFAULT_ICON_DATA_URL+'"><link rel="apple-touch-icon" href="'+NT_MANAGER_DEFAULT_ICON_DATA_URL+'">';
+        html=html.replace(/<link rel="icon"[^>]*>/ig,'').replace(/<link rel="apple-touch-icon"[^>]*>/ig,'');
+        html=html.replace(/<\/head>/i,tag+'</head>');
+      }
+    }catch(_){}
+    return html;
+  }
+  window.masterChildSourceRefreshUI=async function(){
+    const card=document.getElementById('masterChildSourceCard');
+    const st=document.getElementById('masterChildSourceStatus');
+    if(!card||!st)return;
+    const rec=selectedManagerRec();
+    if(!rec){card.style.display='none';return}
+    card.style.display='block';
+    st.textContent='Đang kiểm tra mã nguồn của '+(rec.unitName||rec.appName||rec.appId)+'...';
+    try{
+      const obj=await masterChildSourceRead(rec.appId);
+      if(obj?.html){
+        const kb=(Number(obj.bytes||new Blob([obj.html]).size)/1024).toFixed(0);
+        const d=obj.savedAt?new Date(obj.savedAt).toLocaleString('vi-VN'):'';
+        st.innerHTML='<span class="ok">✅ Đã lưu mã nguồn riêng</span> • '+esc(obj.fileName||'HTML')+' • '+kb+' KB'+(d?' • '+esc(d):'');
+      }else{
+        st.innerHTML='<span class="warn">⚠ Chưa có mã nguồn riêng</span> • Bấm “Tạo lại từ mẫu chuẩn” để tạo đúng APP ID hiện tại.';
+      }
+    }catch(e){st.innerHTML='<span class="warn">⚠ Chưa đọc được mã nguồn</span> • '+esc(e.message||String(e))}
+  };
+  window.masterChildSourceRebuildSelected=async function(){
+    const rec=(typeof masterCollectSelectedForm==='function'?masterCollectSelectedForm():null)||selectedManagerRec();
+    if(!rec)return alert('Chọn một App Manager trước.');
+    if(typeof masterIsOrder==='function'&&masterIsOrder(rec))return alert('Chức năng này chỉ dùng cho App Manager.');
+    if(rec.externalManaged&&rec.externalKey!=='an-bui')return alert('App ngoài không dùng mẫu Manager chuẩn của Master.');
+    if(!confirm('Tạo mã nguồn HTML riêng cho '+(rec.unitName||rec.appName||rec.appId)+' từ mẫu Manager chuẩn?\n\nAPP ID, PIN và mã đồng bộ hiện tại sẽ được giữ nguyên.'))return;
+    try{
+      masterRegistryUpsert(rec);
+      const cfg=masterUpgradeConfig(rec);
+      const html=serializeFreshMasterHtmlForApp(cfg);
+      if(!html)throw new Error('Không dựng được HTML từ mẫu chuẩn');
+      const fileName=(cfg.appId+'_MANAGER_SOURCE.html').replace(/[^A-Z0-9_.-]/gi,'_');
+      await masterChildSourceWrite(rec.appId,html,{fileName,origin:'rebuilt',version:String(MASTER_CHILD_TEMPLATE_VERSION)});
+      renderMasterControl();renderMasterNpp();
+      toast('Đã tạo và lưu mã nguồn riêng cho '+(rec.unitName||rec.appId));
+    }catch(e){alert('Không tạo được mã nguồn:\n'+(e.message||e))}
+  };
+  window.masterChildSourceDownloadSelected=async function(){
+    const rec=selectedManagerRec();
+    if(!rec)return alert('Chọn một App Manager trước.');
+    try{
+      let obj=await masterChildSourceRead(rec.appId);
+      if(!obj?.html)return alert('App này chưa có mã nguồn riêng. Bấm “Tạo lại từ mẫu chuẩn” trước.');
+      const cfg=masterUpgradeConfig((typeof masterCollectSelectedForm==='function'?masterCollectSelectedForm():null)||rec);
+      const html=applyCurrentConfigToSource(obj.html,cfg);
+      obj=await masterChildSourceWrite(rec.appId,html,{fileName:obj.fileName||((rec.appId+'_MANAGER_SOURCE.html').replace(/[^A-Z0-9_.-]/gi,'_')),origin:obj.origin||'saved',version:obj.version||String(MASTER_CHILD_TEMPLATE_VERSION)});
+      const u=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+      const a=document.createElement('a');a.href=u;a.download=obj.fileName||((rec.appId+'_MANAGER_SOURCE.html').replace(/[^A-Z0-9_.-]/gi,'_'));document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),15000);
+      toast('Đã tải HTML nguồn riêng của '+(rec.unitName||rec.appId));
+    }catch(e){alert('Không tải được mã nguồn:\n'+(e.message||e))}
+  };
+  window.masterChildSourceAttachSelected=async function(ev){
+    const input=ev?.target;const f=input?.files?.[0];if(input)input.value='';if(!f)return;
+    const rec=selectedManagerRec();if(!rec)return alert('Chọn một App Manager trước.');
+    try{
+      const html=await f.text();
+      if(!/^\s*<!doctype html>/i.test(html)||!html.includes('const APP_CONFIG=Object.freeze('))throw new Error('File không phải App Manager chuẩn');
+      let fileAppId='';
+      const m=html.match(/const APP_CONFIG=Object\.freeze\((\{[^\n]*\})\);/);
+      if(m){try{fileAppId=String(JSON.parse(m[1]).appId||'')}catch(_){}}
+      if(fileAppId&&fileAppId!==rec.appId){
+        if(!confirm('File này có APP ID '+fileAppId+' nhưng app đang chọn là '+rec.appId+'.\n\nKhông nên gắn nhầm mã nguồn. Vẫn tiếp tục và đổi cấu hình file về '+rec.appId+'?'))return;
+      }
+      const cfg=masterUpgradeConfig((typeof masterCollectSelectedForm==='function'?masterCollectSelectedForm():null)||rec);
+      const fixed=applyCurrentConfigToSource(html,cfg);
+      await masterChildSourceWrite(rec.appId,fixed,{fileName:f.name||((rec.appId+'_MANAGER_SOURCE.html').replace(/[^A-Z0-9_.-]/gi,'_')),origin:'attached',version:String(cfg.appVersion||MASTER_CHILD_TEMPLATE_VERSION)});
+      renderMasterControl();renderMasterNpp();toast('Đã gắn HTML đã sửa vào '+(rec.unitName||rec.appId));
+    }catch(e){alert('Không gắn được file HTML:\n'+(e.message||e))}
+  };
+  // Nâng cấp riêng: ưu tiên mã nguồn riêng đã lưu; nếu chưa có mới dùng mẫu chung.
+  masterDownloadUpgrade=async function(){
+    const rec=masterCollectSelectedForm();
+    if(!rec)return;
+    const isAnBui=rec.externalKey==='an-bui';
+    if(rec.externalManaged&&!isAnBui){
+      return alert(masterIsOrder(rec)?'Smart Order dùng mã nguồn Order riêng; Master không xuất file Manager cho Order.':'App ngoài chưa dùng khuôn Manager chuẩn của Master.');
+    }
+    try{
+      masterRegistryUpsert(rec);
+      const cfg=masterUpgradeConfig(rec);
+      let obj=await masterChildSourceRead(rec.appId);
+      let html='';
+      if(obj?.html){
+        html=applyCurrentConfigToSource(obj.html,cfg);
+        obj=await masterChildSourceWrite(rec.appId,html,{fileName:obj.fileName||((cfg.appId+'_MANAGER_SOURCE.html').replace(/[^A-Z0-9_.-]/gi,'_')),origin:obj.origin||'saved',version:obj.version||String(MASTER_CHILD_TEMPLATE_VERSION)});
+      }else{
+        html=serializeFreshMasterHtmlForApp(cfg);
+        if(html) obj=await masterChildSourceWrite(rec.appId,html,{fileName:(cfg.appId+'_MANAGER_SOURCE.html').replace(/[^A-Z0-9_.-]/gi,'_'),origin:'auto-rebuilt',version:String(MASTER_CHILD_TEMPLATE_VERSION)});
+      }
+      if(!html)throw new Error('Không tạo được file nâng cấp.');
+      const blob=new Blob([html],{type:'text/html'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=(cfg.appId+'_MANAGER_UPGRADE.html').replace(/[^A-Z0-9_.-]/gi,'_');document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);
+      rec.version=String(cfg.appVersion||MASTER_CHILD_TEMPLATE_VERSION);rec.targetVersion=rec.version;rec.templateRelease=window.MASTER_CHILD_TEMPLATE_RELEASE||rec.templateRelease;rec.sourceSaved=true;rec.sourceSavedAt=obj?.savedAt||new Date().toISOString();masterRegistryUpsert(rec);
+      if(rec.online)masterControlRemoteSet(rec).catch(e=>console.warn(e));
+      renderMasterControl();renderMasterNpp();toast('Đã tạo file nâng cấp RIÊNG cho '+(rec.unitName||cfg.appId));
+    }catch(e){alert('Không tạo được file nâng cấp riêng:\n'+(e.message||e))}
+  };
+  // Gọi lại trạng thái mỗi khi mở chi tiết app.
+  const oldRender=window.renderMasterNpp;
+  if(typeof oldRender==='function'){
+    window.renderMasterNpp=function(){const r=oldRender.apply(this,arguments);setTimeout(()=>masterChildSourceRefreshUI(),20);return r};
+    try{renderMasterNpp=window.renderMasterNpp}catch(_){}
+  }
+  const oldSelect=window.masterSelectApp;
+  if(typeof oldSelect==='function'){
+    window.masterSelectApp=async function(id){const r=await oldSelect.call(this,id);setTimeout(()=>masterChildSourceRefreshUI(),40);return r};
+    try{masterSelectApp=window.masterSelectApp}catch(_){}
+  }
+  setTimeout(()=>{try{masterChildSourceRefreshUI()}catch(_){}},900);
+})();
+</script>
