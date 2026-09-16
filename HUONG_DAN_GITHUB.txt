@@ -1,16 +1,9 @@
-NT MASTER V215 - GITHUB PAGES
-================================
+NT MASTER V216 - GITHUB READY
 
-Cach dua len GitHub:
-1. Giai nen file ZIP nay.
-2. Vao repo GitHub cua NT Master.
-3. Upload tat ca file trong thu muc goc, dac biet index.html.
-4. Neu repo da co index.html cu, thay the bang index.html nay.
-5. GitHub Pages: Settings > Pages > Deploy from a branch > main / root.
+1. Giai nen file ZIP.
+2. Dua tat ca 4 file trong thu muc nay len thu muc goc cua repo GitHub.
+3. Dam bao index.html nam o thu muc goc.
+4. Bat GitHub Pages neu muon Master chay online.
 
-PIN mo NT Master: 8579
-
-Ghi chu:
-- App Manager con: xuat file rieng, APP ID/PIN/ma dong bo rieng.
-- App Order con: xuat ZIP rieng, tenant/ma du lieu tu dong theo APP ID.
-- F&B hien giu theo luong Tao Cafe/quan ly tai khoan, chua chot xuat ZIP app con thuong mai.
+File chinh: index.html
+Phien ban: V216
