@@ -778,7 +778,121 @@ function invoiceHTML(o,forExcel=false){
 .product{align-items:flex-start}.productActions{display:flex;flex-direction:column;align-items:flex-end;gap:8px;min-width:92px}.colorPicker{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:104px}.colorDot{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #cbd5e1;position:relative;padding:0}.colorDot.active{box-shadow:0 0 0 3px #1261d8}.colorDot.active:after{content:'✓';position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:1000;color:#fff;text-shadow:0 1px 2px #000}.colorLabel{font-size:10px;color:#64748b;font-weight:800;text-align:right;max-width:100px}.adminColorList{display:flex;gap:6px;flex-wrap:wrap}.adminColorChip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid #dbe3ee;border-radius:999px;background:#fff;font-size:11px;font-weight:800}.adminColorChip i{width:15px;height:15px;border-radius:50%;border:1px solid #cbd5e1}.installHint{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px;line-height:1.55;color:#1e3a8a}.qrStatus{font-size:12px;color:#047857;font-weight:850;margin-top:8px}.shareActions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
 
 .customerStatusMenu{position:relative;display:inline-block}.customerStatusMenu summary{list-style:none;border:0;background:#eef5ff;color:#1261d8;border-radius:8px;padding:8px 11px;font-weight:900;cursor:pointer;white-space:nowrap}.customerStatusMenu summary::-webkit-details-marker{display:none}.customerStatusMenu[open] summary{background:#1261d8;color:#fff}.customerStatusOptions{position:absolute;right:0;top:42px;z-index:2500;width:150px;background:#fff;border:1px solid var(--ln);border-radius:12px;padding:7px;box-shadow:0 16px 36px #0f172a2b}.customerStatusOptions button{display:block;width:100%;text-align:left;border:0;background:#fff;border-radius:8px;padding:10px;font-weight:850;color:#0f172a;margin:1px 0}.customerStatusOptions button:hover{background:#eef5ff;color:#1261d8}.customerStatusOptions .danger{color:#b91c1c}.customerStatusOptions .danger:hover{background:#fee2e2;color:#b91c1c}
-</style></head><body>${closePreview}<div class="invoice"><div class="head"><div class="brand"><b>${settings.distributor||'ĐIỆN MÁY 5S'}</b><div>Uy tín tạo niềm tin</div></div><div class="title"><h2>HÓA ĐƠN BÁN HÀNG</h2><div><b>Số:</b> ${o.id}</div><div><b>Ngày:</b> ${o.created}</div></div></div><div class="meta"><div><strong>Khách hàng:</strong> ${o.buyer}</div><div><strong>Số điện thoại:</strong> ${o.phone}</div><div><strong>Người nhận:</strong> ${o.receiver||o.buyer}</div><div><strong>Loại khách:</strong> ${o.tier==='vip'?'VIP':o.tier==='wholesale'?'Cửa hàng/Đại lý':'Khách lẻ'}</div><div style="grid-column:1/3"><strong>Địa chỉ:</strong> ${o.address}</div><div style="grid-column:1/3"><strong>Ghi chú:</strong> ${o.note||'Không có'}</div></div><table><thead><tr><th>STT</th><th>Mã SP</th><th>Tên sản phẩm</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody>${rows}</tbody></table><div class="sum"><div><span>Tổng số lượng</span><b>${grouped.reduce((a,x)=>a+x.qty,0)}</b></div><div class="total"><span>TỔNG THANH TOÁN</span><span>${money(o.total)}</span></div></div><div class="sign"><div><b>Người mua hàng</b><span>(Ký và ghi rõ họ tên)</span></div><div><b>Người bán hàng</b><span>(Ký và ghi rõ họ tên)</span></div></div><div class="note">Cảm ơn quý khách đã đặt hàng tại 5S Smart Order!</div></div></body></html>`;
+</style></head><body>${closePreview}<div class="invoice"><div class="head"><div class="brand"><b>${settings.distributor||'ĐIỆN MÁY 5S'}</b><div>Uy tín tạo niềm tin</div></div><div class="title"><h2>HÓA ĐƠN BÁN HÀNG</h2><div><b>Số:</b> ${o.id}</div><div><b>Ngày:</b> ${o.created}</div></div></div><div class="meta"><div><strong>Khách hàng:</strong> ${o.buyer}</div><div><strong>Số điện thoại:</strong> ${o.phone}</div><div><strong>Người nhận:</strong> ${o.receiver||o.buyer}</div><div><strong>Loại khách:</strong> ${o.tier==='vip'?'VIP':o.tier==='wholesale'?'Cửa hàng/Đại lý':'Khách lẻ'}</div><div style="grid-column:1/3"><strong>Địa chỉ:</strong> ${o.address}</div><div style="grid-column:1/3"><strong>Ghi chú:</strong> ${o.note||'Không có'}</div></div><table><thead><tr><th>STT</th><th>Mã SP</th><th>Tên sản phẩm</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody>${rows}</tbody></table><div class="sum"><div><span>Tổng số lượng</span><b>${grouped.reduce((a,x)=>a+x.qty,0)}</b></div><div class="total"><span>TỔNG THANH TOÁN</span><span>${money(o.total)}</span></div></div><div class="sign"><div><b>Người mua hàng</b><span>(Ký và ghi rõ họ tên)</span></div><div><b>Người bán hàng</b><span>(Ký và ghi rõ họ tên)</span></div></div><div class="note">Cảm ơn quý khách đã đặt hàng tại 5S Smart Order!</div></div>
+<script id="customerShareV172Script">
+/* V172 - Khách lẻ: thay nút Kinh doanh bằng Chia sẻ.
+   Nếu khách được Đại lý giới thiệu, QR/link chia sẻ giữ đúng mã Đại lý đó. */
+(function(){
+  let customerShareLinkV172='';
+
+  function referralDealerIdV172(){
+    if(curCustomer?.tier!=='retail') return '';
+    try{
+      const b=typeof referralBindingV161==='function'?referralBindingV161():null;
+      return String(curCustomer?.refDealerId||b?.dealerId||'').trim();
+    }catch(_){
+      return String(curCustomer?.refDealerId||'').trim();
+    }
+  }
+
+  function customerShareUrlV172(){
+    let link='';
+    try{link=typeof currentOrderLink==='function'?currentOrderLink():location.href}catch(_){link=location.href}
+    let url;
+    try{url=new URL(link,location.href)}catch(_){return link}
+    const dealerId=referralDealerIdV172();
+    if(dealerId){
+      url.searchParams.set('refDealer',dealerId);
+      url.searchParams.set('source','dealer-ref');
+      url.searchParams.set('tenant',typeof ORDER_TENANT_ID!=='undefined'?ORDER_TENANT_ID:'npp1');
+      try{url.searchParams.set('unit',typeof currentTenantUnitV159==='function'?currentTenantUnitV159():settings.distributor)}catch(_){}
+      url.searchParams.set('mode','order');
+      url.searchParams.set('view','customer');
+    }
+    return url.href;
+  }
+
+  window.openCustomerShareV172=function(){
+    const link=customerShareUrlV172();
+    customerShareLinkV172=link;
+    const qr=document.getElementById('shareQrPreview');
+    const box=document.getElementById('shareOrderLink');
+    const modal=document.getElementById('shareQrModal');
+    if(qr) qr.src='https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=12&data='+encodeURIComponent(link);
+    if(box) box.textContent=link;
+    const note=modal?.querySelector('.shareQrNote');
+    if(note) note.textContent=referralDealerIdV172()
+      ?'QR và đường link này giữ đúng Đại lý đã giới thiệu khách. Người nhận quét QR sẽ vào đúng nguồn chia sẻ đó.'
+      :'Khách quét QR hoặc bấm đường link sẽ mở đúng trang đặt hàng của nhà phân phối.';
+    if(modal) modal.style.display='flex';
+  };
+
+  try{
+    const openShareQrBaseV172=window.openShareQr;
+    window.openShareQr=function(){
+      customerShareLinkV172='';
+      return typeof openShareQrBaseV172==='function'?openShareQrBaseV172.apply(this,arguments):undefined;
+    };
+  }catch(_){}
+
+  window.copyShareQrLink=async function(){
+    const link=customerShareLinkV172||customerShareUrlV172();
+    try{
+      await navigator.clipboard.writeText(link);
+      if(typeof toast==='function') toast('Đã sao chép link chia sẻ');
+    }catch(_){prompt('Sao chép đường link này:',link)}
+  };
+
+  window.shareQrToZalo=async function(){
+    const link=customerShareLinkV172||customerShareUrlV172();
+    const text='Mời bạn mở link để xem sản phẩm và đặt hàng tại '+(settings?.distributor||'nhà phân phối')+'.';
+    try{
+      if(navigator.share) await navigator.share({title:'Đặt hàng - '+(settings?.distributor||''),text,url:link});
+      else await window.copyShareQrLink();
+    }catch(e){
+      if(e?.name!=='AbortError') await window.copyShareQrLink();
+    }
+  };
+
+  window.downloadQR=async function(){
+    const src=document.getElementById('shareQrPreview')?.src||document.getElementById('qrRetailImg')?.src||'';
+    if(!src) return;
+    try{
+      const r=await fetch(src),b=await r.blob(),u=URL.createObjectURL(b),a=document.createElement('a');
+      a.href=u;a.download='QR-Chia-Se-Dat-Hang.png';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
+    }catch(_){window.open(src,'_blank')}
+  };
+
+  try{
+    const quickBaseV172=updateCustomerQuickRowV161;
+    updateCustomerQuickRowV161=function(){
+      const r=quickBaseV172.apply(this,arguments);
+      const btn=document.getElementById('dealerBizQuickV161');
+      if(!btn) return r;
+      if(curCustomer?.tier==='retail'){
+        btn.hidden=false;
+        btn.classList.remove('biz');
+        btn.textContent='↗ Chia sẻ';
+        btn.onclick=window.openCustomerShareV172;
+        btn.title=referralDealerIdV172()?'Chia sẻ QR/link của Đại lý đã giới thiệu':'Chia sẻ QR/link đặt hàng';
+        btn.setAttribute('aria-label',btn.title);
+      }else{
+        btn.hidden=false;
+        btn.classList.add('biz');
+        btn.textContent='🤝 Kinh doanh';
+        btn.onclick=window.openDealerBusinessV161;
+        btn.title='Kinh doanh';
+        btn.setAttribute('aria-label','Kinh doanh');
+      }
+      return r;
+    };
+  }catch(_){}
+
+  try{updateCustomerQuickRowV161()}catch(_){}
+})();
+</script>
+
+</body></html>`;
 }
 function printOrder(id){let o=orders.find(x=>x.id===id);if(!o)return;let w=window.open('','_blank');if(!w)return toast('Trình duyệt đang chặn cửa sổ in');w.document.open();w.document.write(invoiceHTML(o));w.document.close();setTimeout(()=>{w.focus();w.print()},450)}
 function exportOrders(){
