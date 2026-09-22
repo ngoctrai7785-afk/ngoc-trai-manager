@@ -1,0 +1,12 @@
+SMART ORDER V26 - BAN CHOT 22/09/2026
+Nguon: ngoctrai7785-afk/5s-smart-order
+Source blob SHA: fcbe0ab63f19037298313fd63e79402b9b12dadc
+Backup source branch: backup-smart-order-v26-chot-2026-09-22
+Core trong NT Master: smart-order-core.html
+Link khach cu giu nguyen:
+https://smart-order-ngoc-trai.ngoctrai7785.chatgpt.site/smart-order-v26
+
+Ghi chu:
+- Khong thay doi link/icon cua khach cu.
+- NT Master V217 da co luong App Order va masterEnsureOrder() tu dong ghi nhan SMART_ORDER_NGOC_TRAI.
+- Ban nay la nguon chot dung de tham chieu/xuat App Order con ve sau.
