@@ -1,4 +1,4 @@
-/* V204: NT Master reads and controls the real Order tenant API. */
+/* V205: Order status/expiry UI follows its native server, not legacy Manager licensing. */
 (function(){
   const ORDER_ORIGIN = new URL(MASTER_ORDER_URL).origin;
   const AUTH_KEY = 'ntMasterOrderSessionV204:';
@@ -144,6 +144,12 @@
   renderMasterNpp=function(){
     const result=oldRender.apply(this,arguments),rec=masterRegistrySelected();
     if(rec&&masterIsOrder(rec)){
+      const status=document.getElementById('masterNppStatus');
+      if(status)status.value=rec.remote?.status||rec.status||'active';
+      const expires=document.getElementById('masterNppExpires');
+      if(expires)expires.value=String(rec.remote?.expires_at??rec.expiresAt??'').slice(0,10);
+      const syncNote=document.getElementById('masterNppStatusSync');
+      if(syncNote&&rec.remote?.last_checked_at)syncNote.textContent=rec.remote.status==='locked'?'Máy chủ Order xác nhận: ĐÃ KHÓA. Chọn Hoạt động để mở lại.':'Máy chủ Order xác nhận: ĐANG HOẠT ĐỘNG.';
       const note=document.getElementById('masterOrderUsageStatus');
       if(note)note.textContent=rec.usageStatus==='ok'?'Đã đọc trực tiếp từ Order: App / Dữ liệu / Hình ảnh.':'Bấm Kiểm tra dung lượng thật để đọc trực tiếp app Order.';
     }
