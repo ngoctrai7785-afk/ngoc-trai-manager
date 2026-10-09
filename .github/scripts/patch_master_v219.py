@@ -52,7 +52,11 @@ rep("""  rec.managerPin=managerPin;
 """  rec.managerPin=managerPin;
   if(masterIsOrder(rec)){rec.adminPhone='0913969688';rec.phone='0913969688';rec.managerPhone='0913969688';rec.publicUrl=masterOrderChildUrl(rec,false);rec.managerUrl=masterOrderChildUrl(rec,true);}""","save order bootstrap")
 
-s=s.replace("V218","V219")
+if s.startswith("N-TRAI MASTER V218"):
+    s="N-TRAI MASTER V219"+s[len("N-TRAI MASTER V218"):]
+s=s.replace("<!-- N-TRAI MASTER V218 • MỖI APP MANAGER LƯU HTML RIÊNG -->","<!-- N-TRAI MASTER V219 • MỖI APP MANAGER LƯU HTML RIÊNG -->",1)
 p.write_text(s,encoding="utf-8")
 vp=Path("VERSION.txt")
-if vp.exists(): vp.write_text(vp.read_text(encoding="utf-8").replace("V218","V219"),encoding="utf-8")
+if vp.exists():
+    v=vp.read_text(encoding="utf-8")
+    vp.write_text(v.replace("N-TRAI MASTER V218","N-TRAI MASTER V219",1),encoding="utf-8")
