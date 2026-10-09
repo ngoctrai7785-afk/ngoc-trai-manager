@@ -222,3 +222,10 @@
   document.title='NT MASTER V223';
   const build=document.querySelector('meta[name="app-build"]');if(build)build.content='nt-master-v223-order-catalog';
 })();
+
+(function(){
+  const originalZip=masterOrderBuildZip;
+  masterOrderBuildZip=function(files){
+    return originalZip.call(this,files.map(([name,value])=>[name,name==='VERSION.txt'?String(value).replace('Xuất bởi NT MASTER V221','Xuất bởi NT MASTER V223'):value]));
+  };
+})();
