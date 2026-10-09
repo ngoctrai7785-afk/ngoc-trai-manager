@@ -9806,9 +9806,9 @@ body:has(#payments.page.active) .topbar{
   box-shadow:0 0 0 2px rgba(78,142,168,.10)!important;
   background:#fff!important;
 }
-#supplierEditModeBtnV218,
-#supplierSaveModeBtnV218,
-#supplierCancelModeBtnV218{
+#supplierEditModeBtnV219,
+#supplierSaveModeBtnV219,
+#supplierCancelModeBtnV219{
   white-space:nowrap!important;
 }
 @media(max-width:900px){
@@ -11355,9 +11355,9 @@ body.nt-manager-demo #pageTitle:after{content:'  •  Demo App Manager';font-siz
     <div class="toolbar v218-supplier-toolbar">
       <input id="supSearch" placeholder="Tìm NCC / SĐT..." oninput="renderSuppliers()" onfocus="this.select()" onclick="this.select()">
       <button class="btn primary" onclick="openSupplier()">+ Thêm NCC</button>
-      <button id="supplierEditModeBtnV218" class="btn" type="button" onclick="toggleSupplierEditModeV218()">✎ Sửa</button>
-      <button id="supplierSaveModeBtnV218" class="btn primary" type="button" style="display:none" onclick="saveAllSuppliersV218()">Lưu</button>
-      <button id="supplierCancelModeBtnV218" class="btn" type="button" style="display:none" onclick="cancelSupplierEditModeV218()">Hủy</button>
+      <button id="supplierEditModeBtnV219" class="btn" type="button" onclick="toggleSupplierEditModeV219()">✎ Sửa</button>
+      <button id="supplierSaveModeBtnV219" class="btn primary" type="button" style="display:none" onclick="saveAllSuppliersV219()">Lưu</button>
+      <button id="supplierCancelModeBtnV219" class="btn" type="button" style="display:none" onclick="cancelSupplierEditModeV219()">Hủy</button>
     </div>
     <div class="card"><div id="suppliersTable"></div></div>
   </section>
@@ -18483,8 +18483,8 @@ function renderCustomers(){
   );
   if(typeof syncCustomerManageSelectionV193==='function')syncCustomerManageSelectionV193();
 }
-let supplierEditModeV218=false;
-let supplierEditBackupV218=null;
+let supplierEditModeV219=false;
+let supplierEditBackupV219=null;
 
 function renderSuppliers(){
   let q=norm($('supSearch')?.value||'');
@@ -18492,7 +18492,7 @@ function renderSuppliers(){
     .filter(s=>norm((s.name||'')+' '+(s.phone||'')+' '+(s.address||'')).includes(q));
 
   const rows=list.map(s=>{
-    if(supplierEditModeV218){
+    if(supplierEditModeV219){
       return `<tr data-supplier-id="${esc(s.id||'')}" class="v218-supplier-edit-row">
         <td><b>${esc(s.id||'')}</b></td>
         <td><input data-sf="name" value="${esc(s.name||'')}"></td>
@@ -18517,24 +18517,24 @@ function renderSuppliers(){
     rows
   );
 
-  syncSupplierEditButtonsV218();
+  syncSupplierEditButtonsV219();
 }
 
-function syncSupplierEditButtonsV218(){
-  const edit=$('supplierEditModeBtnV218');
-  const save=$('supplierSaveModeBtnV218');
-  const cancel=$('supplierCancelModeBtnV218');
-  if(edit)edit.style.display=supplierEditModeV218?'none':'inline-flex';
-  if(save)save.style.display=supplierEditModeV218?'inline-flex':'none';
-  if(cancel)cancel.style.display=supplierEditModeV218?'inline-flex':'none';
+function syncSupplierEditButtonsV219(){
+  const edit=$('supplierEditModeBtnV219');
+  const save=$('supplierSaveModeBtnV219');
+  const cancel=$('supplierCancelModeBtnV219');
+  if(edit)edit.style.display=supplierEditModeV219?'none':'inline-flex';
+  if(save)save.style.display=supplierEditModeV219?'inline-flex':'none';
+  if(cancel)cancel.style.display=supplierEditModeV219?'inline-flex':'none';
 }
 
-function toggleSupplierEditModeV218(){
+function toggleSupplierEditModeV219(){
   if(!isManager){
-    return requireManager(()=>toggleSupplierEditModeV218(),'Sửa Nhà cung cấp cần quyền Quản lý.');
+    return requireManager(()=>toggleSupplierEditModeV219(),'Sửa Nhà cung cấp cần quyền Quản lý.');
   }
-  supplierEditBackupV218=(db.suppliers||[]).map(s=>({...s}));
-  supplierEditModeV218=true;
+  supplierEditBackupV219=(db.suppliers||[]).map(s=>({...s}));
+  supplierEditModeV219=true;
   renderSuppliers();
   setTimeout(()=>{
     const el=document.querySelector('#suppliersTable .v218-supplier-edit-row input[data-sf="name"]');
@@ -18542,20 +18542,20 @@ function toggleSupplierEditModeV218(){
   },30);
 }
 
-function cancelSupplierEditModeV218(){
-  supplierEditModeV218=false;
-  supplierEditBackupV218=null;
+function cancelSupplierEditModeV219(){
+  supplierEditModeV219=false;
+  supplierEditBackupV219=null;
   renderSuppliers();
 }
 
-async function saveAllSuppliersV218(){
+async function saveAllSuppliersV219(){
   if(!isManager){
-    return requireManager(()=>saveAllSuppliersV218(),'Sửa Nhà cung cấp cần quyền Quản lý.');
+    return requireManager(()=>saveAllSuppliersV219(),'Sửa Nhà cung cấp cần quyền Quản lý.');
   }
 
   const rows=[...document.querySelectorAll('#suppliersTable tr[data-supplier-id]')];
   if(!rows.length){
-    supplierEditModeV218=false;
+    supplierEditModeV219=false;
     renderSuppliers();
     return;
   }
@@ -18617,8 +18617,8 @@ async function saveAllSuppliersV218(){
     return;
   }
 
-  supplierEditModeV218=false;
-  supplierEditBackupV218=null;
+  supplierEditModeV219=false;
+  supplierEditBackupV219=null;
   renderAll();
   toast('✓ Đã lưu thay đổi Nhà cung cấp');
 }
@@ -27896,9 +27896,9 @@ function masterOpenOrderChildBuilder(){
       <div class="full"><label>Tên NPP / Đơn vị *</label><input id="orderChildUnitName" placeholder="VD: NPP An Phát"></div>
       <div><label>Mã dữ liệu riêng</label><input id="orderChildNppId" value="Tự tạo theo APP ID" readonly style="background:#f1f5f9;color:#64748b"></div>
       <div><label>Hạn mức dữ liệu (MB)</label><input id="orderChildQuota" type="number" min="1" value="500"></div>
-      <div><label>SĐT quản trị *</label><input id="orderChildAdminPhone" type="tel" inputmode="tel" placeholder="VD: 0913969688"></div>
-      <div><label>PIN quản trị *</label><input id="orderChildManagerPin" type="text" inputmode="numeric" maxlength="6" placeholder="4–6 số"></div>
-      <div class="full"><div class="small" style="padding:9px 11px;border:1px solid #f0c36a;background:#fff9e8;border-radius:9px">Master sẽ lưu SĐT + PIN quản trị cho app con và đưa SĐT vào link Quản trị. Việc đăng nhập online vẫn cần lõi Smart Order/API của tenant chấp nhận đúng tài khoản này.</div></div>
+      <div><label>SĐT quản trị khởi tạo</label><input id="orderChildAdminPhone" type="tel" value="0913969688" readonly style="background:#f1f5f9"></div>
+      <div><label>PIN quản trị khởi tạo</label><input id="orderChildManagerPin" type="text" value="1111" readonly style="background:#f1f5f9"></div>
+      <div class="full"><div class="small" style="padding:9px 11px;border:1px solid #a7d7b7;background:#f1fff5;border-radius:9px"><b>App Order con dùng tài khoản khởi tạo của lõi Order:</b> 0913969688 / 1111. Sau khi vào Quản trị có thể đổi PIN trong App Order. Không đặt PIN 3 số ở Master.</div></div>
       <div class="full"><label>Logo khách / NPP</label><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px dashed #aac5cc;border-radius:12px;padding:12px;background:#f8fbfc"><img id="orderChildLogoPreview" alt="Logo" style="display:none;width:78px;height:78px;object-fit:contain;border:1px solid #d8e5e9;border-radius:16px;background:#fff;padding:5px"><div style="flex:1;min-width:240px"><input id="orderChildLogoFile" type="file" accept="image/png,image/jpeg,image/webp" onchange="masterOrderReadLogoFile(event)"><div id="orderChildLogoStatus" class="small" style="margin-top:5px">Chưa chọn logo • hệ thống sẽ tạo icon chữ viết tắt.</div><div class="small">Khuyên dùng PNG vuông 512×512, nền trong suốt hoặc trắng. Hệ thống tự tạo icon 192 và 512.</div></div></div></div>
     </div>
     <div class="modal-actions"><button class="btn" onclick="closeModal()">Hủy</button><button class="btn primary" id="orderChildCreateBtn" onclick="masterCreateOrderChildFromModal()">⬇ Tạo ZIP GitHub</button></div>`);
@@ -27914,17 +27914,17 @@ async function masterCreateOrderChildFromModal(){
     const appId=String(document.getElementById('orderChildAppId')?.value||'').trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'_');
     const appName=String(document.getElementById('orderChildAppName')?.value||'SMART ORDER').trim();
     const unitName=String(document.getElementById('orderChildUnitName')?.value||'').trim();
-    const adminPhone=String(document.getElementById('orderChildAdminPhone')?.value||'').trim();
-    const managerPin=String(document.getElementById('orderChildManagerPin')?.value||'').trim();
+    const adminPhone='0913969688';
+    const managerPin='1111';
     const nppId=masterOrderTenantId(appId);
     const quota=Math.max(1,Number(document.getElementById('orderChildQuota')?.value||500))*1024*1024;
     if(!appId)throw new Error('Nhập APP ID cho app Order con.');
     if(!unitName)throw new Error('Nhập tên NPP / Đơn vị.');
-    if(!/^0\d{8,10}$/.test(adminPhone))throw new Error('SĐT quản trị chưa đúng định dạng.');
-    if(!/^\d{4,6}$/.test(managerPin))throw new Error('PIN quản trị phải gồm 4–6 số.');
+    if(!/^0\d{8,10}$/.test(adminPhone))throw new Error('SĐT quản trị khởi tạo chưa đúng.');
+    if(!/^\d{4}$/.test(managerPin))throw new Error('PIN quản trị khởi tạo phải đủ 4 số.');
     if(masterRegistryLoad().some(x=>String(x.appId).toUpperCase()===appId))throw new Error('APP ID này đã có trong Master. Hãy dùng mã khác.');
     const syncPin=masterOrderNewSyncPin();
-    const rec={appId,remoteAppId:appId,appName,unitName,nppId,adminPhone,phone:adminPhone,managerPin,appType:'order-child',parentAppId:'SMART_ORDER_NGOC_TRAI',online:true,syncPin,status:'active',expiresAt:'',unlimited:true,publicUrl:'',managerUrl:'',modules:MASTER_ORDER_MODULES.map(x=>x[0]),createdAt:masterIsoNow(),targetVersion:MASTER_ORDER_VERSION,version:MASTER_ORDER_VERSION,remote:{last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:'active'},externalManaged:true,externalKey:'smart-order-child',fileBytes:0,dataBytes:0,databaseBytes:0,imageBytes:0,fileMeasured:true,databaseMeasured:false,imageMeasured:false,usageStatus:'partial',usageApiUrl:'',quotaBytes:quota,linkedNppCount:1,linkedNpps:[unitName],hasCustomLogo:!!masterOrderChildLogoDataUrl,licenseAdminKey:masterLicenseMakeKey(),licenseEnabled:false,licenseDeviceLimit:1,license:null,notes:'App Order con tạo từ Smart Order V'+MASTER_ORDER_VERSION+' • tenant/NPP riêng '+nppId+' • icon riêng '+(masterOrderChildLogoDataUrl?'theo logo khách':'tự tạo chữ viết tắt')+'.'};
+    const rec={appId,remoteAppId:appId,appName,unitName,nppId,adminPhone,phone:adminPhone,managerPhone:adminPhone,managerPin,appType:'order-child',parentAppId:'SMART_ORDER_NGOC_TRAI',online:true,syncPin,status:'active',expiresAt:'',unlimited:true,publicUrl:'',managerUrl:'',modules:MASTER_ORDER_MODULES.map(x=>x[0]),createdAt:masterIsoNow(),targetVersion:MASTER_ORDER_VERSION,version:MASTER_ORDER_VERSION,remote:{last_seen_at:new Date().toISOString(),last_client_version:MASTER_ORDER_VERSION,status:'active'},externalManaged:true,externalKey:'smart-order-child',fileBytes:0,dataBytes:0,databaseBytes:0,imageBytes:0,fileMeasured:true,databaseMeasured:false,imageMeasured:false,usageStatus:'partial',usageApiUrl:'',quotaBytes:quota,linkedNppCount:1,linkedNpps:[unitName],hasCustomLogo:!!masterOrderChildLogoDataUrl,licenseAdminKey:masterLicenseMakeKey(),licenseEnabled:false,licenseDeviceLimit:1,license:null,notes:'App Order con tạo từ Smart Order V'+MASTER_ORDER_VERSION+' • tenant/NPP riêng '+nppId+' • icon riêng '+(masterOrderChildLogoDataUrl?'theo logo khách':'tự tạo chữ viết tắt')+'.'};
     rec.publicUrl=masterOrderChildUrl(rec,false);rec.managerUrl=masterOrderChildUrl(rec,true);
     const html=masterOrderLauncherHtml(rec),icon192=await masterOrderIconBlob(192,masterOrderChildLogoDataUrl,unitName),icon512=await masterOrderIconBlob(512,masterOrderChildLogoDataUrl,unitName),manifest=masterOrderManifest(rec),sw=masterOrderServiceWorker(rec),version='SMART ORDER '+unitName+'\nAPP ID: '+appId+'\nCORE V'+MASTER_ORDER_VERSION+'\nXuất bởi N-TRAI MASTER V196\n';
     const readme='NT SMART ORDER - '+unitName+'\n\n1. Giải nén toàn bộ ZIP.\n2. Đưa tất cả file lên thư mục gốc GitHub Pages.\n3. APP ID: '+appId+'\n4. Mã dữ liệu riêng: '+nppId+'\n5. Mã Master: '+syncPin+'\n6. SĐT quản trị: '+adminPhone+'\n7. PIN quản trị đã lưu trong Master: '+managerPin+'\n\nApp dùng lõi Smart Order online chung nhưng dữ liệu được tách riêng theo APP ID/tenant.\nLưu ý: tài khoản quản trị online phải được lõi Smart Order/API tenant chấp nhận.\n';
@@ -28123,10 +28123,11 @@ function renderMasterNpp(){
   if($('masterOrderUsageApiWrap'))$('masterOrderUsageApiWrap').style.display=masterIsOrder(rec)?'':'none';if($('masterOrderUsageApi'))$('masterOrderUsageApi').value=rec.usageApiUrl||'';if($('masterOrderUsageStatus')&&masterIsOrder(rec)){const ux=masterStorageInfo(rec);$('masterOrderUsageStatus').textContent=ux.allKnown?('Đã kết nối • cập nhật '+(rec.usageCheckedAt?new Date(rec.usageCheckedAt).toLocaleString('vi-VN'):'gần đây')):'Chưa kết nối đủ nguồn dung lượng. Không dùng số 0 B làm dung lượng thật.';}
   if($('masterAnBuiSyncPinWrap'))$('masterAnBuiSyncPinWrap').style.display=!masterIsOrder(rec)?'':'none';if($('masterAnBuiSyncPin'))$('masterAnBuiSyncPin').value=!masterIsOrder(rec)?(rec.syncPin||''):'';
   if($('masterOrderAdminPhoneWrap'))$('masterOrderAdminPhoneWrap').style.display=masterIsOrder(rec)?'':'none';
-  if($('masterOrderAdminPhone'))$('masterOrderAdminPhone').value=masterIsOrder(rec)?String(rec.adminPhone||rec.phone||''):'';
+  if($('masterOrderAdminPhone')){const el=$('masterOrderAdminPhone');el.value=masterIsOrder(rec)?'0913969688':'';el.readOnly=masterIsOrder(rec);if(masterIsOrder(rec))el.style.background='#f1f5f9';}
   if($('masterManagerPinWrap'))$('masterManagerPinWrap').style.display='';
-  if($('masterManagerPin')){const mp=String(rec.managerPin||(rec.externalKey==='an-bui'?'8579':'1234'));$('masterManagerPin').value=mp;$('masterManagerPin').dataset.initial=mp;}
-  if($('masterManagerPinNote'))$('masterManagerPinNote').textContent=masterIsOrder(rec)?'PIN quản trị Order lưu trong Master để quản lý app con.':'Dùng khi chuyển sang quyền Quản lý trong app.';if($('masterNppMeasureResult'))$('masterNppMeasureResult').textContent='';
+  if(masterIsOrder(rec)){rec.adminPhone='0913969688';rec.phone='0913969688';rec.managerPhone='0913969688';if(!/^\d{4,8}$/.test(String(rec.managerPin||'')))rec.managerPin='1111';}
+  if($('masterManagerPin')){const mp=String(rec.managerPin||(rec.externalKey==='an-bui'?'8579':'1234'));$('masterManagerPin').value=mp;$('masterManagerPin').dataset.initial=mp;$('masterManagerPin').readOnly=masterIsOrder(rec);$('masterManagerPin').style.background=masterIsOrder(rec)?'#f1f5f9':'';}
+  if($('masterManagerPinNote'))$('masterManagerPinNote').textContent=masterIsOrder(rec)?'App Order con khởi tạo bằng 0913969688 / 1111. Muốn đổi PIN, vào Cài đặt trong App Order.':'Dùng khi chuyển sang quyền Quản lý trong app.';if($('masterNppMeasureResult'))$('masterNppMeasureResult').textContent='';
   $('masterNppCustom').value=rec.customModules||((rec.remote?.custom_modules||[]).join('\n'));$('masterNppNotes').value=rec.notes||rec.remote?.notes||'';
   const selected=new Set(Array.isArray(rec.modules)?rec.modules:[]),orderMode=masterIsOrder(rec),defs=orderMode?MASTER_ORDER_MODULES:MASTER_STANDARD_MODULES,moduleSet=ext?new Set(defs.map(x=>x[0])):selected;$('masterNppModules').innerHTML=defs.map(([id,label])=>`<label><input type="checkbox" data-master-npp-module="${id}" ${moduleSet.has(id)?'checked':''} ${ext?'disabled':''}>${label}</label>`).join('');if($('masterOrderChildBtn'))$('masterOrderChildBtn').style.display=(rec.appType==='order-shared')?'':'none';
   if($('masterNppModuleBlock')){const h=$('masterNppModuleBlock').querySelector('h4');if(h)h.textContent=masterIsOrder(rec)?'Module Smart Order V26 (chỉ xem)':(ext?'Module nghiệp vụ An Bùi (chỉ xem)':'Module chuẩn được bật cho NPP')}if($('masterNppUpgradeBtn')){const canUpgrade=!ext||rec.externalKey==='an-bui';$('masterNppUpgradeBtn').disabled=!canUpgrade;$('masterNppUpgradeBtn').title=canUpgrade?(rec.externalKey==='an-bui'?'Xuất B15 từ Master • giữ nguyên dữ liệu hiện có khi dùng đúng APP ID/Mã đồng bộ':'Xuất bản nâng cấp từ Template Master'):(masterIsOrder(rec)?'Smart Order V26 nâng cấp bằng mã nguồn Order riêng; Master theo dõi và quản lý hồ sơ.':'App ngoài chưa dùng Template B15')}
@@ -28138,8 +28139,8 @@ function renderMasterNpp(){
 function masterCollectSelectedForm(){
   const rec=masterRegistrySelected();if(!rec)return null;rec.appName=$('masterNppAppName')?.value.trim()||rec.appName;rec.unitName=$('masterNppUnitName')?.value.trim()||rec.unitName;rec.status=$('masterNppStatus')?.value||'active';rec.expiresAt=$('masterNppExpires')?.value||'';if(rec.expiresAt)rec.unlimited=false;rec.publicUrl=$('masterNppPublicUrl')?.value.trim()||'';rec.customModules=$('masterNppCustom')?.value.trim()||'';rec.notes=$('masterNppNotes')?.value.trim()||'';if(masterIsOrder(rec)){rec.usageApiUrl=String($('masterOrderUsageApi')?.value||rec.usageApiUrl||'').trim();}else{rec.fileBytes=masterMbBytes($('masterNppFileMb')?.value||0);}
   if(!masterIsOrder(rec)&&$('masterAnBuiSyncPin')){const p=String($('masterAnBuiSyncPin').value||'').trim();if(/^\d{6,12}$/.test(p))rec.syncPin=p}
-  if(masterIsOrder(rec)&&$('masterOrderAdminPhone')){const ph=String($('masterOrderAdminPhone').value||'').trim();if(ph){rec.adminPhone=ph;rec.phone=ph;}}
-  if($('masterManagerPin')){const p=String($('masterManagerPin').value||'').trim();if(/^\d{4,8}$/.test(p))rec.managerPin=p}if(!masterIsOrder(rec)&&!(rec.remote&&Number(rec.remote.last_data_bytes||0)>0)){rec.databaseBytes=masterMbBytes($('masterNppDataMb')?.value||0);rec.dataBytes=rec.databaseBytes;}rec.quotaBytes=masterMbBytes($('masterNppQuotaMb')?.value||500)||500*1024*1024;if(!rec.externalManaged){rec.modules=Array.from(document.querySelectorAll('[data-master-npp-module]:checked')).map(x=>x.dataset.masterNppModule);rec.targetVersion=APP_VERSION_CURRENT}
+  if(masterIsOrder(rec)){rec.adminPhone='0913969688';rec.phone='0913969688';rec.managerPhone='0913969688';if(!/^\d{4,8}$/.test(String(rec.managerPin||'')))rec.managerPin='1111';}
+  if(!masterIsOrder(rec)&&$('masterManagerPin')){const p=String($('masterManagerPin').value||'').trim();if(/^\d{4,8}$/.test(p))rec.managerPin=p}if(!masterIsOrder(rec)&&!(rec.remote&&Number(rec.remote.last_data_bytes||0)>0)){rec.databaseBytes=masterMbBytes($('masterNppDataMb')?.value||0);rec.dataBytes=rec.databaseBytes;}rec.quotaBytes=masterMbBytes($('masterNppQuotaMb')?.value||500)||500*1024*1024;if(!rec.externalManaged){rec.modules=Array.from(document.querySelectorAll('[data-master-npp-module]:checked')).map(x=>x.dataset.masterNppModule);rec.targetVersion=APP_VERSION_CURRENT}
   rec.licenseEnabled=!!$('masterLicenseEnabled')?.checked;rec.licenseDeviceLimit=Math.max(1,Math.min(50,Number($('masterLicenseDeviceLimit')?.value)||1));if(!rec.licenseAdminKey)rec.licenseAdminKey=masterLicenseMakeKey();return rec;
 }
 async function masterVerifyControlState(rec,expectedStatus){
@@ -28215,13 +28216,13 @@ async function masterSaveSelectedApp(){
   const oldManagerPin=String(before?.managerPin||(before?.externalKey==='an-bui'?'8579':'1234'));
   const rec=masterCollectSelectedForm();if(!rec)return;
   const pass=String($('masterLicensePassword')?.value||'').trim();
-  const managerPin=String($('masterManagerPin')?.value||rec.managerPin||'').trim();
+  const managerPin=masterIsOrder(rec)?String(rec.managerPin||'1111'):String($('masterManagerPin')?.value||rec.managerPin||'').trim();
   if(pass&&!/^\d{4,8}$/.test(pass))return alert('Mã vào app phải gồm 4–8 chữ số.');
   if(!/^\d{4,8}$/.test(managerPin))return alert(masterIsOrder(rec)?'PIN quản trị Order phải gồm 4–8 chữ số.':'PIN Quản lý app phải gồm 4–8 chữ số.');
   if(rec.licenseEnabled&&!pass&&!(rec.license?.password_set))return alert('Chưa có mã vào app. Nhập mã 4–8 số trước khi bật quản lý từ Master.');
   if(pass)rec.appOpenPin=pass;
   rec.managerPin=managerPin;
-  if(masterIsOrder(rec)){const ph=String($('masterOrderAdminPhone')?.value||rec.adminPhone||rec.phone||'').trim();if(ph){rec.adminPhone=ph;rec.phone=ph;}rec.publicUrl=masterOrderChildUrl(rec,false);rec.managerUrl=masterOrderChildUrl(rec,true);}
+  if(masterIsOrder(rec)){rec.adminPhone='0913969688';rec.phone='0913969688';rec.managerPhone='0913969688';rec.publicUrl=masterOrderChildUrl(rec,false);rec.managerUrl=masterOrderChildUrl(rec,true);}
   masterRegistryUpsert(rec);
   if(rec.online){
     try{
@@ -39501,8 +39502,8 @@ body.manager-mode .payment-edit-v193{font-weight:700}
 
 <style id="v27fix-safe-ui-css">
 /* Một nút Sửa -> Lưu: ẩn nút Lưu rời, giữ nút Sửa luôn hiện */
-#warehouseInlineSaveBtn,#customerSaveBtnV21,#supplierSaveModeBtnV218,#employeeTableSaveBtnV239{display:none!important}
-#warehouseInlineEditBtn,#customerEditBtnV193,#supplierEditModeBtnV218,#employeeTableEditBtnV239{display:inline-flex!important}
+#warehouseInlineSaveBtn,#customerSaveBtnV21,#supplierSaveModeBtnV219,#employeeTableSaveBtnV239{display:none!important}
+#warehouseInlineEditBtn,#customerEditBtnV193,#supplierEditModeBtnV219,#employeeTableEditBtnV239{display:inline-flex!important}
 
 /* Danh sách xổ dài xuống gần cuối màn hình - chỉ CSS, không dùng MutationObserver */
 .warehouse-product-list,
@@ -39554,13 +39555,13 @@ body.manager-mode .payment-edit-v193{font-weight:700}
   };
 
   window.toggleSupplierEditSaveV27Fix=async function(){
-    const b=id('supplierEditModeBtnV218');
-    if(typeof supplierEditModeV218!=='undefined' && supplierEditModeV218){
-      await saveAllSuppliersV218();
+    const b=id('supplierEditModeBtnV219');
+    if(typeof supplierEditModeV219!=='undefined' && supplierEditModeV219){
+      await saveAllSuppliersV219();
     }else{
-      toggleSupplierEditModeV218();
+      toggleSupplierEditModeV219();
     }
-    setText(b,typeof supplierEditModeV218!=='undefined'&&supplierEditModeV218,'Sửa');
+    setText(b,typeof supplierEditModeV219!=='undefined'&&supplierEditModeV219,'Sửa');
   };
 
   window.toggleEmployeeEditSaveV27Fix=async function(){
@@ -39576,12 +39577,12 @@ body.manager-mode .payment-edit-v193{font-weight:700}
   function bind(){
     const wh=id('warehouseInlineEditBtn');if(wh){wh.onclick=window.toggleWarehouseEditSaveV27Fix;setText(wh,typeof warehouseInlineEditMode!=='undefined'&&warehouseInlineEditMode,'Sửa')}
     const cu=id('customerEditBtnV193');if(cu){cu.onclick=window.toggleCustomerEditSaveV27Fix;setText(cu,!!window.customerInlineTableEditModeV21,'Sửa')}
-    const su=id('supplierEditModeBtnV218');if(su){su.onclick=window.toggleSupplierEditSaveV27Fix;setText(su,typeof supplierEditModeV218!=='undefined'&&supplierEditModeV218,'Sửa')}
+    const su=id('supplierEditModeBtnV219');if(su){su.onclick=window.toggleSupplierEditSaveV27Fix;setText(su,typeof supplierEditModeV219!=='undefined'&&supplierEditModeV219,'Sửa')}
     const em=id('employeeTableEditBtnV239');if(em){em.onclick=window.toggleEmployeeEditSaveV27Fix;setText(em,typeof employeeTableEditModeV239!=='undefined'&&employeeTableEditModeV239,'Sửa bảng')}
   }
 
   document.addEventListener('click',function(e){
-    if(e.target?.closest?.('#warehouseInlineEditBtn,#customerEditBtnV193,#supplierEditModeBtnV218,#employeeTableEditBtnV239,#warehouseInlineCancelBtn,#customerCancelBtnV21,#supplierCancelModeBtnV218,#employeeTableCancelBtnV239')){
+    if(e.target?.closest?.('#warehouseInlineEditBtn,#customerEditBtnV193,#supplierEditModeBtnV219,#employeeTableEditBtnV239,#warehouseInlineCancelBtn,#customerCancelBtnV21,#supplierCancelModeBtnV219,#employeeTableCancelBtnV239')){
       setTimeout(bind,50);
     }
   },true);
@@ -41450,7 +41451,7 @@ window.ntSuiteOpenCurrentDemo=function(kind){if(kind==='order'){const f=document
 <!-- N-TRAI MASTER V216 • DEFAULT MANAGER ICON = QUAN TRI NT -->
 
 
-<!-- N-TRAI MASTER V218 • MỖI APP MANAGER LƯU HTML RIÊNG -->
+<!-- N-TRAI MASTER V219 • MỖI APP MANAGER LƯU HTML RIÊNG -->
 <style id="nt-master-v217-source-css">
 #masterChildSourceCard .btn{white-space:nowrap}
 #masterChildSourceStatus .ok{color:#15803d;font-weight:800}
