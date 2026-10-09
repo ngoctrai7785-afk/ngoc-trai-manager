@@ -1,0 +1,119 @@
+name: Upgrade Master V218
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch Master V218
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p=Path("index.html")
+          s=p.read_text(encoding="utf-8")
+
+          def rep(old,new,label):
+              global s
+              if old not in s:
+                  raise SystemExit("Không tìm thấy đoạn cần sửa: "+label)
+              s=s.replace(old,new,1)
+
+          rep("""            <div><label>Mã vào app</label><input id="masterLicensePassword" type="text" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="4–8 số"><div id="masterLicensePasswordNote" class="master-license-pass-note">Hiển thị rõ để dễ quản lý; có thể sửa trực tiếp.</div></div>
+            <div id="masterManagerPinWrap"><label>Mã quản lý</label><input id="masterManagerPin" type="text" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="4–8 số"><div id="masterManagerPinNote" class="master-license-pass-note">Hiển thị rõ để Master dễ quản lý và có thể sửa trực tiếp.</div></div>""",
+          """            <div><label>Mã vào app</label><input id="masterLicensePassword" type="text" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="4–8 số"><div id="masterLicensePasswordNote" class="master-license-pass-note">Hiển thị rõ để dễ quản lý; có thể sửa trực tiếp.</div></div>
+            <div id="masterOrderAdminPhoneWrap"><label>SĐT quản trị Order</label><input id="masterOrderAdminPhone" type="tel" inputmode="tel" maxlength="20" autocomplete="off" placeholder="VD: 0913969688"><div class="master-license-pass-note">Dùng để mở màn đăng nhập Quản trị đúng số của NPP.</div></div>
+            <div id="masterManagerPinWrap"><label>Mã quản lý</label><input id="masterManagerPin" type="text" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="4–8 số"><div id="masterManagerPinNote" class="master-license-pass-note">Hiển thị rõ để Master dễ quản lý và có thể sửa trực tiếp.</div></div>""","license fields")
+
+          rep("""  u.searchParams.set('npp',rec.nppId||masterOrderTenantId(rec.appId));
+  u.searchParams.set('mode',admin?'admin':'order');""",
+          """  u.searchParams.set('npp',rec.nppId||masterOrderTenantId(rec.appId));
+  if(rec.adminPhone||rec.phone)u.searchParams.set('phone',rec.adminPhone||rec.phone);
+  u.searchParams.set('mode',admin?'admin':'order');""","order child url phone")
+
+          rep("""const data={appId:rec.appId,appName:rec.appName,unitName:rec.unitName,coreUrl:MASTER_ORDER_URL,version:MASTER_ORDER_VERSION,nppId:rec.nppId||masterOrderTenantId(rec.appId)};""",
+          """const data={appId:rec.appId,appName:rec.appName,unitName:rec.unitName,coreUrl:MASTER_ORDER_URL,version:MASTER_ORDER_VERSION,nppId:rec.nppId||masterOrderTenantId(rec.appId),adminPhone:rec.adminPhone||rec.phone||''};""","launcher data")
+
+          rep("""u.searchParams.set("npp",C.nppId||String(C.appId).toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9_-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,48)||"order");u.searchParams.set("mode",admin?"admin":"order");""",
+          """u.searchParams.set("npp",C.nppId||String(C.appId).toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9_-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,48)||"order");if(C.adminPhone)u.searchParams.set("phone",C.adminPhone);u.searchParams.set("mode",admin?"admin":"order");""","launcher phone")
+
+          rep("""      <div><label>Hạn mức dữ liệu (MB)</label><input id="orderChildQuota" type="number" min="1" value="500"></div>
+      <div class="full"><label>Logo khách / NPP</label>""",
+          """      <div><label>Hạn mức dữ liệu (MB)</label><input id="orderChildQuota" type="number" min="1" value="500"></div>
+      <div><label>SĐT quản trị *</label><input id="orderChildAdminPhone" type="tel" inputmode="tel" placeholder="VD: 0913969688"></div>
+      <div><label>PIN quản trị *</label><input id="orderChildManagerPin" type="text" inputmode="numeric" maxlength="6" placeholder="4–6 số"></div>
+      <div class="full"><div class="small" style="padding:9px 11px;border:1px solid #f0c36a;background:#fff9e8;border-radius:9px">Master sẽ lưu SĐT + PIN quản trị cho app con và đưa SĐT vào link Quản trị. Việc đăng nhập online vẫn cần lõi Smart Order/API của tenant chấp nhận đúng tài khoản này.</div></div>
+      <div class="full"><label>Logo khách / NPP</label>""","builder fields")
+
+          rep("""    const unitName=String(document.getElementById('orderChildUnitName')?.value||'').trim();
+    const nppId=masterOrderTenantId(appId);
+    const quota=Math.max(1,Number(document.getElementById('orderChildQuota')?.value||500))*1024*1024;
+    if(!appId)throw new Error('Nhập APP ID cho app Order con.');if(!unitName)throw new Error('Nhập tên NPP / Đơn vị.');if(masterRegistryLoad().some(x=>String(x.appId).toUpperCase()===appId))throw new Error('APP ID này đã có trong Master. Hãy dùng mã khác.');""",
+          """    const unitName=String(document.getElementById('orderChildUnitName')?.value||'').trim();
+    const adminPhone=String(document.getElementById('orderChildAdminPhone')?.value||'').trim();
+    const managerPin=String(document.getElementById('orderChildManagerPin')?.value||'').trim();
+    const nppId=masterOrderTenantId(appId);
+    const quota=Math.max(1,Number(document.getElementById('orderChildQuota')?.value||500))*1024*1024;
+    if(!appId)throw new Error('Nhập APP ID cho app Order con.');
+    if(!unitName)throw new Error('Nhập tên NPP / Đơn vị.');
+    if(!/^0\\d{8,10}$/.test(adminPhone))throw new Error('SĐT quản trị chưa đúng định dạng.');
+    if(!/^\\d{4,6}$/.test(managerPin))throw new Error('PIN quản trị phải gồm 4–6 số.');
+    if(masterRegistryLoad().some(x=>String(x.appId).toUpperCase()===appId))throw new Error('APP ID này đã có trong Master. Hãy dùng mã khác.');""","builder validation")
+
+          rep("""const rec={appId,remoteAppId:appId,appName,unitName,nppId,appType:'order-child',""",
+          """const rec={appId,remoteAppId:appId,appName,unitName,nppId,adminPhone,phone:adminPhone,managerPin,appType:'order-child',""","record credentials")
+
+          rep("""const readme='NT SMART ORDER - '+unitName+'\\n\\n1. Giải nén toàn bộ ZIP.\\n2. Đưa tất cả file lên thư mục gốc GitHub Pages.\\n3. APP ID: '+appId+'\\n4. Mã dữ liệu riêng: '+nppId+'\\n5. Mã Master: '+syncPin+'\\n\\nApp dùng lõi Smart Order online chung nhưng dữ liệu được tách riêng theo APP ID/tenant.\\n';""",
+          """const readme='NT SMART ORDER - '+unitName+'\\n\\n1. Giải nén toàn bộ ZIP.\\n2. Đưa tất cả file lên thư mục gốc GitHub Pages.\\n3. APP ID: '+appId+'\\n4. Mã dữ liệu riêng: '+nppId+'\\n5. Mã Master: '+syncPin+'\\n6. SĐT quản trị: '+adminPhone+'\\n7. PIN quản trị đã lưu trong Master: '+managerPin+'\\n\\nApp dùng lõi Smart Order online chung nhưng dữ liệu được tách riêng theo APP ID/tenant.\\nLưu ý: tài khoản quản trị online phải được lõi Smart Order/API tenant chấp nhận.\\n';""","readme credentials")
+
+          rep("""if($('masterAnBuiSyncPinWrap'))$('masterAnBuiSyncPinWrap').style.display=!masterIsOrder(rec)?'':'none';if($('masterAnBuiSyncPin'))$('masterAnBuiSyncPin').value=!masterIsOrder(rec)?(rec.syncPin||''):'';if($('masterManagerPinWrap'))$('masterManagerPinWrap').style.display=!masterIsOrder(rec)?'':'none';if($('masterManagerPin')){const mp=String(rec.managerPin||(rec.externalKey==='an-bui'?'8579':'1234'));$('masterManagerPin').value=mp;$('masterManagerPin').dataset.initial=mp;}if($('masterManagerPinNote'))$('masterManagerPinNote').textContent=masterIsOrder(rec)?'PIN quản trị Order được quản lý trong App Order.':'Dùng khi chuyển sang quyền Quản lý trong app.';""",
+          """if($('masterAnBuiSyncPinWrap'))$('masterAnBuiSyncPinWrap').style.display=!masterIsOrder(rec)?'':'none';if($('masterAnBuiSyncPin'))$('masterAnBuiSyncPin').value=!masterIsOrder(rec)?(rec.syncPin||''):'';
+  if($('masterOrderAdminPhoneWrap'))$('masterOrderAdminPhoneWrap').style.display=masterIsOrder(rec)?'':'none';
+  if($('masterOrderAdminPhone'))$('masterOrderAdminPhone').value=masterIsOrder(rec)?String(rec.adminPhone||rec.phone||''):'';
+  if($('masterManagerPinWrap'))$('masterManagerPinWrap').style.display='';
+  if($('masterManagerPin')){const mp=String(rec.managerPin||(rec.externalKey==='an-bui'?'8579':'1234'));$('masterManagerPin').value=mp;$('masterManagerPin').dataset.initial=mp;}
+  if($('masterManagerPinNote'))$('masterManagerPinNote').textContent=masterIsOrder(rec)?'PIN quản trị Order lưu trong Master để quản lý app con.':'Dùng khi chuyển sang quyền Quản lý trong app.';""","render credentials")
+
+          rep("""if(!masterIsOrder(rec)&&$('masterAnBuiSyncPin')){const p=String($('masterAnBuiSyncPin').value||'').trim();if(/^\\d{6,12}$/.test(p))rec.syncPin=p}if(!masterIsOrder(rec)&&$('masterManagerPin')){const p=String($('masterManagerPin').value||'').trim();if(/^\\d{4,8}$/.test(p))rec.managerPin=p}""",
+          """if(!masterIsOrder(rec)&&$('masterAnBuiSyncPin')){const p=String($('masterAnBuiSyncPin').value||'').trim();if(/^\\d{6,12}$/.test(p))rec.syncPin=p}
+  if(masterIsOrder(rec)&&$('masterOrderAdminPhone')){const ph=String($('masterOrderAdminPhone').value||'').trim();if(ph){rec.adminPhone=ph;rec.phone=ph;}}
+  if($('masterManagerPin')){const p=String($('masterManagerPin').value||'').trim();if(/^\\d{4,8}$/.test(p))rec.managerPin=p}""","collect credentials")
+
+          rep("""  if(!masterIsOrder(rec)&&!/^\\d{4,8}$/.test(managerPin))return alert('PIN Quản lý app phải gồm 4–8 chữ số.');""",
+          """  if(!/^\\d{4,8}$/.test(managerPin))return alert(masterIsOrder(rec)?'PIN quản trị Order phải gồm 4–8 chữ số.':'PIN Quản lý app phải gồm 4–8 chữ số.');""","validate manager pin")
+
+          rep("""  if(!masterIsOrder(rec))rec.managerPin=managerPin;""",
+          """  rec.managerPin=managerPin;
+  if(masterIsOrder(rec)){const ph=String($('masterOrderAdminPhone')?.value||rec.adminPhone||rec.phone||'').trim();if(ph){rec.adminPhone=ph;rec.phone=ph;}rec.publicUrl=masterOrderChildUrl(rec,false);rec.managerUrl=masterOrderChildUrl(rec,true);}""","save manager pin")
+
+          rep("""toast((rec.status==='locked'?'Đã KHÓA ':'Đã lưu & mở ')+(rec.unitName||rec.appId)+' • PIN/cấu hình đã áp dụng');""",
+          """toast((rec.status==='locked'?'Đã KHÓA ':'Đã lưu & mở ')+(rec.unitName||rec.appId)+(masterIsOrder(rec)?' • đã lưu SĐT/PIN quản trị trong Master':' • PIN/cấu hình đã áp dụng'));""","save toast")
+
+          s=s.replace("V217","V218")
+          p.write_text(s,encoding="utf-8")
+
+          vp=Path("VERSION.txt")
+          if vp.exists():
+              v=vp.read_text(encoding="utf-8")
+              vp.write_text(v.replace("V217","V218"),encoding="utf-8")
+          PY
+
+      - name: Commit V218
+        run: |
+          if git diff --quiet; then
+            echo "V218 already applied"
+            exit 0
+          fi
+          git config user.name "ChatGPT"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html VERSION.txt
+          git commit -m "Upgrade NT Master to V218 for Order admin credentials"
+          git push
