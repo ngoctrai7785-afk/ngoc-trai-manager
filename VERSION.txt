@@ -1,1 +1,3 @@
-N-TRAI MASTER V219
+NT MASTER V220
+SĐT quản lý + PIN vào app + PIN quản lý
+App con dùng lõi riêng, Order Ngọc Trai giữ nguyên.

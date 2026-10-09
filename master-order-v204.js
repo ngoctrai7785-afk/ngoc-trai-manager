@@ -8,7 +8,7 @@
     if(rec.appId==='SMART_ORDER_NGOC_TRAI'||rec.externalKey==='smart-order'||rec.appType==='order-shared')return 'npp1';
     return masterOrderTenantId(rec.appId);
   }
-  function api(rec,path){const url=new URL(path,ORDER_ORIGIN);url.searchParams.set('tenant',tenant(rec));return url.href}
+  function api(rec,path){const origin=rec.loginProvisioned&&rec.appType==='order-child'?new URL(MASTER_ORDER_CHILD_URL).origin:ORDER_ORIGIN;const url=new URL(path,origin);url.searchParams.set('tenant',tenant(rec));return url.href}
   function patchRecord(rec){
     if(!rec||!masterIsOrder(rec))return rec;
     rec.usageApiUrl=api(rec,'/api/tenant-usage');
@@ -165,3 +165,4 @@
   // Read-only startup refresh; authentication is requested only for writes.
   setTimeout(()=>{if(APP_CONFIG.isMaster){const rec=masterRegistryLoad().find(r=>r.appId==='SMART_ORDER_NGOC_TRAI');if(rec)masterRefreshOne(rec.appId)}},1500);
 })();
+
