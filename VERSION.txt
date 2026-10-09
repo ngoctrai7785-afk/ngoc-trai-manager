@@ -1,3 +1,4 @@
-NT MASTER V222
-Tự chuẩn hóa SĐT quản lý và SĐT xác nhận cấp app con: khoảng trắng, +84, dấu chấm, dấu gạch.
-Giữ nguyên xác nhận cấp app con và hai PIN.
+NT MASTER V223
+App Order con mở đầy đủ giao diện mẫu Ngọc Trai.
+Danh mục khởi tạo: 388 sản phẩm, 7 nhóm, 3 khuyến mãi và ảnh sản phẩm riêng.
+Giữ danh mục đã sửa khi xuất lại app con.
