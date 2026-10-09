@@ -1,0 +1,29 @@
+name: Repair Master V219
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/repair-master-v219.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 20
+      - name: Revert broad V219 rename and apply precise patch
+        run: |
+          git config user.name "ChatGPT"
+          git config user.email "actions@users.noreply.github.com"
+          git revert --no-edit 662d728ce5c11dc2468f5d6414c352dae5e3a76d
+          python3 .github/scripts/patch_master_v219.py
+          git add index.html VERSION.txt
+          git commit -m "Apply precise NT Master V219 Order child login fix"
+          git push
