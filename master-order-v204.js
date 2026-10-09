@@ -201,31 +201,31 @@
   if(build)build.content='nt-master-v222-phone-format';
 })();
 
-/* V223: exported Order opens the full tenant app directly. */
+/* V224: exported Order opens the full tenant app directly. */
 (function(){
   masterOrderLauncherHtml=function(rec){
     const config={appId:rec.appId,appName:rec.appName,unitName:rec.unitName,coreUrl:MASTER_ORDER_CHILD_URL,tenant:masterOrderTenantId(rec.appId),phone:rec.adminPhone||rec.phone||''};
     const title=masterOrderEscapeText(rec.appName||rec.unitName||'Smart Order');
-    return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#082ca6"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="'+title+'"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon-192.png"><link rel="apple-touch-icon" href="./icon-512.png"><title>'+title+'</title><style>body{margin:0;font:16px Arial,sans-serif;min-height:100vh;display:grid;place-items:center;background:#f1f5f9;color:#17324d}.box{text-align:center;padding:24px}a{display:inline-block;padding:14px 22px;color:#fff;background:#082ca6;border-radius:12px;text-decoration:none}</style></head><body><div class="box"><p>Đang mở '+title+'…</p><a id="openApp">Mở app</a></div><script>const C='+JSON.stringify(config).replace(/</g,'\\u003c')+';const q=new URLSearchParams(location.search),u=new URL(C.coreUrl);u.searchParams.set("tenant",C.tenant);u.searchParams.set("npp","npp1");u.searchParams.set("unit",C.unitName||C.appName);u.searchParams.set("phone",C.phone);u.searchParams.set("owner","1");u.searchParams.set("_appv","223");const admin=q.get("mode")==="admin"||q.get("view")==="admin";u.searchParams.set("mode",admin?"admin":"order");u.searchParams.set("view",admin?"admin":"customer");document.getElementById("openApp").href=u.href;location.replace(u.href);<\/script></body></html>';
+    return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#082ca6"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="'+title+'"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon-192.png"><link rel="apple-touch-icon" href="./icon-512.png"><title>'+title+'</title><style>body{margin:0;font:16px Arial,sans-serif;min-height:100vh;display:grid;place-items:center;background:#f1f5f9;color:#17324d}.box{text-align:center;padding:24px}a{display:inline-block;padding:14px 22px;color:#fff;background:#082ca6;border-radius:12px;text-decoration:none}</style></head><body><div class="box"><p>Đang mở '+title+'…</p><a id="openApp">Mở app</a></div><script>const C='+JSON.stringify(config).replace(/</g,'\\u003c')+';const q=new URLSearchParams(location.search),u=new URL(C.coreUrl);u.searchParams.set("tenant",C.tenant);u.searchParams.set("npp","npp1");u.searchParams.set("unit",C.unitName||C.appName);u.searchParams.set("phone",C.phone);u.searchParams.set("owner","1");u.searchParams.set("_appv","224");const admin=true;u.searchParams.set("mode",admin?"admin":"order");u.searchParams.set("view",admin?"admin":"customer");document.getElementById("openApp").href=u.href;location.replace(u.href);<\/script></body></html>';
   };
   const originalModal=masterOpenOrderChildBuilder;
   masterOpenOrderChildBuilder=function(){
     const result=originalModal.apply(this,arguments);
     const phone=document.getElementById('orderChildAdminPhone');
-    if(phone&&!document.getElementById('orderChildCatalogNoteV223')){
-      const note=document.createElement('p');note.id='orderChildCatalogNoteV223';note.className='small';
+    if(phone&&!document.getElementById('orderChildCatalogNoteV224')){
+      const note=document.createElement('p');note.id='orderChildCatalogNoteV224';note.className='small';
       note.textContent='App mới có sẵn danh mục Ngọc Trai: 388 sản phẩm, 7 nhóm hàng, ảnh và giá. Xuất lại app đã có hàng sẽ giữ danh mục riêng.';
       phone.closest('.form-grid')?.appendChild(note);
     }
     return result;
   };
-  document.title='NT MASTER V223';
-  const build=document.querySelector('meta[name="app-build"]');if(build)build.content='nt-master-v223-order-catalog';
+  document.title='NT MASTER V224';
+  const build=document.querySelector('meta[name="app-build"]');if(build)build.content='nt-master-v224-order-catalog';
 })();
 
 (function(){
   const originalZip=masterOrderBuildZip;
   masterOrderBuildZip=function(files){
-    return originalZip.call(this,files.map(([name,value])=>[name,name==='VERSION.txt'?String(value).replace('Xuất bởi NT MASTER V221','Xuất bởi NT MASTER V223'):value]));
+    return originalZip.call(this,files.map(([name,value])=>[name,name==='VERSION.txt'?String(value).replace('Xuất bởi NT MASTER V221','Xuất bởi NT MASTER V224'):value]));
   };
 })();

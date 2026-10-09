@@ -1,4 +1,4 @@
-NT MASTER V223
-App Order con mở đầy đủ giao diện mẫu Ngọc Trai.
-Danh mục khởi tạo: 388 sản phẩm, 7 nhóm, 3 khuyến mãi và ảnh sản phẩm riêng.
-Giữ danh mục đã sửa khi xuất lại app con.
+NT MASTER V224
+App Order con mặc định mở Quản lý sau khi xác nhận PIN vào app.
+PIN Quản lý vẫn xác nhận riêng.
+Giữ danh mục Ngọc Trai và dữ liệu app con.
