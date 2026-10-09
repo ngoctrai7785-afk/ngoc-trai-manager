@@ -27823,10 +27823,12 @@ function masterOrderManagedGatewayUrl(){
   return MASTER_ORDER_URL;
 }
 function masterOrderChildUrl(rec,admin=false){
-  const u=new URL(MASTER_ORDER_CHILD_URL,location.href);
-  u.searchParams.set('tenant',masterOrderTenantId(rec.appId));
+  const child=rec?.appType==='order-child',tenant=child?masterOrderTenantId(rec.appId):'npp1';
+  const u=new URL(child?MASTER_ORDER_CHILD_URL:MASTER_ORDER_URL,location.href);
+  u.searchParams.set('tenant',tenant);
   u.searchParams.set('unit',rec.unitName||rec.appName||rec.appId);
-  u.searchParams.set('npp',rec.nppId||masterOrderTenantId(rec.appId));
+  u.searchParams.set('npp',child?(rec.nppId||tenant):'npp1');
+  if(child)u.searchParams.set('owner','1');
   if(rec.adminPhone||rec.phone)u.searchParams.set('phone',rec.adminPhone||rec.phone);
   u.searchParams.set('mode',admin?'admin':'order');
   u.searchParams.set('view',admin?'admin':'customer');
