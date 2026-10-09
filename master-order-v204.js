@@ -166,3 +166,37 @@
   setTimeout(()=>{if(APP_CONFIG.isMaster){const rec=masterRegistryLoad().find(r=>r.appId==='SMART_ORDER_NGOC_TRAI');if(rec)masterRefreshOne(rec.appId)}},1500);
 })();
 
+
+/* V222: normalize phone numbers before the existing export and authentication flow. */
+(function(){
+  function normalizePhone(value){
+    return String(value||'').normalize('NFKC')
+      .replace(/[\s\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF().-]/g,'')
+      .replace(/^(?:\+84|0084)0?/,'0')
+      .replace(/^84(?=[35789]\d{8}$)/,'0');
+  }
+  const originalCreate=masterCreateOrderChildFromModal;
+  masterCreateOrderChildFromModal=async function(){
+    const field=document.getElementById('orderChildAdminPhone');
+    if(field){
+      const normalized=normalizePhone(field.value);
+      field.value=normalized;
+      field.removeAttribute('aria-invalid');
+      if(!/^0\d{8,10}$/.test(normalized)){
+        field.setAttribute('aria-invalid','true');
+        field.focus();field.select();
+        const error=document.getElementById('orderChildError');
+        if(error)error.textContent=normalized
+          ?'Ô SĐT quản lý của app con chưa đủ số hoặc còn ký tự lạ. Nhập số đầy đủ, ví dụ 0913969688.'
+          :'Anh chưa nhập SĐT quản lý của app con. Ví dụ: 0913969688.';
+        return;
+      }
+    }
+    const issuer=document.getElementById('orderRootPhone');
+    if(issuer)issuer.value=normalizePhone(issuer.value);
+    return originalCreate.apply(this,arguments);
+  };
+  document.title='NT MASTER V222';
+  const build=document.querySelector('meta[name="app-build"]');
+  if(build)build.content='nt-master-v222-phone-format';
+})();

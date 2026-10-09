@@ -1,3 +1,3 @@
-NT MASTER V221
-Xác nhận cấp app con trên hệ thống riêng của Master.
-SĐT quản lý + PIN vào app + PIN quản lý.
+NT MASTER V222
+Tự chuẩn hóa SĐT quản lý và SĐT xác nhận cấp app con: khoảng trắng, +84, dấu chấm, dấu gạch.
+Giữ nguyên xác nhận cấp app con và hai PIN.
