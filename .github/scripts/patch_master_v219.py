@@ -27,8 +27,7 @@ rep("""    if(!/^0\d{8,10}$/.test(adminPhone))throw new Error('SĐT quản trị
 rep("""const rec={appId,remoteAppId:appId,appName,unitName,nppId,adminPhone,phone:adminPhone,managerPin,appType:'order-child',""",
 """const rec={appId,remoteAppId:appId,appName,unitName,nppId,adminPhone,phone:adminPhone,managerPhone:adminPhone,managerPin,appType:'order-child',""","record manager phone")
 
-rep("""6. SĐT quản trị: '+adminPhone+'\n7. PIN quản trị đã lưu trong Master: '+managerPin+'\n\nApp dùng lõi Smart Order online chung nhưng dữ liệu được tách riêng theo APP ID/tenant.\nLưu ý: tài khoản quản trị online phải được lõi Smart Order/API tenant chấp nhận.\n';""",
-"""6. SĐT quản trị khởi tạo: '+adminPhone+'\n7. PIN quản trị khởi tạo: '+managerPin+'\n\nApp dùng lõi Smart Order online chung nhưng dữ liệu được tách riêng theo APP ID/tenant.\nSau khi đăng nhập Quản trị lần đầu, có thể đổi PIN trực tiếp trong App Order.\n';""","readme")
+
 
 rep("""  if($('masterOrderAdminPhone'))$('masterOrderAdminPhone').value=masterIsOrder(rec)?String(rec.adminPhone||rec.phone||''):'';
   if($('masterManagerPinWrap'))$('masterManagerPinWrap').style.display='';
