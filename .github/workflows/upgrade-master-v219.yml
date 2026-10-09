@@ -1,0 +1,32 @@
+name: Upgrade Master V219
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/upgrade-master-v219.yml"
+      - ".github/scripts/patch_master_v219.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch Master
+        run: python3 .github/scripts/patch_master_v219.py
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "ChatGPT"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html VERSION.txt
+          git commit -m "Upgrade NT Master to V219 for usable Order child login"
+          git push
