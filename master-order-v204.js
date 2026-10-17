@@ -229,3 +229,71 @@
     return originalZip.call(this,files.map(([name,value])=>[name,name==='VERSION.txt'?String(value).replace('Xuất bởi NT MASTER V221','Xuất bởi NT MASTER V224'):value]));
   };
 })();
+
+/* V225: tìm trực tiếp từng phiếu xuất theo số phiếu, ngày, khách và hàng hóa. */
+(function(){
+  function stockoutSearchText(invoice){
+    const customer=(db.customers||[]).find(item=>String(item.id)===String(invoice.customerId));
+    const productText=(invoice.items||[]).map(item=>[
+      item&&item.productId,
+      item&&item.productText,
+      item&&item.name,
+      item&&item.sku
+    ].filter(Boolean).join(' ')).join(' ');
+    return [
+      invoice.id,
+      invoice.dateText,
+      invoice.note,
+      customer&&customer.name,
+      customer&&customer.phone,
+      customer&&customer.address,
+      productText
+    ].filter(Boolean).join(' ');
+  }
+
+  window.openStockoutInvoiceFromSearchV225=function(encodedId){
+    const id=decodeURIComponent(String(encodedId||''));
+    stockoutCustomerHistoryFilterId='';
+    stockoutProductHistoryQueryV251='';
+    const input=$('stockoutSearch');
+    if(input)input.value=id;
+    closeStockoutCustomerHistoryPicker();
+    openStockoutInvoice(id);
+  };
+
+  window.renderStockoutCustomerHistoryPicker=function(){
+    const box=$('stockoutCustomerHistoryPicker');
+    const input=$('stockoutSearch');
+    if(!box||!input)return;
+    const q=norm(String(input.value||'').trim());
+    const rows=[...(db.stockout||[])]
+      .filter(invoice=>!q||norm(stockoutSearchText(invoice)).includes(q))
+      .reverse()
+      .slice(0,40);
+
+    box.innerHTML=rows.length ? rows.map(invoice=>{
+      const customer=(db.customers||[]).find(item=>String(item.id)===String(invoice.customerId));
+      const itemNames=(invoice.items||[]).map(item=>String(item&&(
+        item.productText||item.name||item.productId||item.sku||''
+      )||'').trim()).filter(Boolean).slice(0,2);
+      const encodedId=encodeURIComponent(String(invoice.id||''));
+      return `<div class="voucher-history-picker-item" onmousedown="event.preventDefault();openStockoutInvoiceFromSearchV225('${encodedId}')">
+        <div><b>${esc(invoice.id||'Phiếu xuất')}</b><small>${esc(invoice.dateText||'')}${customer&&customer.name?' • '+esc(customer.name):''}${customer&&customer.phone?' • '+esc(customer.phone):''}${itemNames.length?' • '+esc(itemNames.join(', ')):''}</small></div>
+        <span class="voucher-history-picker-count">${money(stockoutInvoiceValueV257(invoice))}</span>
+      </div>`;
+    }).join('') : '<div class="voucher-history-picker-empty">Không tìm thấy phiếu xuất phù hợp.</div>';
+  };
+
+  window.filterStockoutCustomerHistoryPicker=function(){
+    stockoutCustomerHistoryFilterId='';
+    stockoutProductHistoryQueryV251='';
+    showStockoutCustomerHistoryPicker();
+  };
+
+  function refreshStockoutSearchLabel(){
+    const input=$('stockoutSearch');
+    if(input)input.placeholder='Tìm số phiếu, ngày, khách, SĐT, mã hoặc tên hàng...';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refreshStockoutSearchLabel,{once:true});
+  else refreshStockoutSearchLabel();
+})();
